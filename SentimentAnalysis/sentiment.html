@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentiment Analyzer</title>
+    <style>
+        body { font-family: Arial; margin: 30px; }
+        input { width: 300px; padding: 8px; }
+        button { padding: 8px 12px; }
+        #result { margin-top: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h2>Enter your review:</h2>
+    <input type="text" id="review" placeholder="Type your review">
+    <button id="analyze">Analyze</button>
+
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('analyze').addEventListener('click', async () => {
+            const review = document.getElementById('review').value.trim();
+            const resultDiv = document.getElementById('result');
+
+            if (!review) {
+                resultDiv.textContent = 'Please enter a review.';
+                return;
+            }
+
+            resultDiv.textContent = 'Analyzing...';
+
+            try {
+                const response = await fetch('./SentimentAnalyzer.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams({ review })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    resultDiv.textContent = 'Error: ' + data.error;
+                } else {
+                    resultDiv.innerHTML = `
+                        <p>Scores: ${JSON.stringify(data.scores)}</p>
+                        <p>Sentiment: <strong>${data.sentiment}</strong></p>
+                    `;
+                }
+            } catch (err) {
+                resultDiv.textContent = 'Failed to connect to analyzer.';
+                console.error(err);
+            }
+        });
+    </script>
+</body>
+</html>

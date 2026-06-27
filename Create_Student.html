@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add New Student</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .form-container {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      width: 400px;
+    }
+    .form-container h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #004080;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #004080;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #003366;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Add New Student</h2>
+    <form action="add_student.php" method="POST">
+      <input type="text" name="student_id" placeholder="Student ID" required>
+      <input type="text" name="student_name" placeholder="Full Name" required>
+
+      <label>Program / Section:</label>
+      <select name="program" required>
+        <option value="">-- Select Program --</option>
+        <!-- BSIT Sections -->
+        <option value="BSIT 1A">BSIT 1A</option>
+        <option value="BSIT 1B">BSIT 1B</option>
+        <option value="BSIT 1C">BSIT 1C</option>
+        <option value="BSIT 1D">BSIT 1D</option>
+        <option value="BSIT 1E">BSIT 1E</option>
+        <option value="BSIT 2A">BSIT 2A</option>
+        <option value="BSIT 2B">BSIT 2B</option>
+        <option value="BSIT 2C">BSIT 2C</option>
+        <option value="BSIT 2D">BSIT 2D</option>
+        <option value="BSIT 1E">BSIT 2E</option>
+        <option value="BSIT 2E">BSIT 3A</option>
+        <option value="BSIT 3A">BSIT 3B</option>
+        <option value="BSIT 3B">BSIT 3C</option>
+        <option value="BSIT 3C">BSIT 3D</option>
+        <option value="BSIT 3D">BSIT 3E</option>      
+        <option value="BSIT 4A">BSIT 4A</option>
+        <option value="BSIT 4B">BSIT 4B</option>
+        <option value="BSIT 4C">BSIT 4C</option>
+        <option value="BSIT 4D">BSIT 4D</option>
+        <option value="BSIT 4E">BSIT 4E</option>
+        <!-- BSCS Sections -->
+        <option value="BSCS 1A">BSCS 1A</option>
+        <option value="BSCS 1B">BSCS 1B</option>
+        <option value="BSCS 2A">BSCS 2A</option>
+        <option value="BSCS 2B">BSCS 2B</option>
+        <option value="BSCS 3A">BSCS 3A</option>
+        <option value="BSCS 3B">BSCS 3B</option>
+        <option value="BSCS 4A">BSCS 4A</option>
+        <option value="BSCS 4B">BSCS 4B</option>
+      </select>
+
+      <input type="email" name="email" placeholder="Email" required>
+      <input type="password" name="password" placeholder="Password" required>
+      <button type="submit">Add Student</button>
+    </form>
+  </div>
+</body>
+</html>

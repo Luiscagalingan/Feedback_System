@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Facilities Feedback - Learning Environment</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Arial', sans-serif;
+            background: url('Background.jpg') center/cover no-repeat fixed;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.6s ease-in-out;
+        }
+        body.fade-in { opacity: 1; }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(0, 31, 63, 0.8), rgba(0, 64, 128, 0.6));
+            z-index: -1;
+        }
+        .container {
+            width: 100%;
+            max-width: 850px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 64, 128, 0.15);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+        .header {
+            background: linear-gradient(90deg, #001F3F, #004080, #0074D9);
+            padding: 30px;
+            text-align: center;
+            color: white;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .header img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border: 3px solid #0074D9;
+        }
+        .header h1 { color: #ffffff; margin-top: 15px; font-size: 1.8em; }
+        .header p { color: #e0e0e0; margin-top: 5px; font-size: 1em; }
+        form { padding: 30px; background: #fff; }
+        h2 { color: #003366; font-size: 1.4em; margin-bottom: 10px; }
+        label { display: block; margin: 10px 0 5px; font-weight: bold; color: #003366; }
+        input[type="radio"] { margin-right: 5px; }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1em; 
+            transition: border-color 0.3s, box-shadow 0.3s;
+            margin-bottom: 15px;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #0074D9;
+            box-shadow: 0 0 0 3px rgba(0, 116, 217, 0.25);
+        }
+        textarea {
+            width: 100%; height: 100px; padding: 12px 15px;
+            border: 2px solid #e9ecef; border-radius: 8px; font-size: 1em;
+            transition: border-color 0.3s, box-shadow 0.3s; margin-bottom: 15px;
+        }
+        textarea:focus { outline: none; border-color: #0074D9; box-shadow: 0 0 0 3px rgba(0, 116, 217, 0.25); }
+        .section {
+            margin-bottom: 25px; padding: 20px;
+            border-left: 6px solid #e0e0e0; border-radius: 10px;
+            background-color: #fdfdfd;
+        }
+        button {
+            width: 100%; padding: 12px; border: none;
+            border-radius: 8px; background: linear-gradient(90deg, #004080, #0074D9);
+            color: #fff; font-size: 1.1em; font-weight: bold;
+            cursor: pointer; transition: background-color 0.3s, transform 0.2s;
+            margin-bottom: 10px;
+        }
+        button:hover { background: linear-gradient(90deg, #0059b3, #339CFF); transform: translateY(-2px); }
+        .footer-note { text-align: center; margin-top: 20px; padding: 15px; border-top: 1px solid #e9ecef; background-color: #ffffff; }
+        .footer-note p { color: #6c757d; font-size: 0.9em; }
+        .popup {
+            display: none; position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); background: white;
+            border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.3);
+            padding: 30px 40px; text-align: center; z-index: 1000;
+        }
+        .popup h3 { color: #28a745; margin-bottom: 10px; }
+        .popup button { background: linear-gradient(90deg, #004080, #0074D9); color: white; margin-top: 10px; width: auto; padding: 10px 20px; }
+        .overlay {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+        #dashboardBtn { margin-top: 15px; background: linear-gradient(90deg, #004080, #0074D9); }
+        #dashboardBtn:hover { background: linear-gradient(90deg, #0059b3, #339CFF); }
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.3s, transform 0.2s;
+        }
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="dashboard_Submit.html" class="back-btn">&larr; Back</a>
+        <div class="header">
+            <img src="plpwalaa.png" alt="School Logo">
+            <h1>Academic Facilities Feedback Form</h1>
+            <p>Your feedback helps us improve academic learning environments.</p>
+        </div>
+
+        <form id="feedbackForm">
+            <label for="student_id">Student ID:</label>
+            <input type="text" name="student_id" id="student_id" placeholder="Enter your student ID" required readonly>
+
+            <div class="section">
+                <h2>Academic Facilities Experience</h2>
+                <label>1. How conducive are classrooms for learning?</label>
+                <input type="radio" name="classroom_conduciveness" value="excellent"> Excellent<br>
+                <input type="radio" name="classroom_conduciveness" value="good"> Good<br>
+                <input type="radio" name="classroom_conduciveness" value="fair"> Fair<br>
+                <input type="radio" name="classroom_conduciveness" value="poor"> Poor<br>
+
+                <label>2. How adequate are laboratory/workshop facilities? (1-5)</label>
+                <input type="radio" name="lab_adequacy" value="5"> 5 - Very Adequate<br>
+                <input type="radio" name="lab_adequacy" value="4"> 4 - Adequate<br>
+                <input type="radio" name="lab_adequacy" value="3"> 3 - Average<br>
+                <input type="radio" name="lab_adequacy" value="2"> 2 - Inadequate<br>
+                <input type="radio" name="lab_adequacy" value="1"> 1 - Very Inadequate<br>
+
+                <label>3. Overall satisfaction with academic facilities?</label>
+                <input type="radio" name="facilities_satisfaction" value="5"> 5 - Very Satisfied<br>
+                <input type="radio" name="facilities_satisfaction" value="4"> 4 - Satisfied<br>
+                <input type="radio" name="facilities_satisfaction" value="3"> 3 - Neutral<br>
+                <input type="radio" name="facilities_satisfaction" value="2"> 2 - Dissatisfied<br>
+                <input type="radio" name="facilities_satisfaction" value="1"> 1 - Very Dissatisfied<br>
+            </div>
+
+            <label>Additional Comments:</label>
+            <textarea name="additional_comments" placeholder="Any other thoughts..."></textarea>
+
+            <br><br>
+            <button type="submit">Submit Feedback</button>
+            <button type="button" id="dashboardBtn">Go to Dashboard</button>
+        </form>
+
+        <div class="footer-note">
+            <p>Thank you for your feedback! It helps us improve academic facilities.</p>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+    <div class="popup" id="successPopup">
+        <h3>Feedback Submitted!</h3>
+        <p>Thank you! Your feedback has been successfully submitted.<br><br>Redirecting you to the dashboard...</p>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('body').addClass('fade-in');
+
+            // Autofill student ID from session
+            $.ajax({
+                url: 'get_current_student.php',
+                method: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    if (data.success) {
+                        $('#student_id').val(data.student_id);
+                    } else {
+                        window.location.href = "index.html";
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching student ID:', error);
+                }
+            });
+
+            function getScore(value, type = 'radio') {
+                if (type === 'radio') {
+                    if (value === 'excellent') return 100;
+                    if (value === 'good') return 80;
+                    if (value === 'fair') return 50;
+                    if (value === 'poor') return 0;
+                } else if (type === 'scale') {
+                    const numValue = parseInt(value);
+                    if (numValue === 5) return 100;
+                    if (numValue === 4) return 80;
+                    if (numValue === 3) return 50;
+                    if (numValue === 2) return 20;
+                    if (numValue === 1) return 0;
+                }
+                return 0;
+            }
+
+            function getNegativeScore(value, type = 'radio') {
+                if (type === 'radio') {
+                    if (value === 'poor') return 100;
+                    if (value === 'fair') return 50;
+                } else if (type === 'scale') {
+                    const numValue = parseInt(value);
+                    if (numValue === 1) return 100;
+                    if (numValue === 2) return 80;
+                    if (numValue === 3) return 50;
+                }
+                return 0;
+            }
+
+            $('#feedbackForm').on('submit', function(e) {
+                e.preventDefault();
+
+                const requiredRadioGroups = ['classroom_conduciveness', 'lab_adequacy', 'facilities_satisfaction'];
+                let isValid = true;
+
+                requiredRadioGroups.forEach(name => {
+                    if (!$(`input[name="${name}"]:checked`).length) {
+                        isValid = false;
+                    }
+                });
+
+                if (!isValid) {
+                    alert("⚠️ Please answer all questions before submitting your feedback.");
+                    return;
+                }
+
+                const student_id = $('#student_id').val();
+                if (!student_id.trim()) {
+                    alert("Please enter your Student ID.");
+                    return;
+                }
+
+                const conduciveness = $('input[name="classroom_conduciveness"]:checked').val();
+                const adequacy = $('input[name="lab_adequacy"]:checked').val();
+                const satisfaction = $('input[name="facilities_satisfaction"]:checked').val();
+
+                const positive_feedback = (getScore(conduciveness, 'radio') + getScore(adequacy, 'scale') + getScore(satisfaction, 'scale')) / 3;
+                const negative_feedback = (getNegativeScore(conduciveness, 'radio') + getNegativeScore(adequacy, 'scale') + getNegativeScore(satisfaction, 'scale')) / 3;
+
+                const additional_comments = $('textarea[name="additional_comments"]').val();
+
+                const formData = {
+                    student_id: student_id,
+                    question_name: "Academic Facilities Experience",
+                    positive_feedback: positive_feedback.toFixed(2),
+                    negative_feedback: negative_feedback.toFixed(2),
+                    additional_comments: additional_comments
+                };
+
+                $.ajax({
+                    url: 'Academic_Facilities_Feedback.php',
+                    method: 'POST',
+                    data: JSON.stringify(formData),
+                    contentType: 'application/json; charset=UTF-8',
+                    dataType: 'json',
+                    success: function(res) {
+                        console.log("✅ Server response:", res);
+                        if (res.success) {
+                            $('#overlay').fadeIn(200);
+                            $('#successPopup').fadeIn(300);
+                            setTimeout(() => { window.location.href = "Dashboard.html"; }, 2000);
+                        } else {
+                            alert('⚠️ Error: ' + res.message);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("❌ AJAX Error:", status, error);
+                        console.log("Response Text:", xhr.responseText);
+                        alert("AJAX Error: " + error);
+                    }
+                });
+            });
+
+            $('#dashboardBtn').on('click', function() {
+                let overlay = document.createElement("div");
+                overlay.style.position = "fixed";
+                overlay.style.top = "0";
+                overlay.style.left = "0";
+                overlay.style.width = "100%";
+                overlay.style.height = "100%";
+                overlay.style.background = "rgba(0,0,0,0.7)";
+                overlay.style.color = "white";
+                overlay.style.display = "flex";
+                overlay.style.alignItems = "center";
+                overlay.style.justifyContent = "center";
+                overlay.style.fontSize = "1.5em";
+                overlay.innerText = "Loading dashboard...";
+                document.body.appendChild(overlay);
+                setTimeout(() => { window.location.href = "Dashboard.html"; }, 1000);
+            });
+        });
+    </script>
+</body>
+</html>

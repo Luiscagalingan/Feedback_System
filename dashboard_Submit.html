@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dashboard Submit</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    /* RESET */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: url('Background.jpg') center/cover no-repeat fixed;
+      color: #222;
+      min-height: 100vh;
+      opacity: 0;
+      transition: opacity 0.6s ease-in-out;
+    }
+
+    body.fade-in { opacity: 1; }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(0, 31, 63, 0.8), rgba(0, 64, 128, 0.6));
+      z-index: -1;
+    }
+
+    /* NAVBAR */
+    .navbar {
+      background: linear-gradient(90deg, #001F3F, #004080, #0074D9);
+      padding: 15px 0;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      backdrop-filter: blur(15px);
+      border-radius: 0 0 25px 25px;
+      width: 100%;
+    }
+
+    .navbar-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .navbar-brand {
+      font-size: 22px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 1.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .navbar-brand i {
+      font-size: 24px;
+    }
+
+    .navbar-menu {
+      display: flex;
+      gap: 30px;
+      list-style: none;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .navbar-menu a {
+      color: #f1f1f1;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .navbar-menu a:hover,
+    .navbar-menu a.active {
+      color: #ffcc00;
+      transform: translateY(-3px);
+      text-shadow: 0 2px 5px rgba(255, 204, 0, 0.5);
+    }
+
+    .logout-btn {
+      background: linear-gradient(90deg, #ff4b5c, #e03e4e);
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-size: 0.95em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 4px 10px rgba(255, 75, 92, 0.3);
+    }
+
+    .logout-btn:hover {
+      background: linear-gradient(90deg, #e03e4e, #c5303a);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(255, 75, 92, 0.4);
+    }
+
+    /* MAIN CONTENT */
+    .container {
+      max-width: 1200px;
+      margin: 50px auto;
+      padding: 40px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      box-shadow: 0 15px 40px rgba(0, 64, 128, 0.15);
+      backdrop-filter: blur(15px);
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      animation: slideUpFadeIn 0.6s ease-out 0.2s forwards;
+      opacity: 0;
+    }
+
+    h1 {
+      color: #003366;
+      margin-bottom: 15px;
+      font-size: 2.5em;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    p {
+      color: #555;
+      margin-bottom: 30px;
+      font-size: 1.2em;
+      font-weight: 300;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: 600;
+      color: #003366;
+      font-size: 1.1em;
+    }
+
+    select {
+      padding: 15px;
+      border-radius: 15px;
+      border: 1px solid #e9ecef;
+      font-size: 1em;
+      width: 70%;
+      margin-bottom: 30px;
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: #004080;
+      box-shadow: 0 0 15px rgba(0, 64, 128, 0.4);
+      transform: scale(1.02);
+    }
+
+    .submit-btn {
+      background: linear-gradient(90deg, #004080, #0074D9, #339CFF);
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 15px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 1.1em;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 20px rgba(0, 64, 128, 0.4);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .submit-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .submit-btn:hover::before {
+      left: 100%;
+    }
+
+    .submit-btn:hover {
+      background: linear-gradient(90deg, #0059b3, #339CFF, #66B3FF);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(0, 64, 128, 0.5);
+    }
+
+    /* LOADING OVERLAY */
+    #loadingOverlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      z-index: 3000;
+      backdrop-filter: blur(10px);
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      color: #004080;
+      font-weight: bold;
+      transition: opacity 0.3s ease;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    #loadingOverlay i {
+      font-size: 40px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes slideUpFadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        padding: 25px;
+        margin: 30px auto;
+      }
+      h1 {
+        font-size: 2em;
+      }
+      select {
+        width: 90%;
+      }
+      .navbar-menu {
+        gap: 15px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="navbar-content">
+      <div class="navbar-brand">
+        <i class="fas fa-graduation-cap"></i>
+        Student Feedback System
+      </div>
+      <ul class="navbar-menu">
+        <li><a href="#" class="nav-link active" id="homeLink"><i class="fas fa-home"></i> Home</a></li>
+        <li><a href="#" class="nav-link" id="profileLink"><i class="fas fa-user"></i> Profile</a></li>
+        <li><button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <div class="container">
+    <h1><i class="fas fa-comments"></i> Submit Your Feedback</h1>
+    <p>Please choose the type of feedback you'd like to give.</p>
+
+    <label for="category">Select Category:</label>
+    <select id="category">
+      <option value="" disabled selected>-- Select Category --</option>
+      <option value="academic">Academic</option>
+      <option value="nonacademic">Non-Academic</option>
+    </select>
+
+    <label for="subcategory">Select Feedback Type:</label>
+    <select id="subcategory" disabled>
+      <option value="" disabled selected>-- Select Feedback Type --</option>
+    </select>
+
+    <br>
+    <button class="submit-btn" id="goBtn"><i class="fas fa-arrow-right"></i> Go</button>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay">
+    <i class="fas fa-spinner"></i>
+    Loading...
+  </div>
+
+  <script>
+    window.addEventListener("load", () => {
+      document.body.classList.add("fade-in");
+    });
+
+    const loadingOverlay = document.getElementById("loadingOverlay");
+    const category = document.getElementById("category");
+    const subcategory = document.getElementById("subcategory");
+    const goBtn = document.getElementById("goBtn");
+
+    category.addEventListener("change", () => {
+      const selected = category.value;
+      subcategory.innerHTML = '<option value="" disabled selected>-- Select Feedback Type --</option>';
+      if (selected === "academic") {
+        subcategory.innerHTML += `<option value="learning">Teaching Quality</option>`;
+        subcategory.innerHTML += `<option value="curriculum">Curriculum Content</option>`;
+        subcategory.innerHTML += `<option value="assessment">Assessment Methods</option>`;
+        subcategory.innerHTML += `<option value="academic_library">Library Resources</option>`;
+        subcategory.innerHTML += `<option value="academic_facilities">Academic Facilities</option>`;
+      } else if (selected === "nonacademic") {
+        subcategory.innerHTML += `<option value="guard">Security Services</option>`;
+        subcategory.innerHTML += `<option value="facility">Campus Facilities</option>`;
+        subcategory.innerHTML += `<option value="non_teaching_staff">Non - Teaching</option>`;
+        subcategory.innerHTML += `<option value="registrar">Registrar Services</option>`;
+        subcategory.innerHTML += `<option value="non_academic_library">Library Services</option>`;
+        subcategory.innerHTML += `<option value="student_affairs">Student Affairs</option>`;
+        subcategory.innerHTML += `<option value="health">Health Services</option>`;
+        subcategory.innerHTML += `<option value="guidance">Guidance Services</option>`;
+      }
+      subcategory.disabled = false;
+    });
+
+    goBtn.addEventListener("click", () => {
+      const type = subcategory.value;
+      if (!type) {
+        alert("Please select a feedback type first.");
+        return;
+      }
+
+      loadingOverlay.style.display = "flex";
+      loadingOverlay.textContent = "Loading...";
+
+      setTimeout(() => {
+        if (type === "learning") window.location.href = "Learning_Feedback.html";
+        if (type === "guard") window.location.href = "Guard_Services.html";
+        if (type === "facility") window.location.href = "Facility_Feedback.html";
+        if (type === "curriculum") window.location.href = "Curriculum_Feedback.html";
+        if (type === "assessment") window.location.href = "Assessment_Feedback.html";
+        if (type === "academic_library") window.location.href = "Academic_Library_Feedback.html";
+        if (type === "academic_facilities") window.location.href = "Academic_Facilities_Feedback.html";
+        if (type === "non_teaching_staff") window.location.href = "Non_Teaching.html";
+        if (type === "registrar") window.location.href = "Registrar_Feedback.html";
+        if (type === "non_academic_library") window.location.href = "Non_Academic_Library_Feedback.html";
+        if (type === "student_affairs") window.location.href = "Student_Affairs_Feedback.html";
+        if (type === "health") window.location.href = "Health_Services_Feedback.html";
+        if (type === "guidance") window.location.href = "Guidance_Services_Feedback.html";
+      }, 800);
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      if (confirm("Are you sure you want to log out?")) {
+        loadingOverlay.textContent = "Logging out...";
+        loadingOverlay.style.display = "flex";
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 1200);
+      }
+    });
+
+    document.getElementById("profileLink").addEventListener("click", () => {
+      loadingOverlay.textContent = "Loading profile...";
+      loadingOverlay.style.display = "flex";
+      setTimeout(() => {
+        window.location.href = "Profile_System.html";
+      }, 1000);
+    });
+
+    document.getElementById("homeLink").addEventListener("click", (e) => {
+      e.preventDefault();
+      loadingOverlay.textContent = "Loading dashboard...";
+      loadingOverlay.style.display = "flex";
+      setTimeout(() => {
+        window.location.href = "Dashboard.html";
+      }, 1000);
+    });
+  </script>
+</body>
+</html>

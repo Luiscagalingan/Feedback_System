@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Feedback</title>
+    <style>
+        :root {
+            --primary-color: #0074D9;
+            --primary-dark: #004080;
+            --primary-light: #339CFF;
+            --secondary-color: #001F3F;
+            --accent-color: #0059b3;
+            --text-color: #333;
+            --text-light: #6c757d;
+            --bg-overlay: rgba(0, 31, 63, 0.8);
+            --bg-overlay-secondary: rgba(0, 64, 128, 0.6);
+            --glass-bg: rgba(255, 255, 255, 0.95);
+            --border-color: rgba(255, 255, 255, 0.2);
+            --shadow: rgba(0, 0, 0, 0.2);
+            --error-color: #dc3545;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: url('Background.jpg') center/cover no-repeat fixed;
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.6s ease-in-out;
+        }
+
+        body.fade-in {
+            opacity: 1;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, var(--bg-overlay), var(--bg-overlay-secondary));
+            z-index: -1;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background: var(--glass-bg);
+            border-radius: 25px; /* Increased from 15px to 25px for more curved edges */
+            box-shadow: 0 10px 30px var(--shadow);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            animation: pulse 1s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        .logo-header {
+            background: linear-gradient(90deg, var(--secondary-color), var(--primary-dark), var(--primary-color));
+            padding: 40px 30px 20px;
+            text-align: center;
+            color: white;
+            border-bottom: 3px solid var(--primary-color);
+            border-radius: 25px 25px 0 0; /* Curved top edges to match container */
+        }
+
+        .logos {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .logo-header img {
+            max-width: 120px;
+            max-height: 120px;
+            width: 100%;
+            height: auto;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px var(--shadow);
+            border: 3px solid var(--primary-color);
+            transition: transform 0.3s ease;
+        }
+
+        .logo-header img:hover {
+            transform: scale(1.05);
+        }
+
+        .logo-header h2 {
+            font-size: 1.8em;
+            color: #ffffff;
+            margin-bottom: 5px;
+        }
+
+        .logo-header p {
+            font-size: 0.95em;
+            color: #e0e0e0;
+        }
+
+        .form-section {
+            padding: 30px;
+            background-color: #ffffff;
+            border-radius: 0 0 25px 25px; /* Curved bottom edges to match container */
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: var(--secondary-color);
+            font-size: 0.95em;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px; /* Added slight curve to input fields for consistency */
+            font-size: 1em;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 116, 217, 0.25);
+        }
+
+        .input-group input.error {
+            border-color: var(--error-color);
+        }
+
+        .error-message {
+            color: var(--error-color);
+            font-size: 0.85em;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 65%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #666;
+            font-size: 0.9em;
+            background: none;
+            border: none;
+            transition: color 0.3s;
+            font-weight: bold;
+        }
+
+        .toggle-password:hover {
+            color: var(--primary-color);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px; /* Added slight curve to button for consistency */
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            margin-bottom: 15px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .btn-login {
+            background: linear-gradient(90deg, var(--primary-dark), var(--primary-color));
+            color: white;
+        }
+
+        .btn-login:hover:not(:disabled) {
+            background: linear-gradient(90deg, var(--accent-color), var(--primary-light));
+            transform: translateY(-2px);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .spinner {
+            display: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            .container {
+                max-width: 90%;
+                padding: 0 10px;
+            }
+            .logo-header {
+                padding: 30px 20px 15px;
+            }
+            .logo-header img {
+                max-width: 80px;
+                max-height: 80px;
+            }
+            .logo-header h2 {
+                font-size: 1.5em;
+            }
+            .form-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+<main class="container" role="main">
+    <header class="logo-header">
+        <div class="logos">
+            <img src="plpwalaa.png" alt="School Logo for Student Feedback System">
+        </div>
+        <h2>Student Feedback Satisfaction System</h2>
+        <p>Please enter your credentials to login.</p>
+    </header>
+
+    <section class="form-section">
+        <form id="loginForm" aria-labelledby="login-heading">
+            <div class="input-group">
+                <label for="username">Student ID or Email</label>
+                <input type="text" id="username" placeholder="Enter your ID or Email" required aria-describedby="username-error">
+                <div id="username-error" class="error-message" role="alert">This field is required.</div>
+            </div>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter your password" required aria-describedby="password-error">
+                <button type="button" class="toggle-password" onclick="togglePassword()" aria-label="Toggle password visibility">Show</button>
+                <div id="password-error" class="error-message" role="alert">This field is required.</div>
+            </div>
+            <button type="submit" class="btn btn-login" id="loginBtn">
+                <div class="spinner" id="spinner"></div>
+                Login
+            </button>
+        </form>
+    </section>
+</main>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('body').addClass('fade-in');
+
+    // Client-side validation
+    function validateForm() {
+        let isValid = true;
+        const username = $('#username').val().trim();
+        const password = $('#password').val().trim();
+
+        $('.error-message').hide();
+        $('.input-group input').removeClass('error');
+
+        if (!username) {
+            $('#username-error').show();
+            $('#username').addClass('error');
+            isValid = false;
+        }
+        if (!password) {
+            $('#password-error').show();
+            $('#password').addClass('error');
+            isValid = false;
+        }
+        return isValid;
+    }
+
+    $('#loginForm').on('submit', function(e) {
+        e.preventDefault();
+        if (!validateForm()) return;
+
+        const username = $('#username').val().trim();
+        const password = $('#password').val().trim();
+        const $btn = $('#loginBtn');
+        const $spinner = $('#spinner');
+
+        // Show loading state
+        $btn.prop('disabled', true);
+        $spinner.show();
+        $btn.contents().filter(function() { return this.nodeType === 3; }).replaceWith('Logging in...'); // Update button text
+
+        $.ajax({
+            url: 'http://localhost/Feedback_System/Login_System.php',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                username: username,
+                password: password
+            }),
+            success: function(response) {
+                try {
+                    const res = typeof response === 'object' ? response : JSON.parse(response);
+                    console.log(res);
+
+                    if (res.success) {
+                        alert(res.message);
+                        $('body').fadeOut(600, function() {
+                            switch(res.role) {
+                                case 'admin':
+                                    window.location.href = 'admin_dashboard.html';
+                                    break;
+                                case 'academic':
+                                    window.location.href = 'Acad_Dashboard.html';
+                                    break;
+                                case 'nonacademic':
+                                    window.location.href = 'Non_Acad_Dashboard.html';
+                                    break;
+                                default:
+                                    window.location.href = 'Dashboard.html';
+                            }
+                        });
+                    } else {
+                        // Show error inline
+                        $('#username-error').text(res.message).show();
+                        $('#username').addClass('error');
+                    }
+                } catch (err) {
+                    console.error('Invalid JSON:', response);
+                    $('#username-error').text('Unexpected server response.').show();
+                    $('#username').addClass('error');
+                }
+            },
+            error: function() {
+                $('#username-error').text('Error: Could not connect to server.').show();
+                $('#username').addClass('error');
+            },
+            complete: function() {
+                // Hide loading state
+                $btn.prop('disabled', false);
+                $spinner.hide();
+                $btn.contents().filter(function() { return this.nodeType === 3; }).replaceWith('Login'); // Reset button text
+            }
+        });
+    });
+});
+
+function togglePassword() {
+    const input = document.getElementById('password');
+    const btn = document.querySelector('.toggle-password');
+    if (input.type === 'password') {
+        input.type = 'text';
+        btn.textContent = 'Hide';
+        btn.setAttribute('aria-label', 'Hide password');
+    } else {
+        input.type = 'password';
+        btn.textContent = 'Show';
+        btn.setAttribute('aria-label', 'Show password');
+    }
+}
+</script>
+</body>
+</html>

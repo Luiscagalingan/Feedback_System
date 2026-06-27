@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Non-Academic Dashboard - Feedback System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    /* Reset */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; overflow-x: hidden; }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: url('Background.jpg') center/cover no-repeat fixed;
+      color: #333;
+      min-height: 100vh;
+      opacity: 0;
+      transition: opacity 0.6s ease-in-out;
+    }
+
+    body.fade-in {
+      opacity: 1;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(0, 31, 63, 0.8), rgba(0, 64, 128, 0.6));
+      z-index: -1;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+/* Navbar */
+    .navbar {
+      background: linear-gradient(90deg, #001F3F, #004080, #0074D9);
+      padding: 15px 0;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      backdrop-filter: blur(15px);
+      border-radius: 0 0 25px 25px;
+      width: 100%;
+    }
+
+    .navbar-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .navbar-brand {
+      font-size: 22px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 1.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .navbar-brand i { font-size: 24px; }
+
+    .navbar-menu {
+      display: flex;
+      gap: 30px;
+      list-style: none;
+      align-items: center;
+    }
+
+    .navbar-menu a {
+      color: #f1f1f1;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .navbar-menu a:hover,
+    .navbar-menu a.active {
+      color: #ffcc00;
+      transform: translateY(-3px);
+      text-shadow: 0 2px 5px rgba(255, 204, 0, 0.5);
+    }
+
+    .logout-btn {
+      background: linear-gradient(90deg, #ff4b5c, #e03e4e);
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-size: 0.95em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 4px 10px rgba(255, 75, 92, 0.3);
+    }
+
+    .logout-btn:hover {
+      background: linear-gradient(90deg, #e03e4e, #c5303a);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(255, 75, 92, 0.4);
+    }
+
+    #dashboardPage {
+      display: block;
+      padding-top: 30px;
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    /* Dashboard Header */
+    .dashboard-header {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 40px;
+      border-radius: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 15px 40px rgba(0, 64, 128, 0.15);
+      backdrop-filter: blur(15px);
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      opacity: 0;
+      animation: slideUpFadeIn 0.6s ease-out 0.2s forwards;
+    }
+
+    .dashboard-header h1 {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #003366;
+      margin-bottom: 15px;
+      font-weight: 700;
+      font-size: 2.5em;
+      gap: 10px;
+    }
+
+    .dashboard-header p {
+      color: #666;
+      font-size: 1.2em;
+      font-weight: 300;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      transition: all 0.4s ease;
+      border: 1px solid #e9ecef;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 5px;
+      background: linear-gradient(90deg, #004080, #0074D9);
+      border-radius: 20px 20px 0 0;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+    }
+
+    .stat-card-value {
+      font-size: 36px;
+      font-weight: 700;
+      color: #003366;
+      margin-bottom: 10px;
+    }
+
+    .stat-card-label {
+      font-size: 14px;
+      color: #666;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      white-space: nowrap;
+      font-weight: 500;
+    }
+
+    /* Loading Overlay */
+    #loadingOverlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      z-index: 3000;
+      backdrop-filter: blur(10px);
+      justify-content: center;
+      align-items: center;
+      font-size: 22px;
+      color: #004080;
+      font-weight: bold;
+      transition: opacity 0.3s ease;
+      flex-direction: column;
+      gap: 15px;
+    }
+    #loadingOverlay i { font-size: 40px; animation: spin 1s linear infinite; }
+
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes slideUpFadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    /* Student Table */
+    table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+    table th, table td { padding: 12px; border: 1px solid #e9ecef; text-align: left; }
+    table th { background-color: #004080; color: white; }
+    table img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; }
+
+    #studentSearch {
+        width: 100%;
+        padding: 10px 15px;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 1em;
+        transition: border-color 0.3s ease;
+    }
+    .edit-btn, .delete-btn {
+      padding: 5px 10px; margin-right: 5px; border: none; border-radius: 5px;
+      cursor: pointer; font-size: 0.9em; font-weight: 500;
+    }
+
+    .edit-btn { background-color: #007bff; color: white; }
+    .edit-btn:hover { background-color: #0056b3; }
+
+    .delete-btn { background-color: #dc3545; color: white; }
+    .delete-btn:hover { background-color: #a71d2a; }
+
+    .table-container {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      border-radius: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 15px 40px rgba(0, 64, 128, 0.15);
+    }
+
+    /* Modal Background */
+    .modal {
+      display: none; /* For demo — you can toggle it dynamically */
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.4);
+      animation: fadeIn 0.3s;
+    }
+
+    .modal-content {
+      background-color: #fff;
+      margin: 10% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 450px;
+      text-align: center;
+      border-radius: 8px;
+      animation: slideUpFadeIn 0.4s;
+    }
+
+    .close {
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #downloadPDF {
+      margin-top: 15px;
+      padding: 8px 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    #downloadPDF:hover {
+      background-color: #45a049;
+    }
+
+    #viewChartBtn {
+      background: linear-gradient(90deg, #004080, #0074D9);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    #viewChartBtn:hover {
+      background: linear-gradient(90deg, #0059b3, #339CFF);
+      transform: translateY(-2px);
+    }
+
+    /* CSV Upload Form Styling */
+    #csvForm {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      border: 1px solid #e0e0e0;
+    }
+
+    #csvForm label {
+      font-weight: 600;
+      color: #003366;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    #csvForm input[type="file"] {
+      margin-bottom: 15px;
+    }
+
+    #csvForm button {
+      background: linear-gradient(90deg, #004080, #0074D9);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    #csvForm button:hover {
+      background: linear-gradient(90deg, #0059b3, #339CFF);
+      transform: translateY(-2px);
+    }
+
+    .student-table-container {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 25px;
+    }
+
+    #studentTable {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+
+    #studentTable thead {
+      background: #003366;
+      color: white;
+    }
+
+    #studentTable th {
+      padding: 15px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    #studentTable td {
+      padding: 14px;
+      border-bottom: 1px solid #dddddd;
+      font-size: 14px;
+    }
+
+    #studentTable tbody tr:hover {
+      background: rgba(0, 64, 128, 0.10);
+      cursor: pointer;
+    }
+
+    .edit-btn {
+      padding: 6px 12px;
+      background: #007bff;
+      border: none;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .delete-btn {
+      padding: 6px 12px;
+      background: #dc3545;
+      border: none;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .delete-btn:hover {
+      background: #a71d2a;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar" id="navbar">
+    <div class="navbar-content">
+      <div class="navbar-brand">
+        <i class="fas fa-building"></i>
+        Non-Academic Dashboard
+      </div>
+      <ul class="navbar-menu" id="navbarMenu">
+        <li><a href="#" class="nav-link active" data-page="dashboard"><i class="fas fa-home"></i> Home</a></li>
+        <li><a href="#" class="nav-link" id="profileLink"><i class="fas fa-user"></i> Profile</a></li>
+        <li><button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Dashboard Page -->
+  <div id="dashboardPage">
+    <div class="container">
+      <div class="dashboard-header">
+        <h1><i class="fas fa-tachometer-alt"></i> Welcome Non-Academic Teacher!</h1>
+        <p>Here's an overview of the non-academic feedback and sentiment analysis.</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card-value" id="feedbackCount">0%</div>
+          <div class="stat-card-label">Feedback Count</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-value" id="commentCount">0%</div>
+          <div class="stat-card-label">Comment Count</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-value" id="positiveVal">0%</div>
+          <div class="stat-card-label"><i class="fas fa-smile"></i> Positive Feedback</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-value" id="negativeVal">0%</div>
+          <div class="stat-card-label"><i class="fas fa-frown"></i> Negative Feedback</div>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <div class="dashboard-header" style="padding: 20px; margin-bottom: 20px;">
+          <h2><i class="fas fa-users"></i> Student Management</h2>
+          <p>Search for students or upload a list via CSV.</p>
+        </div>
+
+        <input type="text" id="studentSearch" placeholder="Search Students by ID, name, or email..." />
+        <div style="text-align: right; margin-bottom: 20px;">
+          <button id="viewChartBtn"><i class="fas fa-chart-pie"></i> VIEW SENTIMENT CHART</button>
+        </div>
+
+        <form id="csvForm" enctype="multipart/form-data">
+          <label for="csv_file">Upload Students via CSV File:</label>
+          <input type="file" name="csv_file" id="csv_file" accept=".csv" required>
+          <button type="submit"><i class="fas fa-upload"></i> Upload CSV</button>
+        </form>
+
+        <div class="student-table-container">
+          <!-- Student Table -->
+          <table id="studentTable" style="display:none;">
+            <thead>
+              <tr>
+                <th>ID</th><th>Name</th><th>Program</th><th>Section</th><th>Email</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="chartModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <canvas id="myChart" width="400" height="300"></canvas>
+      <button id="downloadPDF">Download as PDF</button>
+    </div>
+  </div>
+
+  <div id="loadingOverlay">
+    <i class="fas fa-spinner"></i>
+    Loading...
+  </div>
+
+  <script>
+    document.getElementById('csvForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var formData = new FormData();
+      formData.append('csv_file', document.getElementById('csv_file').files[0]);
+      
+      fetch('admin/import.php', { method: 'POST', body: formData })
+          .then(res => res.text())
+          .then(data => alert(data))
+          .catch(err => alert("Error: " + err));
+    });
+
+    window.addEventListener("load", () => {
+      document.body.classList.add("fade-in");
+    });
+
+    const loadingOverlay = document.getElementById("loadingOverlay");
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      if (confirm("Are you sure you want to log out?")) {
+        loadingOverlay.textContent = "Logging out...";
+        loadingOverlay.style.display = "flex";
+        document.body.style.opacity = "0.7";
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 1200);
+      }
+    });
+
+    document.getElementById("profileLink").addEventListener("click", () => {
+      loadingOverlay.textContent = "Loading profile...";
+      loadingOverlay.style.display = "flex";
+      document.body.style.opacity = "0.7";
+      setTimeout(() => {
+        window.location.href = "Profile_Non_Acad.html";
+      }, 1000);
+    });
+
+    const searchInput = document.getElementById("studentSearch");
+    const studentTable = document.getElementById("studentTable");
+    const tableBody = studentTable.querySelector("tbody");
+
+    searchInput.addEventListener("keyup", () => {
+      const query = searchInput.value.trim();
+
+      if (query.length > 0) {
+        studentTable.style.display = "table";
+        tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Searching...</td></tr>';
+
+        fetch(`get_students.php?search=${encodeURIComponent(query)}`)
+          .then(res => res.json())
+          .then(data => {
+            tableBody.innerHTML = "";
+            if (data.success && data.students.length > 0) {
+              data.students.forEach(student => {
+                const row = `
+                  <tr>
+                    <td>${student.student_id}</td>
+                    <td>${student.student_name}</td>
+                    <td>${student.program}</td>
+                    <td>${student.section}</td>
+                    <td>${student.email}</td>
+                    <td>
+                      <button class="edit-btn" onclick="editStudent(${student.id})">Edit</button>
+                      <button class="delete-btn" onclick="archiveStudent(${student.id})">Delete</button>
+                    </td>
+                  </tr>`;
+                tableBody.insertAdjacentHTML('beforeend', row);
+              });
+            } else {
+              tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No students found.</td></tr>';
+            }
+          })
+          .catch(err => {
+            console.error("Search error:", err);
+            tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Error searching students.</td></tr>';
+          });
+      } else {
+        studentTable.style.display = "none";
+        tableBody.innerHTML = "";
+      }
+    });
+
+    function editStudent(studentId) {
+      window.location.href = `Edit_Student.html?id=${studentId}&from=Non_Acad_Dashboard.html`;
+    }
+
+    function archiveStudent(studentId) {
+      if (confirm("Are you sure you want to archive this student?")) {
+        fetch(`archive_student.php?id=${studentId}`)
+          .then(res => res.json())
+          .then(data => { if (data.success) { alert("Student archived successfully."); searchInput.dispatchEvent(new Event('keyup')); } else { alert("Failed to archive student."); } });
+      }
+    }
+   let positiveCount = 0, negativeCount = 0, neutralCount = 0;
+
+fetch('dashboard_data.php?role=nonacademic')
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      positiveCount = data.data.review["Positive Review"] || 0;
+      negativeCount = data.data.review["Negative Review"] || 0;
+      neutralCount = data.data.review["Neutral Review"] || 0;
+
+      // Update the dashboard stats
+      document.getElementById('positiveVal').textContent = data.data.percentages["Positive Feedback"] + "%";
+      document.getElementById('negativeVal').textContent = data.data.percentages["Negative Feedback"] + "%";
+      document.getElementById('feedbackCount').textContent = data.data.row_count;
+      document.getElementById('commentCount').textContent = data.data.review_count;
+
+      // Enable chart button only after data loads
+      document.getElementById('viewChartBtn').onclick = function() {
+        document.getElementById("chartModal").style.display = "block";
+        drawChart(); // Use the updated global counts
+      };
+    } else {
+      console.error("Failed to load dashboard data:", data.message);
+    }
+  })
+  .catch(err => console.error(err));
+
+function drawChart() {
+  const ctx = document.getElementById('myChart').getContext('2d');
+  if (window.myChartInstance) window.myChartInstance.destroy();
+
+  window.myChartInstance = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Positive', 'Negative', 'Neutral'],
+      datasets: [{
+        label: 'Sentiment',
+        data: [positiveCount, negativeCount, neutralCount],
+        backgroundColor: [
+          'rgba(75, 192, 192, 0.7)',
+          'rgba(255, 99, 132, 0.7)',
+          'rgba(255, 206, 86, 0.7)'
+        ],
+        borderColor: '#fff',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: false,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top' },
+        title: { display: true, text: 'Sentiment Distribution' }
+      }
+    }
+  });
+}
+
+
+        // Get modal and button
+        const modal = document.getElementById("chartModal");
+        const btn = document.getElementById("viewChartBtn");
+        const span = document.getElementsByClassName("close")[0];
+
+        // Open modal on button click
+        btn.onclick = function() {
+          modal.style.display = "block";
+          drawChart(positiveFeedback, negativeFeedback); // Draw chart when modal opens
+        }
+
+        // Close modal when clicking the 'x'
+        span.onclick = function() {
+          modal.style.display = "none";
+        }
+
+        // Close modal when clicking outside content
+        window.onclick = function(event) {
+          if (event.target == modal) {
+            modal.style.display = "none";
+          }
+        }
+
+      // Function to draw Chart.js chart
+       function drawChart(positiveFeedback, negativeFeedback) {
+          const ctx = document.getElementById('myChart').getContext('2d');
+
+
+          if (window.myChartInstance) window.myChartInstance.destroy();
+
+window.myChartInstance = new Chart(ctx, {
+  type: 'doughnut',
+  data: {
+    labels: ['Positive', 'Negative', 'Neutral'],
+    datasets: [{
+      label: 'Sentiment',
+      data: [positiveCount, negativeCount, neutralCount],
+      backgroundColor: [
+        'rgba(75, 192, 192, 0.7)',
+        'rgba(255, 99, 132, 0.7)',
+        'rgba(255, 206, 86, 0.7)'
+      ],
+      borderColor: '#fff',
+      borderWidth: 2
+    }]
+  },
+  options: {
+    responsive: false,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top' },
+      title: { display: true, text: 'Sentiment Distribution' }
+    }
+  }
+});
+        }
+
+
+        // PDF Download
+        document.getElementById('downloadPDF').addEventListener('click', () => {
+          const { jsPDF } = window.jspdf;
+          const pdf = new jsPDF('p', 'mm', 'a4'); // portrait, millimeters, A4 page
+
+          // === Shared data ===
+          const labels = ['Positive', 'Negative', 'Neutral'];
+          const values = [positiveCount, negativeCount, neutralCount];
+          const colors = ['#4BC0C0', '#FF6384', '#FFCE56'];
+
+          // === First Chart (Pie) ===
+          const canvas1 = document.getElementById('myChart');
+          const imgData1 = canvas1.toDataURL('image/png', 1.0);
+
+          pdf.setFontSize(16);
+          pdf.text('Sentiment Distributiont', 105, 15, { align: 'center' });
+
+          // Smaller chart (140×80 instead of 180×100)
+          pdf.addImage(imgData1, 'PNG', 35, 20, 140, 80);
+
+          // One-line summary under first chart
+          pdf.setFontSize(11);
+          pdf.text('Chart Data:', 15, 110);
+
+          let x = 42;
+          const y = 110;
+
+          labels.forEach((label, i) => {
+            pdf.setFillColor(colors[i]);
+            pdf.rect(x, y - 4, 5, 5, 'F');
+            pdf.text(`${label}: ${values[i]}%`, x + 8, y);
+            x += 55;
+          });
+
+          // === Date at bottom ===
+          const dateStr = new Date().toLocaleString();
+          pdf.setFontSize(10);
+          pdf.text(`Generated on: ${dateStr}`, 15, 285);
+
+          // Save
+          pdf.save('Sentiment_Report.pdf');
+        });
+  </script>
+</body>
+</html>
