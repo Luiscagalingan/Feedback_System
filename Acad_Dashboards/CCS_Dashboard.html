@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Academic Dashboard - Feedback System</title>
+  <title>CCS Dashboard - Feedback System</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -226,7 +226,7 @@
 
             /* Modal Background */
     .modal {
-      display: none; /* For demo — you can toggle it dynamically */
+      display: none;
       position: fixed;
       z-index: 1000;
       left: 0;
@@ -416,6 +416,53 @@
     .delete-btn:hover {
       background: #a71d2a;
     }
+
+    #toggleReviewsBtn {
+      background: linear-gradient(90deg, #004080, #0074D9);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #toggleReviewsBtn:hover {
+      background: linear-gradient(90deg, #0059b3, #339CFF);
+      transform: translateY(-2px);
+    }
+
+    #feedbackTable {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+
+    #feedbackTable th {
+      background: #003366;
+      color: white;
+      padding: 15px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    #feedbackTable td {
+      padding: 14px;
+      border-bottom: 1px solid #dddddd;
+      font-size: 14px;
+    }
+
+    #feedbackTable tbody tr:hover {
+      background: rgba(0, 64, 128, 0.10);
+    }
   </style>
 </head>
 
@@ -425,7 +472,7 @@
     <div class="navbar-content">
       <div class="navbar-brand">
         <i class="fas fa-book-reader"></i>
-        Dean Dashboard
+        CCS Dean Dashboard
       </div>
       <ul class="navbar-menu" id="navbarMenu">
         <li><a href="#" class="nav-link active" data-page="dashboard"><i class="fas fa-home"></i> Home</a></li>
@@ -439,8 +486,8 @@
   <div id="dashboardPage">
     <div class="container">
       <div class="dashboard-header">
-        <h1><i class="fas fa-tachometer-alt"></i> Welcome Deans!</h1>
-        <p>Here's an overview of the academic feedback and sentiment analysis.</p>
+        <h1><i class="fas fa-tachometer-alt"></i> College of Computer Studies Dashboard</h1>
+        <p>Here's an overview of the CCS feedback and sentiment analysis.</p>
       </div>
 
       <div class="stats-grid">
@@ -466,7 +513,7 @@
       <div class="table-container">
         <div class="dashboard-header" style="padding: 20px; margin-bottom: 20px;">
           <h2><i class="fas fa-users"></i> Student Management</h2>
-          <p>Showing BSIT and BSCS students only.</p>
+          <p>Showing CCS students only.</p>
         </div>
 
         <input type="text" id="studentSearch" placeholder="Filter by ID, name, or email..." />      
@@ -499,6 +546,8 @@
           </table>
         </div>
       </div>
+
+
     </div>
   </div>
   
@@ -527,7 +576,7 @@
             .then(res => res.text())
             .then(data => {
               alert(data);
-              loadStudents(); // refresh the list after a successful import
+              loadStudents();
             })
             .catch(err => alert("Error: " + err));
     });
@@ -551,11 +600,6 @@
       document.body.style.opacity = "0.7";
       setTimeout(() => { window.location.href = "Profile_Acad.html"; }, 1000);
     });
-
-    /* =========================================================
-       STUDENT LIST: auto-load on page load (BSIT/BSCS filtering
-       happens server-side in get_students.php), show/hide toggle
-       ========================================================= */
 
     const searchInput    = document.getElementById("studentSearch");
     const studentTable    = document.getElementById("studentTable");
@@ -593,10 +637,7 @@
     function loadStudents(searchTerm = "") {
       tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Loading students...</td></tr>';
 
-      // get_students.php now accepts an empty "search" and returns all
-      // active BSIT/BSCS students; the program restriction is enforced
-      // server-side so the dashboard only ever sees those two programs.
-      fetch(`get_students.php?search=${encodeURIComponent(searchTerm)}`)
+      fetch(`get_students.php?search=${encodeURIComponent(searchTerm)}&role=CCS`)
         .then(res => res.json())
         .then(data => {
           if (data.success && Array.isArray(data.students)) {
@@ -611,7 +652,6 @@
         });
     }
 
-    // Filter as the dean types, debounced to avoid hammering the server
     searchInput.addEventListener("keyup", () => {
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => {
@@ -619,7 +659,6 @@
       }, 300);
     });
 
-    // Show / Hide toggle for the whole table
     toggleTableBtn.addEventListener("click", () => {
       tableVisible = !tableVisible;
 
@@ -632,10 +671,8 @@
       }
     });
 
-    // Load the list automatically as soon as the page is ready
     loadStudents();
 
-    // Student Management Buttons
     document.getElementById("addStudentBtn").addEventListener("click", () => {
         window.location.href = `Create_Student.html`;
     });
@@ -652,8 +689,7 @@
 
     let positiveCount = 0, negativeCount = 0, neutralCount = 0, positiveFeedback = 0, negativeFeedback = 0, facilitiesFeedback = 0;
 
-    // Fetch dashboard data
-    fetch('dashboard_data.php?role=academic')
+    fetch('dashboard_data.php?role=CCS')
       .then(response => response.json())
       .then(data => {
         if(data.success){
@@ -668,35 +704,29 @@
 
         } else { console.error("Failed to load dashboard data:", data.message); }
       })
-      .catch(error => console.error("Fetch error:", error)); // Enable chart button only after data loads
+      .catch(error => console.error("Fetch error:", error));
 
-        // Get modal and button
         const modal = document.getElementById("chartModal");
         const btn = document.getElementById("viewChartBtn");
         const span = document.getElementsByClassName("close")[0];
 
-        // Open modal on button click
         btn.onclick = function() {
-          modal.style.display = "block"; // Use the updated global counts
+          modal.style.display = "block";
           drawChart();
         }
 
-        // Close modal when clicking the 'x'
         span.onclick = function() {
           modal.style.display = "none";
         }
 
-        // Close modal when clicking outside content
         window.onclick = function(event) {
           if (event.target == modal) {
             modal.style.display = "none";
           }
         }
 
-      // Function to draw Chart.js chart
        function drawChart() {
           const ctx = document.getElementById('myChart').getContext('2d');
-
 
           if (window.myChartInstance) window.myChartInstance.destroy();
 
@@ -718,7 +748,7 @@
             },
             options: {
               responsive: false,
-              maintainAspectRatio: false, // allows chart to fill container
+              maintainAspectRatio: false,
               plugins: {
                 legend: { position: 'top' },
                 title: { display: true, text: 'Sentiment Distribution' }
@@ -727,27 +757,22 @@
           });
         }
 
-        // PDF Download
         document.getElementById('downloadPDF').addEventListener('click', () => {
           const { jsPDF } = window.jspdf;
-          const pdf = new jsPDF('p', 'mm', 'a4'); // portrait, millimeters, A4 page
+          const pdf = new jsPDF('p', 'mm', 'a4');
 
-          // === Shared data ===
           const labels = ['Positive', 'Negative', 'Neutral'];
           const values = [positiveCount, negativeCount, neutralCount];
           const colors = ['#4BC0C0', '#FF6384', '#FFCE56'];
 
-          // === First Chart (Pie) ===
           const canvas1 = document.getElementById('myChart');
           const imgData1 = canvas1.toDataURL('image/png', 1.0);
 
           pdf.setFontSize(16);
-          pdf.text('Sentiment Distributiont', 105, 15, { align: 'center' });
+          pdf.text('CCS Sentiment Distribution', 105, 15, { align: 'center' });
 
-          // Smaller chart (140×80 instead of 180×100)
           pdf.addImage(imgData1, 'PNG', 35, 20, 140, 80);
 
-          // One-line summary under first chart
           pdf.setFontSize(11);
           pdf.text('Chart Data:', 15, 110);
 
@@ -761,13 +786,11 @@
             x += 55;
           });
 
-          // === Date at bottom ===
           const dateStr = new Date().toLocaleString();
           pdf.setFontSize(10);
           pdf.text(`Generated on: ${dateStr}`, 15, 285);
 
-          // Save
-          pdf.save('Sentiment_Report.pdf');
+          pdf.save('CCS_Sentiment_Report.pdf');
         });
   </script>
 </body>

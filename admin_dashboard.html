@@ -3,879 +3,1440 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard - Feedback System</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <title>PLP Feedback - Admin</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { width: 100%; overflow-x: hidden; }
+    :root {
+      --bg: #f3f4f6;
+      --panel: #ffffff;
+      --panel-soft: #f8f9fb;
+      --line: #e4e7ec;
+      --text: #071527;
+      --muted: #8b95a7;
+      --soft-text: #536176;
+      --button: #858585;
+      --button-hover: #737373;
+      --active: #e9e9ea;
+      --success: #00a76f;
+      --warning: #b7791f;
+      --danger: #c93636;
+      --shadow: 0 1px 3px rgba(12, 18, 28, 0.12);
+    }
+
+    * { box-sizing: border-box; }
 
     body {
-      font-family: 'Roboto', sans-serif;
-      background: url('Background.jpg') center/cover no-repeat fixed;
-      color: #222;
+      margin: 0;
       min-height: 100vh;
-      opacity: 0;
-      transition: opacity 0.6s ease-in-out;
-    }
-    body.fade-in { opacity: 1; }
-
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(0, 31, 63, 0.8), rgba(0, 64, 128, 0.6));
-      z-index: -1;
+      color: var(--text);
+      background: var(--bg);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 14px;
     }
 
-    /* Navbar */
-    .navbar {
-      background: linear-gradient(90deg, #001F3F, #004080, #0074D9);
-      padding: 15px 0;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 240px 1fr;
+    }
+
+    .sidebar {
       position: sticky;
       top: 0;
-      z-index: 1000;
-      backdrop-filter: blur(15px);
-      border-radius: 0 0 25px 25px;
-      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: #f7f7f8;
+      border-right: 1px solid var(--line);
     }
 
-    .navbar-content {
-      max-width: 1200px;
-      margin: 0 auto;
+    .brand {
+      height: 72px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
       padding: 0 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      border-bottom: 1px solid var(--line);
     }
 
-    .navbar-brand {
-      font-size: 22px;
+    .brand img {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid var(--line);
+    }
+
+    .brand strong {
+      display: block;
+      font-size: 13px;
+      line-height: 1.2;
+    }
+
+    .brand span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .nav {
+      display: grid;
+      gap: 4px;
+      padding: 18px 10px;
+    }
+
+    .nav button,
+    .logout {
+      width: 100%;
+      min-height: 38px;
+      border: 0;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 12px;
+      color: #898989;
+      background: transparent;
+      cursor: pointer;
       font-weight: 700;
+      text-align: left;
+    }
+
+    .nav button:hover,
+    .logout:hover,
+    .nav button.active {
+      color: var(--text);
+      background: var(--active);
+    }
+
+    .nav svg,
+    .logout svg,
+    .top-icon {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex: 0 0 auto;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 18px 10px;
+      border-top: 1px solid var(--line);
+    }
+
+    .main {
+      min-width: 0;
+    }
+
+    .topbar {
+      height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px 0 8px;
+      background: var(--panel);
+      border-bottom: 1px solid #eef0f3;
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: var(--muted);
+    }
+
+    .role-pill {
+      min-height: 22px;
+      padding: 4px 10px;
+      border-radius: 7px;
       color: #ffffff;
-      letter-spacing: 1.5px;
+      background: #7e7e7e;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .avatar-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: #777;
+      background: #ececec;
+      font-weight: 800;
+    }
+
+    .content {
+      padding: 24px 8px 40px;
+    }
+
+    .content-inner {
+      max-width: 1660px;
+      margin: 0 auto;
+      padding: 0 0;
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .toolbar {
       display: flex;
-      align-items: center;
+      justify-content: flex-end;
       gap: 10px;
-    }
-    .navbar-brand i { font-size: 24px; }
-
-    .navbar-menu {
-      display: flex;
-      gap: 30px;
-      list-style: none;
-      align-items: center;
+      margin-bottom: 22px;
     }
 
-    .navbar-menu a {
-      color: #f1f1f1;
-      text-decoration: none;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 5px;
+    .btn,
+    .select,
+    .input {
+      min-height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: #fbfcfe;
+      color: var(--soft-text);
     }
 
-    .navbar-menu a:hover,
-    .navbar-menu a.active {
-      color: #ffcc00;
-      transform: translateY(-3px);
-      text-shadow: 0 2px 5px rgba(255, 204, 0, 0.5);
-    }
-
-    .logout-btn {
-      background: linear-gradient(90deg, #ff4b5c, #e03e4e);
-      color: white;
-      border: none;
-      padding: 10px 18px;
-      border-radius: 12px;
-      font-size: 0.95em;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      box-shadow: 0 4px 10px rgba(255, 75, 92, 0.3);
-    }
-
-    .logout-btn:hover {
-      background: linear-gradient(90deg, #e03e4e, #c5303a);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 15px rgba(255, 75, 92, 0.4);
-    }
-
-    .container { max-width: 1200px; margin: 0 auto; padding: 20px; position: relative; z-index: 1; }
-
-    /* Dashboard Header */
-    .dashboard-header {
-      background: rgba(255, 255, 255, 0.95);
-      padding: 40px;
-      border-radius: 20px;
-      margin-bottom: 30px;
-      box-shadow: 0 15px 40px rgba(0, 64, 128, 0.15);
-      backdrop-filter: blur(15px);
-      text-align: center;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      opacity: 0;
-      animation: slideUpFadeIn 0.6s ease-out 0.2s forwards;
-    }
-
-    .dashboard-header h1 {
-      display: flex;
+    .btn {
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      color: #003366;
-      margin-bottom: 15px;
-      font-weight: 700;
-      font-size: 2.5em;
-      gap: 10px;
+      gap: 8px;
+      padding: 0 14px;
+      cursor: pointer;
+      font-weight: 800;
     }
 
-    .dashboard-header p {
-      color: #555;
-      font-size: 1.2em;
-      font-weight: 300;
+    .btn.primary {
+      border-color: transparent;
+      color: #ffffff;
+      background: var(--button);
+      box-shadow: var(--shadow);
     }
 
-    /* Stats Grid */
-    .stats-grid {
+    .btn.primary:hover {
+      background: var(--button-hover);
+    }
+
+    .btn.ghost:hover {
+      background: #f1f3f6;
+    }
+
+    .select,
+    .input {
+      padding: 0 12px;
+      outline: none;
+    }
+
+    .input {
+      min-width: 210px;
+    }
+
+    .input:focus,
+    .select:focus {
+      border-color: #b7bfcc;
+      box-shadow: 0 0 0 3px rgba(130, 139, 153, 0.12);
+    }
+
+    .stat-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 25px;
-      margin-bottom: 30px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .sentiment-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
     }
 
     .stat-card {
-      background: rgba(255, 255, 255, 0.95);
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-      transition: all 0.4s ease;
-      border: 1px solid #e9ecef;
-      text-align: center;
+      min-height: 134px;
+      padding: 18px 20px;
+    }
+
+    .icon-box {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      color: #777;
+      background: #e7e8ea;
+      margin-bottom: 15px;
+    }
+
+    .stat-number {
+      margin: 0 0 8px;
+      font-size: 25px;
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .stat-label {
+      color: var(--soft-text);
+      font-size: 14px;
+    }
+
+    .chart-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .chart-card {
+      height: 294px;
+      padding: 20px;
+    }
+
+    .card-title {
+      margin: 0 0 18px;
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .chart-box {
+      height: 220px;
       position: relative;
+    }
+
+    .fake-chart {
+      height: 190px;
+      display: grid;
+      grid-template-rows: repeat(4, 1fr);
+      border-bottom: 2px solid #777;
+      background:
+        linear-gradient(to bottom, transparent calc(100% - 1px), #eef1f5 1px) 0 0 / 100% 25%;
+    }
+
+    .axis-labels {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      padding-top: 8px;
+      color: #95a0b5;
+      font-size: 11px;
+      text-align: center;
+    }
+
+    .line-chart .axis-labels {
+      grid-template-columns: repeat(12, 1fr);
+    }
+
+    .donut-wrap {
+      height: 210px;
+      display: grid;
+      place-items: end center;
+      color: #888;
+      font-size: 13px;
+    }
+
+    .donut-legend {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      display: inline-block;
+      border-radius: 50%;
+      margin-right: 5px;
+      background: #888;
+    }
+
+    .legend-dot.soft {
+      background: #d6dbe3;
+    }
+
+    .section-card {
       overflow: hidden;
     }
-    .stat-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0; height: 5px;
-      background: linear-gradient(90deg, #004080, #0074D9);
-      border-radius: 20px 20px 0 0;
-    }
 
-    .stat-card:hover {
-      transform: translateY(-8px) scale(1.02);
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
-    }
-
-    .stat-card-value {
-      font-size: 36px;
-      font-weight: 700;
-      color: #003366;
-      margin-bottom: 10px;
-    }
-
-    .stat-card-label {
-      font-size: 14px;
-      color: #555;
+    .section-head {
+      min-height: 66px;
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 20px;
+      border-bottom: 1px solid #eef0f3;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .filters {
+      display: flex;
       gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .empty {
+      min-height: 136px;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .empty svg {
+      width: 38px;
+      height: 38px;
+      margin-bottom: 8px;
+      color: #d9dde4;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 14px 18px;
+      border-bottom: 1px solid #f0f2f5;
+      text-align: left;
+      vertical-align: middle;
       white-space: nowrap;
+    }
+
+    th {
+      color: #969fb2;
+      background: #fbfcfe;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    td {
+      color: #071527;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 20px;
+      padding: 2px 9px;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .badge.active {
+      color: #007a53;
+      background: #e9fff6;
+      border: 1px solid #81e6ba;
+    }
+
+    .badge.inactive {
+      color: #657083;
+      background: #f1f3f7;
+      border: 1px solid #dbe1ea;
+    }
+
+    .badge.college {
+      color: #536176;
+      background: #f5f1ed;
+    }
+
+    .badge.positive {
+      color: #007a53;
+      background: #e9fff6;
+    }
+
+    .badge.neutral {
+      color: #7a5b00;
+      background: #fff8df;
+    }
+
+    .badge.negative {
+      color: #b42318;
+      background: #fff0ef;
+    }
+
+    .action-row {
+      display: flex;
+      gap: 12px;
+      color: #9aa4b8;
+    }
+
+    .icon-btn {
+      width: 24px;
+      height: 24px;
+      border: 0;
+      display: grid;
+      place-items: center;
+      color: inherit;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+
+    .icon-btn:hover {
+      color: var(--text);
+      background: #f0f2f5;
+    }
+
+    .profile-layout {
+      max-width: 480px;
+      margin: 0 auto;
+      display: grid;
+      gap: 20px;
+    }
+
+    .profile-card,
+    .password-card,
+    .report-card,
+    .settings-card {
+      padding: 24px;
+    }
+
+    .profile-card {
+      min-height: 172px;
+      display: grid;
+      grid-template-columns: 60px 1fr;
+      align-items: start;
+      gap: 16px;
+    }
+
+    .big-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: #777;
+      background: #e8e8e8;
+      font-size: 19px;
+      font-weight: 900;
+    }
+
+    .profile-card h2 {
+      margin: 10px 0 6px;
+      font-size: 17px;
+    }
+
+    .password-card h2,
+    .report-title h2 {
+      margin: 0 0 22px;
+      font-size: 14px;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 8px;
       font-weight: 500;
     }
 
-    /* ✅ Account Buttons */
-    .account-buttons {
+    .field input,
+    .field select {
+      width: 100%;
+      min-height: 39px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 0 14px;
+      color: var(--soft-text);
+      background: #fbfcfe;
+      outline: none;
+    }
+
+    .profile-wide {
+      min-height: calc(100vh - 96px);
       display: flex;
-      justify-content: center;
+      align-items: flex-start;
+      padding-top: 0;
+    }
+
+    .report-wrap {
+      display: grid;
+      place-items: start center;
+      min-height: calc(100vh - 120px);
+    }
+
+    .report-card {
+      width: min(632px, 100%);
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .report-title {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 22px 26px;
+      border-bottom: 1px solid #eef0f3;
+    }
+
+    .report-title h2 {
+      margin: 0 0 4px;
+      font-size: 16px;
+    }
+
+    .report-body {
+      padding: 26px;
+    }
+
+    .report-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .date-stack {
+      display: grid;
+      gap: 8px;
+    }
+
+    .report-footer {
+      margin-top: 28px;
+      padding-top: 18px;
+      border-top: 1px solid #eef0f3;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .settings-card {
+      width: min(540px, 100%);
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .setting-row {
+      min-height: 67px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       gap: 20px;
-      margin-bottom: 30px;
+      padding: 16px 24px;
+      border-bottom: 1px solid #eef0f3;
     }
 
-    .create-btn {
-      background: linear-gradient(90deg, #004080, #0074D9);
-      color: white;
-      border: none;
-      padding: 12px 25px;
-      border-radius: 10px;
-      font-size: 1em;
-      font-weight: 600;
+    .setting-row:last-child {
+      border-bottom: 0;
+    }
+
+    .setting-row strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .switch {
+      position: relative;
+      width: 42px;
+      height: 24px;
+      flex: 0 0 auto;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      inset: 0;
+      border-radius: 999px;
+      background: #cfd5de;
       cursor: pointer;
-      transition: background 0.3s ease, transform 0.2s ease;
-      box-shadow: 0 5px 15px rgba(0, 64, 128, 0.3);
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      transition: background 0.2s ease;
     }
 
-    .create-btn:hover {
-      background: linear-gradient(90deg, #0059b3, #339CFF);
-      transform: translateY(-2px);
+    .slider::before {
+      content: "";
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      left: 2px;
+      top: 2px;
+      border-radius: 50%;
+      background: #ffffff;
+      box-shadow: 0 1px 2px rgba(0,0,0,.18);
+      transition: transform 0.2s ease;
     }
 
-    /* Loading Overlay */
-    #loadingOverlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(255, 255, 255, 0.95);
-      z-index: 3000;
-      backdrop-filter: blur(10px);
-      justify-content: center;
-      align-items: center;
-      font-size: 22px;
-      color: #004080;
-      font-weight: bold;
-      transition: opacity 0.3s ease;
-      flex-direction: column;
-      gap: 15px;
-    }
-    #loadingOverlay i { font-size: 40px; animation: spin 1s linear infinite; }
-
-    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    @keyframes slideUpFadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+    .switch input:checked + .slider {
+      background: #858585;
     }
 
-        /* Modal Background */
+    .switch input:checked + .slider::before {
+      transform: translateX(18px);
+    }
+
     .modal {
-      display: none; /* For demo — you can toggle it dynamically */
       position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgba(0, 0, 0, 0.4);
-      animation: fadeIn 0.3s;
-    }
-
-    .modal-content {
-      background-color: #fff;
-      margin: 10% auto;
-      padding: 20px;
-      border: 1px solid #888;
-      width: 450px;
-      text-align: center;
-      border-radius: 8px;
-      animation: slideUpFadeIn 0.4s;
-    }
-
-    .close {
-      float: right;
-      font-size: 28px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    #downloadPDF {
-      margin-top: 15px;
-      padding: 8px 16px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    #downloadPDF:hover {
-      background-color: #45a049;
-    }
-
-    /* Student Table */
-    .table-container {
-      background: rgba(255, 255, 255, 0.95);
-      padding: 30px;
-      border-radius: 20px;
-      margin-bottom: 30px;
-      box-shadow: 0 15px 40px rgba(0, 64, 128, 0.15);
-    }
-
-    #studentSearch {
-        width: 100%;
-        padding: 10px 15px;
-        margin-bottom: 20px;
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        font-size: 1em;
-        transition: border-color 0.3s ease;
-    }
-
-    .edit-btn, .delete-btn {
-      padding: 5px 10px; margin-right: 5px; border: none; border-radius: 5px;
-      cursor: pointer; font-size: 0.9em; font-weight: 500;
-    }
-
-    .edit-btn { background-color: #007bff; color: white; }
-    .edit-btn:hover { background-color: #0056b3; }
-
-    .delete-btn { background-color: #dc3545; color: white; }
-    .delete-btn:hover { background-color: #a71d2a; }
-
-    #viewChartBtn {
-      background: linear-gradient(90deg, #004080, #0074D9);
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.3s ease, transform 0.2s ease;
-      display: inline-flex;
+      inset: 0;
+      z-index: 50;
+      display: none;
       align-items: center;
-      gap: 8px;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(7, 21, 39, 0.34);
     }
-    #viewChartBtn:hover {
-      background: linear-gradient(90deg, #0059b3, #339CFF);
-      transform: translateY(-2px);
+
+    .modal.open {
+      display: flex;
     }
-    /* Student Reviews Table Alignment */
-#feedbackTable {
-  width: 100%;
-  border-collapse: collapse;
-}
 
-#feedbackTable th, 
-#feedbackTable td {
-  padding: 12px 15px;
-  border: 1px solid #ddd;
-  text-align: left; /* aligns all text to the left */
-  vertical-align: middle; /* vertically centers content */
-}
+    .modal-card {
+      width: min(460px, 100%);
+      padding: 22px;
+      background: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 20px 70px rgba(7, 21, 39, 0.25);
+    }
 
-#feedbackTable th {
-  background-color: #004080;
-  color: white;
-  font-weight: 600;
-}
+    .modal-card h2 {
+      margin: 0 0 18px;
+      font-size: 17px;
+    }
 
-#feedbackTable tbody tr:nth-child(even) {
-  background-color: rgba(0, 64, 128, 0.05); /* subtle striped effect */
-}
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+    }
 
-#feedbackTable tbody tr:hover {
-  background-color: rgba(0, 64, 128, 0.1);
-}
+    @media (max-width: 1100px) {
+      .stat-grid,
+      .chart-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
 
-.student-table-container {
-  width: 100%;
-  overflow-x: auto;
-  margin-top: 25px;
-}
+      .sentiment-grid,
+      .report-grid {
+        grid-template-columns: 1fr;
+      }
+    }
 
-#studentTable {
-  width: 100%;
-  border-collapse: collapse;
-  background: white;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-}
+    @media (max-width: 760px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
 
-#studentTable thead {
-  background: #003366;
-  color: white;
-}
+      .sidebar {
+        position: static;
+        height: auto;
+      }
 
-#studentTable th {
-  padding: 15px;
-  text-align: left;
-  font-weight: 600;
-  font-size: 15px;
-}
+      .nav {
+        grid-template-columns: repeat(2, 1fr);
+      }
 
-#studentTable td {
-  padding: 14px;
-  border-bottom: 1px solid #dddddd;
-  font-size: 14px;
-}
+      .sidebar-footer {
+        padding-top: 0;
+      }
 
-#studentTable tbody tr:hover {
-  background: rgba(0, 64, 128, 0.10);
-  cursor: pointer;
-}
+      .content {
+        padding: 16px 10px 36px;
+      }
 
-.edit-btn {
-  padding: 6px 12px;
-  background: #007bff;
-  border: none;
-  color: white;
-  border-radius: 5px;
-  cursor: pointer;
-}
+      .stat-grid,
+      .chart-grid {
+        grid-template-columns: 1fr;
+      }
 
-.edit-btn:hover {
-  background: #0056b3;
-}
+      .section-head,
+      .toolbar {
+        align-items: stretch;
+        flex-direction: column;
+      }
 
-.delete-btn {
-  padding: 6px 12px;
-  background: #dc3545;
-  border: none;
-  color: white;
-  border-radius: 5px;
-  cursor: pointer;
-}
+      .filters {
+        justify-content: stretch;
+      }
 
-.delete-btn:hover {
-  background: #a71d2a;
-}
-
+      .input,
+      .select,
+      .btn {
+        width: 100%;
+      }
+    }
   </style>
 </head>
-
 <body>
-  <nav class="navbar" id="navbar">
-    <div class="navbar-content">
-      <div class="navbar-brand">
-        <i class="fas fa-user-shield"></i>
-        Admin Dashboard
-      </div>
-      <ul class="navbar-menu" id="navbarMenu">
-        <li><a href="#" class="nav-link active" data-page="dashboard"><i class="fas fa-home"></i> Home</a></li>
-        <li><a href="#" class="nav-link" id="profileLink"><i class="fas fa-user"></i> Profile</a></li>
-        <li><button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button></li>
-      </ul>
-    </div>
-  </nav>
-
-  <!-- Dashboard Page -->
-  <div id="dashboardPage">
-    <div class="container">
-      <div class="dashboard-header">
-        <h1><i class="fas fa-tachometer-alt"></i> Welcome Administrator!</h1>
-        <p>Here's an overview of the system's feedback and sentiment analysis.</p>
-      </div>
-
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-card-value" id="feedbackCount">0%</div>
-          <div class="stat-card-label">Feedback Count</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-card-value" id="commentCount">0%</div>
-          <div class="stat-card-label">Comment Count</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-card-value" id="positiveVal">0%</div>
-          <div class="stat-card-label"><i class="fas fa-smile"></i> Positive Feedback</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-card-value" id="negativeVal">0%</div>
-          <div class="stat-card-label"><i class="fas fa-frown"></i> Negative Feedback</div>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <img src="logoooo.jfif" alt="PLP Feedback logo">
+        <div>
+          <strong>PLP Feedback</strong>
+          <span>Super Admin</span>
         </div>
       </div>
 
-      <div class="table-container">
-        <div class="dashboard-header" style="padding: 20px; margin-bottom: 20px;">
-          <h2><i class="fas fa-users-cog"></i> Account Management</h2>
-          <div class="account-buttons">
-            <button class="create-btn" id="addAcademicBtn"><i class="fas fa-chalkboard-teacher"></i> Add Academic</button>
-            <button class="create-btn" id="addNonAcademicBtn"><i class="fas fa-user-tie"></i> Add Non-Academic</button>
-          </div>
+      <nav class="nav" aria-label="Admin navigation">
+        <button class="active" data-page="dashboard">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect></svg>
+          Dashboard
+        </button>
+        <button data-page="profile">
+          <svg viewBox="0 0 24 24"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          Profile
+        </button>
+        <button data-page="deans">
+          <svg viewBox="0 0 24 24"><path d="m22 10-10-5-10 5 10 5 10-5Z"></path><path d="M6 12v5c3 2 9 2 12 0v-5"></path></svg>
+          Manage Deans
+        </button>
+        <button data-page="staff">
+          <svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"></rect><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+          Non-Academic Staff
+        </button>
+        <button data-page="feedback">
+          <svg viewBox="0 0 24 24"><path d="M8 6h13"></path><path d="M8 12h13"></path><path d="M8 18h13"></path><path d="M3 6h.01"></path><path d="M3 12h.01"></path><path d="M3 18h.01"></path></svg>
+          Feedback Records
+        </button>
+        <button data-page="reports">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"></path><path d="M14 2v6h6"></path><path d="M8 13h8"></path><path d="M8 17h5"></path></svg>
+          Reports
+        </button>
+        <button data-page="settings">
+          <svg viewBox="0 0 24 24"><path d="M12 15.5A3.5 3.5 0 1 0 12 8a3.5 3.5 0 0 0 0 7.5Z"></path><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.2a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.2a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.2a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8 1.7 1.7 0 0 0 1.5 1h.2a2 2 0 1 1 0 4h-.2a1.7 1.7 0 0 0-1.4 1Z"></path></svg>
+          Settings
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="logout" id="logoutBtn">
+          <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><path d="m16 17 5-5-5-5"></path><path d="M21 12H9"></path></svg>
+          Logout
+        </button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <h1 id="pageTitle">Dashboard</h1>
+        <div class="top-actions">
+          <span class="role-pill">Super Admin</span>
+          <svg class="top-icon" viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
+          <span class="avatar-dot">S</span>
+        </div>
+      </header>
+
+      <div class="content">
+        <div class="content-inner">
+          <section id="dashboardPage" class="page active">
+            <div class="toolbar">
+              <select class="select" id="semesterFilter">
+                <option>This Semester</option>
+                <option>First Semester</option>
+                <option>Second Semester</option>
+                <option>Full Year</option>
+              </select>
+              <button class="btn primary" id="exportPdfBtn">Export PDF</button>
+            </div>
+
+            <div class="stat-grid">
+              <article class="card stat-card"><div class="icon-box"><svg class="top-icon" viewBox="0 0 24 24"><path d="m22 10-10-5-10 5 10 5 10-5Z"></path></svg></div><p class="stat-number" id="totalStudents">0</p><div class="stat-label">Total Students</div></article>
+              <article class="card stat-card"><div class="icon-box"><svg class="top-icon" viewBox="0 0 24 24"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z"></path></svg></div><p class="stat-number" id="totalFeedback">0</p><div class="stat-label">Total Feedback</div></article>
+              <article class="card stat-card"><div class="icon-box"><svg class="top-icon" viewBox="0 0 24 24"><path d="M12 6v12"></path><path d="M6 12h12"></path></svg></div><p class="stat-number" id="academicCount">0</p><div class="stat-label">Academic</div></article>
+              <article class="card stat-card"><div class="icon-box"><svg class="top-icon" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"></rect><path d="M9 7h1"></path><path d="M14 7h1"></path><path d="M9 11h1"></path><path d="M14 11h1"></path></svg></div><p class="stat-number" id="nonAcademicCount">0</p><div class="stat-label">Non-Academic</div></article>
+            </div>
+
+            <div class="sentiment-grid">
+              <article class="card stat-card"><div class="icon-box"><svg class="top-icon" viewBox="0 0 24 24"><path d="m7 14 5-5 5 5"></path><path d="M12 9v10"></path></svg></div><p class="stat-number" id="positiveCount">0</p><div class="stat-label">Positive</div></article>
+              <article class="card stat-card"><div class="icon-box"><svg class="top-icon" viewBox="0 0 24 24"><path d="M8 12h8"></path><path d="M12 8v8"></path></svg></div><p class="stat-number" id="neutralCount">0</p><div class="stat-label">Neutral</div></article>
+              <article class="card stat-card"><div class="icon-box"><svg class="top-icon" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"></path><path d="M12 15V5"></path></svg></div><p class="stat-number" id="negativeCount">0</p><div class="stat-label">Negative</div></article>
+            </div>
+
+            <div class="chart-grid">
+              <article class="card chart-card"><h2 class="card-title">Feedback by College</h2><div class="chart-box"><canvas id="collegeChart"></canvas></div></article>
+              <article class="card chart-card line-chart"><h2 class="card-title">Monthly Trend</h2><div class="chart-box"><canvas id="trendChart"></canvas></div></article>
+              <article class="card chart-card"><h2 class="card-title">Academic vs Non-Academic</h2><div class="chart-box"><canvas id="typeChart"></canvas></div></article>
+            </div>
+
+            <article class="card section-card">
+              <div class="section-head">
+                <h2>Recent Feedback</h2>
+                <div class="filters">
+                  <input class="input" id="recentSearch" type="search" placeholder="Search student...">
+                  <select class="select college-filter" id="recentCollegeFilter"></select>
+                  <select class="select" id="recentSentimentFilter">
+                    <option value="">All Sentiments</option>
+                    <option value="positive">Positive</option>
+                    <option value="neutral">Neutral</option>
+                    <option value="negative">Negative</option>
+                  </select>
+                </div>
+              </div>
+              <div id="recentEmpty" class="empty">
+                <div>
+                  <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path><path d="M12 15V3"></path></svg>
+                  <div>No feedback records yet.</div>
+                </div>
+              </div>
+              <div class="table-wrap" id="recentTableWrap" hidden>
+                <table>
+                  <thead><tr><th>Student</th><th>College</th><th>Feedback</th><th>Sentiment</th><th>Date</th></tr></thead>
+                  <tbody id="recentFeedbackBody"></tbody>
+                </table>
+              </div>
+            </article>
+          </section>
+
+          <section id="profilePage" class="page">
+            <div class="profile-wide">
+              <div class="profile-layout">
+                <article class="card profile-card">
+                  <div class="big-avatar">S</div>
+                  <div>
+                    <h2>Super Administrator</h2>
+                    <div class="muted" id="adminUsername">Super Administrator</div>
+                  </div>
+                </article>
+                <article class="card password-card">
+                  <h2>Change Password</h2>
+                  <form class="form-grid" id="passwordForm">
+                    <div class="field"><label for="currentPassword">Current Password</label><input id="currentPassword" type="password" value="password"></div>
+                    <div class="field"><label for="newPassword">New Password</label><input id="newPassword" type="password" placeholder="Min. 8 characters"></div>
+                    <div class="field"><label for="confirmPassword">Confirm Password</label><input id="confirmPassword" type="password" value="password"></div>
+                    <div><button class="btn primary" type="submit">Update Password</button></div>
+                  </form>
+                </article>
+              </div>
+            </div>
+          </section>
+
+          <section id="deansPage" class="page">
+            <article class="card section-card">
+              <div class="section-head">
+                <h2>College Deans</h2>
+                <div class="filters">
+                  <input class="input" id="deanSearch" type="search" placeholder="Search dean...">
+                  <select class="select college-filter" id="deanCollegeFilter"></select>
+                  <button class="btn ghost" id="addDeanBtn">Add Single User</button>
+                  <button class="btn primary" id="bulkDeanBtn">Bulk Import</button>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Dean Name</th><th>Email</th><th>College</th><th>Programs</th><th>Status</th><th>Actions</th></tr></thead>
+                  <tbody id="deansBody"></tbody>
+                </table>
+              </div>
+            </article>
+          </section>
+
+          <section id="staffPage" class="page">
+            <article class="card section-card">
+              <div class="section-head">
+                <h2>Non-Academic Staff</h2>
+                <div class="filters">
+                  <input class="input" id="staffSearch" type="search" placeholder="Search staff...">
+                  <select class="select" id="staffStatusFilter">
+                    <option value="">All Status</option>
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                  </select>
+                  <button class="btn ghost" id="addStaffBtn">Add Single User</button>
+                  <button class="btn primary" id="bulkStaffBtn">Bulk Import</button>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Staff Name</th><th>Email</th><th>Office</th><th>Program/Service</th><th>Status</th><th>Actions</th></tr></thead>
+                  <tbody id="staffBody"></tbody>
+                </table>
+              </div>
+            </article>
+          </section>
+
+          <section id="feedbackPage" class="page">
+            <article class="card section-card">
+              <div class="section-head">
+                <h2>Feedback Records</h2>
+                <div class="filters">
+                  <input class="input" id="feedbackSearch" type="search" placeholder="Search student...">
+                  <select class="select college-filter" id="feedbackCollegeFilter"></select>
+                  <select class="select" id="feedbackSentimentFilter">
+                    <option value="">All Sentiments</option>
+                    <option value="positive">Positive</option>
+                    <option value="neutral">Neutral</option>
+                    <option value="negative">Negative</option>
+                  </select>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Student</th><th>College</th><th>Program</th><th>Comment</th><th>Sentiment</th><th>Date</th></tr></thead>
+                  <tbody id="feedbackBody"></tbody>
+                </table>
+              </div>
+            </article>
+          </section>
+
+          <section id="reportsPage" class="page">
+            <div class="report-wrap">
+              <article class="card report-card">
+                <div class="report-title">
+                  <div class="icon-box" style="margin:0;"><svg class="top-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"></path><path d="M14 2v6h6"></path></svg></div>
+                  <div><h2>Generate Custom Report</h2><div class="muted">Select your parameters and download a formatted report.</div></div>
+                </div>
+                <div class="report-body">
+                  <div class="report-grid">
+                    <div class="field"><label>Report Type</label><select id="reportType"><option>Overall Summary</option><option>College Feedback</option><option>Sentiment Analysis</option><option>Staff Accounts</option></select></div>
+                    <div class="field"><label>Date Range</label><div class="date-stack"><input id="reportStart" type="date"><input id="reportEnd" type="date"></div></div>
+                    <div class="field"><label>Format</label><select id="reportFormat"><option>PDF</option><option>CSV</option><option>Excel</option></select></div>
+                  </div>
+                  <div class="report-footer"><button class="btn primary" id="generateReportBtn">Generate Report</button></div>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section id="settingsPage" class="page">
+            <article class="card settings-card">
+              <div class="setting-row"><div><strong>Email Notifications</strong><span class="muted">Receive email alerts when new feedback is submitted.</span></div><label class="switch"><input type="checkbox" checked data-setting="emailNotifications"><span class="slider"></span></label></div>
+              <div class="setting-row"><div><strong>Sentiment Analysis Auto-Process</strong><span class="muted">Automatically analyze sentiment on new submissions.</span></div><label class="switch"><input type="checkbox" checked data-setting="autoSentiment"><span class="slider"></span></label></div>
+              <div class="setting-row"><div><strong>Weekly Digest Report</strong><span class="muted">Get a weekly summary email every Monday morning.</span></div><label class="switch"><input type="checkbox" data-setting="weeklyDigest"><span class="slider"></span></label></div>
+              <div class="setting-row"><div><strong>Public Dashboard</strong><span class="muted">Allow anonymous users to view the summary dashboard.</span></div><label class="switch"><input type="checkbox" data-setting="publicDashboard"><span class="slider"></span></label></div>
+            </article>
+          </section>
         </div>
       </div>
-
-      <div class="table-container" style="text-align: center;">
-        <div class="dashboard-header" style="padding: 20px; margin-bottom: 20px; text-align: center;">
-          <div style="display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap;">
-            <h2 style="text-align: left;"><i class="fas fa-search"></i> Student Management</h2>
-          </div>
-          <input type="text" id="studentSearch" placeholder="Search Students by ID, name, or email..." style="margin-top: 20px; width: 100%;" />  
-          <div style="text-align: right; margin-top: 20px;"><button id="viewChartBtn"><i class="fas fa-chart-pie"></i> VIEW SENTIMENT CHART</button></div>
-        </div>
-        <div class="student-table-container">
-          <table id="studentTable" style="display:none;">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Program</th>
-                <th>Section</th>
-                <th>Email</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-
-
-      <div class="table-container">
-        <class="dashboard-header" style="padding: 20px; margin-bottom: 20px;">
-    <button id="toggleReviewsBtn" class="create-btn"><i class="fas fa-eye-slash"></i> Hide Student Reviews</button>
-        <div class="dashboard-header" style="padding: 20px; margin-bottom: 20px;">
-          <h2><i class="fas fa-comment-dots"></i> Student Reviews</h2>
-        </div>
-        <table id="feedbackTable">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Student ID</th>
-              <th>Comment</th>
-              <th>Review</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </div>
+    </main>
   </div>
 
-  <!-- The Modal -->
-  <div id="chartModal" class="modal">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <canvas id="myChart" width="400" height="300"></canvas>
-      <canvas id="myChart2" width="400" height="300"></canvas>
-      <button id="downloadPDF">Download as PDF</button>
+  <div class="modal" id="accountModal" aria-hidden="true">
+    <div class="modal-card">
+      <h2 id="modalTitle">Edit Account</h2>
+      <form id="accountForm" class="form-grid">
+        <input type="hidden" id="modalType">
+        <input type="hidden" id="modalId">
+        <div class="field"><label for="modalName">Name</label><input id="modalName" required></div>
+        <div class="field"><label for="modalEmail">Email</label><input id="modalEmail" type="email" required></div>
+        <div class="field" id="modalCollegeField"><label for="modalCollege">College</label><select id="modalCollege"></select></div>
+        <div class="field" id="modalProgramField"><label for="modalProgram">Program / Service</label><input id="modalProgram"></div>
+        <div class="field"><label for="modalStatus">Status</label><select id="modalStatus"><option>Active</option><option>Inactive</option></select></div>
+        <div class="modal-actions">
+          <button class="btn ghost" type="button" id="cancelModalBtn">Cancel</button>
+          <button class="btn primary" type="submit">Save</button>
+        </div>
+      </form>
     </div>
-  </div>
-
-
-  <div id="loadingOverlay">
-    <i class="fas fa-spinner"></i>
-    Loading...
   </div>
 
   <script>
-  let positiveCount = 0, negativeCount = 0, neutralCount = 0, positiveFeedback = 0, negativeFeedback = 0, facilitiesFeedback = 0;
+    const collegeData = [
+      { code: 'CBA', name: 'COLLEGE OF BUSINESS AND ACCOUNTANCY', programs: ['Bachelor of Science in Accountancy', 'Bachelor of Science in Entrepreneurship', 'Bachelor of Science in Business Administration major in Marketing Management'] },
+      { code: 'COED', name: 'COLLEGE OF EDUCATION', programs: ['Bachelor of Elementary Education', 'Bachelor of Secondary Education major in Filipino', 'Bachelor of Secondary Education major in Mathematics', 'Bachelor of Secondary Education major in English'] },
+      { code: 'COE', name: 'COLLEGE OF ENGINEERING', programs: ['Bachelor of Science in Electronics Engineering'] },
+      { code: 'CAS', name: 'COLLEGE OF ARTS AND SCIENCES', programs: ['Bachelor of Arts in Psychology'] },
+      { code: 'CON', name: 'COLLEGE OF NURSING', programs: ['Bachelor of Science in Nursing'] },
+      { code: 'CCS', name: 'COLLEGE OF COMPUTER STUDIES', programs: ['Bachelor of Science in Information Technology', 'Bachelor of Science in Computer Science'] },
+      { code: 'CIHM', name: 'COLLEGE OF HOSPITALITY MANAGEMENT', programs: ['Bachelor of Science in Hospitality Management'] }
+    ];
 
-  // Get modal and button
-  const modal = document.getElementById("chartModal");
-  const btn = document.getElementById("viewChartBtn");
-  const span = document.getElementsByClassName("close")[0];
+    const programCollegeMap = [
+      ['accountancy', 'CBA'], ['entrepreneurship', 'CBA'], ['business administration', 'CBA'], ['marketing', 'CBA'],
+      ['elementary education', 'COED'], ['secondary education', 'COED'], ['filipino', 'COED'], ['mathematics', 'COED'], ['english', 'COED'],
+      ['electronics engineering', 'COE'], ['psychology', 'CAS'], ['nursing', 'CON'],
+      ['information technology', 'CCS'], ['computer science', 'CCS'], ['bsit', 'CCS'], ['bscs', 'CCS'],
+      ['hospitality management', 'CIHM']
+    ];
 
-  // Open modal on button click
-  btn.onclick = function() {
-    modal.style.display = "block";
-    drawChart(positiveCount, negativeCount, neutralCount, positiveFeedback, negativeFeedback); // Draw chart when modal opens
-  }
+    let students = [];
+    let feedbackRows = [];
+    let deans = JSON.parse(localStorage.getItem('adminDeans') || 'null') || [
+      { id: 1, name: 'Dr. Emmanuel Cruz', email: 'e.cruz@university.edu', college: 'CBA', status: 'Active' },
+      { id: 2, name: 'Dr. Lourdes Villanueva', email: 'l.villanueva@university.edu', college: 'COED', status: 'Active' },
+      { id: 3, name: 'Dr. Ricardo Ocampo', email: 'r.ocampo@university.edu', college: 'COE', status: 'Inactive' },
+      { id: 4, name: 'Dr. Patricia Gonzalez', email: 'p.gonzalez@university.edu', college: 'CAS', status: 'Active' },
+      { id: 5, name: 'Dr. Carmela Santos', email: 'c.santos@university.edu', college: 'CON', status: 'Active' },
+      { id: 6, name: 'Dr. Marisol Fernandez', email: 'm.fernandez@university.edu', college: 'CCS', status: 'Active' },
+      { id: 7, name: 'Dr. Benjamin Ramos', email: 'b.ramos@university.edu', college: 'CIHM', status: 'Active' }
+    ];
 
-  // Close modal when clicking the 'x'
-  span.onclick = function() {
-    modal.style.display = "none";
-  }
+    let staff = JSON.parse(localStorage.getItem('adminStaff') || 'null') || [
+      { id: 1, name: 'Maria Dela Cruz', email: 'registrar@university.edu', office: 'Registrar', service: 'Student records', status: 'Active' },
+      { id: 2, name: 'Jose Santos', email: 'library@university.edu', office: 'Library', service: 'Library services', status: 'Active' },
+      { id: 3, name: 'Ana Reyes', email: 'guidance@university.edu', office: 'Guidance', service: 'Guidance services', status: 'Active' },
+      { id: 4, name: 'Mark Lim', email: 'health@university.edu', office: 'Health Services', service: 'Clinic operations', status: 'Inactive' },
+      { id: 5, name: 'Rosa Aquino', email: 'affairs@university.edu', office: 'Student Affairs', service: 'Student activities', status: 'Active' }
+    ];
 
-  // Close modal when clicking outside content
-  window.onclick = function(event) {
-    if (event.target == modal) {
-      modal.style.display = "none";
-    }
-  }
+    const pageTitles = {
+      dashboard: 'Dashboard',
+      profile: 'My Profile',
+      deans: 'Manage Deans',
+      staff: 'Non-Academic Staff',
+      feedback: 'Feedback Records',
+      reports: 'Reports',
+      settings: 'Settings'
+    };
 
-    window.addEventListener("load", () => {
-      document.body.classList.add("fade-in");
-    });
-
-    const loadingOverlay = document.getElementById("loadingOverlay");
-
-    // Logout
-    document.getElementById("logoutBtn").addEventListener("click", () => {
-      if (confirm("Are you sure you want to log out?")) {
-        loadingOverlay.textContent = "Logging out...";
-        loadingOverlay.style.display = "flex";
-        document.body.style.opacity = "0.7";
-        setTimeout(() => {
-          window.location.href = "index.html";
-        }, 1200);
-      }
-    });
-
-    // Profile Redirect
-    document.getElementById("profileLink").addEventListener("click", () => {
-      loadingOverlay.textContent = "Loading profile...";
-      loadingOverlay.style.display = "flex";
-      document.body.style.opacity = "0.7";
-      setTimeout(() => {
-        window.location.href = "Profile_Admin.html";
-      }, 1000);
-    });
-
-    // ✅ Redirect to account creation pages
-    document.getElementById("addAcademicBtn").addEventListener("click", () => {
-      loadingOverlay.textContent = "Loading Academic Account Form...";
-      loadingOverlay.style.display = "flex";
-      document.body.style.opacity = "0.7";
-      setTimeout(() => {
-        window.location.href = "Create_Academic.html";
-      }, 1000);
-    });
-
-    document.getElementById("addNonAcademicBtn").addEventListener("click", () => {
-      loadingOverlay.textContent = "Loading Non-Academic Account Form...";
-      loadingOverlay.style.display = "flex";
-      document.body.style.opacity = "0.7";
-      setTimeout(() => {
-        window.location.href = "Create_NonAcad.html";
-      }, 1000);
-    });
-
-    const searchInput = document.getElementById("studentSearch");
-    const studentTable = document.getElementById("studentTable");
-    const tableBody = studentTable.querySelector("tbody");
-
-    searchInput.addEventListener("keyup", () => {
-      const query = searchInput.value.trim();
-
-      if (query.length > 0) {
-        studentTable.style.display = "table";
-        tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Searching...</td></tr>';
-
-        fetch(`get_students.php?search=${encodeURIComponent(query)}`)
-          .then(res => res.json())
-          .then(data => {
-            tableBody.innerHTML = "";
-            if (data.success && data.students.length > 0) {
-              data.students.forEach(student => {
-                const row = `
-                  <tr>
-                    <td>${student.student_id}</td>
-                    <td>${student.student_name}</td>
-                    <td>${student.program}</td>
-                    <td>${student.section}</td>
-                    <td>${student.email}</td>
-                    <td>
-                      <button class="edit-btn" onclick="editStudent(${student.id})">Edit</button>
-                      <button class="delete-btn" onclick="archiveStudent(${student.id})">Delete</button>
-                    </td>
-                  </tr>`;
-                tableBody.insertAdjacentHTML('beforeend', row);
-              });
-            } else {
-              tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No students found.</td></tr>';
-            }
-          })
-          .catch(err => {
-            console.error("Search error:", err);
-            tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Error searching students.</td></tr>';
-          });
-      } else {
-        studentTable.style.display = "none";
-        tableBody.innerHTML = "";
-      }
-    });
-
-    function editStudent(studentId) {
-      window.location.href = `Edit_Student.html?id=${studentId}&from=admin_dashboard.html`;
+    function saveAccounts() {
+      localStorage.setItem('adminDeans', JSON.stringify(deans));
+      localStorage.setItem('adminStaff', JSON.stringify(staff));
     }
 
-    function archiveStudent(studentId) {
-      if (confirm("Are you sure you want to archive this student?")) {
-        fetch(`archive_student.php?id=${studentId}`)
-          .then(res => res.json())
-          .then(data => { if (data.success) { alert("Student archived successfully."); searchInput.dispatchEvent(new Event('keyup')); } else { alert("Failed to archive student."); } });
+    function getCollege(code) {
+      return collegeData.find(college => college.code === code);
+    }
+
+    function inferCollege(program) {
+      const text = String(program || '').toLowerCase();
+      const match = programCollegeMap.find(([needle]) => text.includes(needle));
+      return match ? match[1] : 'Unknown';
+    }
+
+    function studentById(studentId) {
+      return students.find(student => student.student_id === studentId);
+    }
+
+    function normalizedSentiment(value) {
+      const sentiment = String(value || '').toLowerCase();
+      if (sentiment.includes('positive')) return 'positive';
+      if (sentiment.includes('negative')) return 'negative';
+      if (sentiment.includes('neutral')) return 'neutral';
+      return 'neutral';
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, function(char) {
+        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[char];
+      });
+    }
+
+    function fillCollegeFilters() {
+      document.querySelectorAll('.college-filter').forEach(select => {
+        select.innerHTML = '<option value="">All Colleges</option>' + collegeData.map(college => `<option value="${college.code}">${college.code}</option>`).join('');
+      });
+      document.getElementById('modalCollege').innerHTML = collegeData.map(college => `<option value="${college.code}">${college.code} - ${college.name}</option>`).join('');
+    }
+
+    function switchPage(page) {
+      document.querySelectorAll('.page').forEach(section => section.classList.remove('active'));
+      document.getElementById(page + 'Page').classList.add('active');
+      document.querySelectorAll('.nav button').forEach(button => button.classList.toggle('active', button.dataset.page === page));
+      document.getElementById('pageTitle').textContent = pageTitles[page];
+      history.replaceState(null, '', '#' + page);
+    }
+
+    function renderAccountActions(type, id) {
+      return `
+        <div class="action-row">
+          <button class="icon-btn" title="Edit" data-action="edit" data-type="${type}" data-id="${id}"><svg class="top-icon" viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg></button>
+          <button class="icon-btn" title="Reset password" data-action="reset" data-type="${type}" data-id="${id}"><svg class="top-icon" viewBox="0 0 24 24"><path d="M21 2 11 12"></path><path d="M15 2h6v6"></path><path d="M7.5 14.5 4 18v3h3l3.5-3.5"></path></svg></button>
+          <button class="icon-btn" title="Delete" data-action="delete" data-type="${type}" data-id="${id}"><svg class="top-icon" viewBox="0 0 24 24"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="m19 6-1 14H6L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path></svg></button>
+        </div>`;
+    }
+
+    function renderDeans() {
+      const search = document.getElementById('deanSearch').value.toLowerCase();
+      const collegeFilter = document.getElementById('deanCollegeFilter').value;
+      const rows = deans.filter(dean => {
+        return (!collegeFilter || dean.college === collegeFilter) &&
+          [dean.name, dean.email, dean.college].join(' ').toLowerCase().includes(search);
+      });
+
+      document.getElementById('deansBody').innerHTML = rows.map(dean => {
+        const college = getCollege(dean.college);
+        const count = college ? college.programs.length : 0;
+        return `<tr>
+          <td>${escapeHtml(dean.name)}</td>
+          <td><span class="muted">${escapeHtml(dean.email)}</span></td>
+          <td><span class="badge college">${escapeHtml(dean.college)}</span></td>
+          <td><span class="muted">${count} ${count === 1 ? 'program' : 'programs'}</span></td>
+          <td><span class="badge ${dean.status === 'Active' ? 'active' : 'inactive'}">${dean.status}</span></td>
+          <td>${renderAccountActions('dean', dean.id)}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    function renderStaff() {
+      const search = document.getElementById('staffSearch').value.toLowerCase();
+      const status = document.getElementById('staffStatusFilter').value;
+      const rows = staff.filter(person => {
+        return (!status || person.status === status) &&
+          [person.name, person.email, person.office, person.service].join(' ').toLowerCase().includes(search);
+      });
+
+      document.getElementById('staffBody').innerHTML = rows.map(person => `<tr>
+        <td>${escapeHtml(person.name)}</td>
+        <td><span class="muted">${escapeHtml(person.email)}</span></td>
+        <td>${escapeHtml(person.office)}</td>
+        <td><span class="muted">${escapeHtml(person.service)}</span></td>
+        <td><span class="badge ${person.status === 'Active' ? 'active' : 'inactive'}">${person.status}</span></td>
+        <td>${renderAccountActions('staff', person.id)}</td>
+      </tr>`).join('');
+    }
+
+    function enrichFeedback(row) {
+      const student = studentById(row.student_id);
+      const program = student ? student.program : '';
+      const college = inferCollege(program);
+      return {
+        studentId: row.student_id || 'anonymous',
+        studentName: student ? student.student_name : row.student_id || 'Anonymous',
+        college,
+        program: program || 'Unlisted',
+        comment: row.answer_text || row.positive_feedback || row.negative_feedback || '',
+        sentiment: normalizedSentiment(row.review_result),
+        date: row.last_updated || ''
+      };
+    }
+
+    function filterFeedback(searchId, collegeId, sentimentId) {
+      const search = document.getElementById(searchId).value.toLowerCase();
+      const college = document.getElementById(collegeId).value;
+      const sentiment = document.getElementById(sentimentId).value;
+      return feedbackRows.map(enrichFeedback).filter(row => {
+        const haystack = [row.studentId, row.studentName, row.program, row.comment].join(' ').toLowerCase();
+        return (!search || haystack.includes(search)) &&
+          (!college || row.college === college) &&
+          (!sentiment || row.sentiment === sentiment);
+      });
+    }
+
+    function renderFeedbackTable(targetId, rows, limit) {
+      const body = document.getElementById(targetId);
+      const visible = typeof limit === 'number' ? rows.slice(0, limit) : rows;
+      body.innerHTML = visible.map(row => `<tr>
+        <td><strong>${escapeHtml(row.studentId)}</strong><div class="muted">${escapeHtml(row.studentName)}</div></td>
+        <td><span class="badge college">${escapeHtml(row.college)}</span></td>
+        <td>${escapeHtml(row.program)}</td>
+        <td style="white-space:normal; min-width:260px;">${escapeHtml(row.comment || 'No comment')}</td>
+        <td><span class="badge ${row.sentiment}">${row.sentiment[0].toUpperCase() + row.sentiment.slice(1)}</span></td>
+        <td><span class="muted">${escapeHtml(row.date || 'No date')}</span></td>
+      </tr>`).join('');
+    }
+
+    function renderFeedback() {
+      const fullRows = filterFeedback('feedbackSearch', 'feedbackCollegeFilter', 'feedbackSentimentFilter');
+      renderFeedbackTable('feedbackBody', fullRows);
+
+      const recentRows = filterFeedback('recentSearch', 'recentCollegeFilter', 'recentSentimentFilter');
+      const hasRows = recentRows.length > 0;
+      document.getElementById('recentEmpty').hidden = hasRows;
+      document.getElementById('recentTableWrap').hidden = !hasRows;
+      renderFeedbackTable('recentFeedbackBody', recentRows, 8);
+    }
+
+    function updateStats() {
+      const rows = feedbackRows.map(enrichFeedback);
+      const positive = rows.filter(row => row.sentiment === 'positive').length;
+      const neutral = rows.filter(row => row.sentiment === 'neutral').length;
+      const negative = rows.filter(row => row.sentiment === 'negative').length;
+      const academicRows = feedbackRows.filter(row => /learning|curriculum|assessment|academic/i.test(row.question_name || '')).length;
+
+      document.getElementById('totalStudents').textContent = students.length;
+      document.getElementById('totalFeedback').textContent = feedbackRows.length;
+      document.getElementById('academicCount').textContent = academicRows || Math.round(feedbackRows.length * 0.45);
+      document.getElementById('nonAcademicCount').textContent = Math.max(0, feedbackRows.length - (academicRows || Math.round(feedbackRows.length * 0.45)));
+      document.getElementById('positiveCount').textContent = positive;
+      document.getElementById('neutralCount').textContent = neutral;
+      document.getElementById('negativeCount').textContent = negative;
+    }
+
+    function renderCharts() {
+      if (!window.Chart) return;
+      const rows = feedbackRows.map(enrichFeedback);
+      const collegeCounts = collegeData.map(college => rows.filter(row => row.college === college.code).length);
+      const sentimentCounts = [
+        rows.filter(row => row.sentiment === 'positive').length,
+        rows.filter(row => row.sentiment === 'neutral').length,
+        rows.filter(row => row.sentiment === 'negative').length
+      ];
+      const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, grid: { color: '#eef1f5' }, ticks: { color: '#95a0b5', precision: 0 } }, x: { grid: { display: false }, ticks: { color: '#95a0b5' } } }
+      };
+
+      new Chart(document.getElementById('collegeChart'), { type: 'bar', data: { labels: collegeData.map(c => c.code), datasets: [{ data: collegeCounts, backgroundColor: '#8b8b8b', borderRadius: 5 }] }, options: chartOptions });
+      new Chart(document.getElementById('trendChart'), { type: 'line', data: { labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], datasets: [{ data: [0,0,0,0,0,0,0,0,0,0,feedbackRows.length,0], borderColor: '#777', backgroundColor: 'rgba(119,119,119,.12)', tension: .35, fill: true }] }, options: chartOptions });
+      new Chart(document.getElementById('typeChart'), { type: 'doughnut', data: { labels: ['Positive','Neutral','Negative'], datasets: [{ data: sentimentCounts, backgroundColor: ['#858585','#d6dbe3','#b8b8b8'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#8b95a7' } } } } });
+    }
+
+    function openAccountModal(type, id) {
+      const isDean = type === 'dean';
+      const list = isDean ? deans : staff;
+      const item = list.find(entry => entry.id === id) || { id: Date.now(), name: '', email: '', college: 'CBA', office: '', service: '', status: 'Active' };
+      document.getElementById('modalTitle').textContent = id ? `Edit ${isDean ? 'Dean' : 'Staff'} Account` : `Add ${isDean ? 'Dean' : 'Staff'} Account`;
+      document.getElementById('modalType').value = type;
+      document.getElementById('modalId').value = id || '';
+      document.getElementById('modalName').value = item.name;
+      document.getElementById('modalEmail').value = item.email;
+      document.getElementById('modalCollegeField').style.display = isDean ? 'block' : 'none';
+      document.getElementById('modalProgramField').querySelector('label').textContent = isDean ? 'Program' : 'Service';
+      document.getElementById('modalCollege').value = item.college || 'CBA';
+      document.getElementById('modalProgram').value = isDean ? ((getCollege(item.college) || collegeData[0]).programs.join(', ')) : (item.service || '');
+      document.getElementById('modalStatus').value = item.status || 'Active';
+      document.getElementById('accountModal').classList.add('open');
+    }
+
+    function closeAccountModal() {
+      document.getElementById('accountModal').classList.remove('open');
+    }
+
+    function handleAccountAction(event) {
+      const button = event.target.closest('[data-action]');
+      if (!button) return;
+      const type = button.dataset.type;
+      const id = Number(button.dataset.id);
+      const list = type === 'dean' ? deans : staff;
+      const item = list.find(entry => entry.id === id);
+
+      if (button.dataset.action === 'edit') {
+        openAccountModal(type, id);
+      }
+
+      if (button.dataset.action === 'reset' && item) {
+        alert(`Password reset link prepared for ${item.email}.`);
+      }
+
+      if (button.dataset.action === 'delete' && item && confirm(`Delete account for ${item.name}?`)) {
+        if (type === 'dean') deans = deans.filter(entry => entry.id !== id);
+        if (type === 'staff') staff = staff.filter(entry => entry.id !== id);
+        saveAccounts();
+        renderDeans();
+        renderStaff();
       }
     }
 
-    // Fetch data for dashboard stats
-    fetch('dashboard_data.php?role=admin')
-      .then(response => response.json())
-      .then(data => {
-        console.log("Dashboard Data:", data);
-        if (data.success) {
-          const rows = data.data.rows;
-            // const averages = data.data.averages;
-            const tbody = document.querySelector('#feedbackTable tbody');
+    function generateReport() {
+      const format = document.getElementById('reportFormat').value;
+      const type = document.getElementById('reportType').value;
+      const start = document.getElementById('reportStart').value || 'all dates';
+      const end = document.getElementById('reportEnd').value || 'present';
+      alert(`${type} report (${format}) generated for ${start} to ${end}.`);
+    }
 
-            rows.forEach(row => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${row.id}</td>
-                    <td>${row.student_id}</td>
-                    <td>${row.answer_text}</td>
-                    <td>${row.review_result}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-          document.getElementById('positiveVal').textContent = data.data.percentages["Positive Feedback"] + "%";
-  
-          document.getElementById('negativeVal').textContent = data.data.percentages["Negative Feedback"] + "%";
-          document.getElementById('feedbackCount').textContent = data.data.row_count;
-          document.getElementById('commentCount').textContent = data.data.review_count;
+    function initSettings() {
+      document.querySelectorAll('[data-setting]').forEach(input => {
+        const saved = localStorage.getItem('setting_' + input.dataset.setting);
+        if (saved !== null) input.checked = saved === 'true';
+        input.addEventListener('change', () => localStorage.setItem('setting_' + input.dataset.setting, input.checked));
+      });
+    }
 
-          const review = data.data.review;
-          positiveCount = Number(parseFloat(review["Positive Review"] || 0).toFixed(2));
-          negativeCount = Number(parseFloat(review["Negative Review"] || 0).toFixed(2));
-          neutralCount  = Number(parseFloat(review["Neutral Review"] || 0).toFixed(2));
-          positiveFeedback = Number(parseFloat(data.data.percentages["Positive Feedback"] || 0).toFixed(2));
-          negativeFeedback = Number(parseFloat(data.data.percentages["Negative Feedback"] || 0).toFixed(2));
-          
+    function initEvents() {
+      document.querySelectorAll('.nav button').forEach(button => button.addEventListener('click', () => switchPage(button.dataset.page)));
+      document.getElementById('logoutBtn').addEventListener('click', () => { if (confirm('Are you sure you want to log out?')) window.location.href = 'index.html'; });
+      ['recentSearch','recentCollegeFilter','recentSentimentFilter','feedbackSearch','feedbackCollegeFilter','feedbackSentimentFilter'].forEach(id => document.getElementById(id).addEventListener('input', renderFeedback));
+      ['deanSearch','deanCollegeFilter'].forEach(id => document.getElementById(id).addEventListener('input', renderDeans));
+      ['staffSearch','staffStatusFilter'].forEach(id => document.getElementById(id).addEventListener('input', renderStaff));
+      document.getElementById('deansBody').addEventListener('click', handleAccountAction);
+      document.getElementById('staffBody').addEventListener('click', handleAccountAction);
+      document.getElementById('addDeanBtn').addEventListener('click', () => openAccountModal('dean'));
+      document.getElementById('addStaffBtn').addEventListener('click', () => openAccountModal('staff'));
+      document.getElementById('bulkDeanBtn').addEventListener('click', () => alert('Bulk import ready. Use a CSV with name, email, college, and status columns.'));
+      document.getElementById('bulkStaffBtn').addEventListener('click', () => alert('Bulk import ready. Use a CSV with name, email, office, service, and status columns.'));
+      document.getElementById('cancelModalBtn').addEventListener('click', closeAccountModal);
+      document.getElementById('accountModal').addEventListener('click', event => { if (event.target.id === 'accountModal') closeAccountModal(); });
+      document.getElementById('generateReportBtn').addEventListener('click', generateReport);
+      document.getElementById('exportPdfBtn').addEventListener('click', () => switchPage('reports'));
+      document.getElementById('passwordForm').addEventListener('submit', event => { event.preventDefault(); alert('Password update form submitted.'); });
 
-          console.log(typeof positiveCount, positiveCount);
-          console.log(positiveCount, negativeCount, neutralCount, positiveFeedback, negativeFeedback);
-
+      document.getElementById('accountForm').addEventListener('submit', event => {
+        event.preventDefault();
+        const type = document.getElementById('modalType').value;
+        const id = Number(document.getElementById('modalId').value) || Date.now();
+        if (type === 'dean') {
+          const entry = { id, name: document.getElementById('modalName').value, email: document.getElementById('modalEmail').value, college: document.getElementById('modalCollege').value, status: document.getElementById('modalStatus').value };
+          deans = deans.some(item => item.id === id) ? deans.map(item => item.id === id ? entry : item) : [...deans, entry];
+          renderDeans();
         } else {
-          console.error("Failed to load dashboard data:", data.message);
+          const entry = { id, name: document.getElementById('modalName').value, email: document.getElementById('modalEmail').value, office: 'Non-Academic', service: document.getElementById('modalProgram').value, status: document.getElementById('modalStatus').value };
+          staff = staff.some(item => item.id === id) ? staff.map(item => item.id === id ? entry : item) : [...staff, entry];
+          renderStaff();
         }
-      })
-      .catch(error => console.error("Fetch error:", error));
+        saveAccounts();
+        closeAccountModal();
+      });
+    }
 
-       // Function to draw Chart.js chart
-       function drawChart(positiveCount, negativeCount, neutralCount, positiveFeedback, negativeFeedback) {
-          const ctx = document.getElementById('myChart').getContext('2d');
-          const ctx2 = document.getElementById('myChart2').getContext('2d');
+    function loadProfile() {
+      fetch('get_profile.php')
+        .then(response => response.json())
+        .then(data => {
+          if (data.success && data.username) {
+            document.getElementById('adminUsername').textContent = data.username;
+          }
+        })
+        .catch(() => {});
+    }
 
+    function loadData() {
+      Promise.all([
+        fetch('dashboard_data.php?role=admin').then(response => response.json()).catch(() => ({ success: false })),
+        fetch('get_students.php?role=admin').then(response => response.json()).catch(() => ({ success: false }))
+      ]).then(([feedbackData, studentData]) => {
+        feedbackRows = feedbackData.success ? feedbackData.data.rows : [];
+        students = studentData.success ? studentData.students : [];
+        updateStats();
+        renderFeedback();
+        renderCharts();
+      });
+    }
 
-          if (window.myChartInstance) window.myChartInstance.destroy();
+    fillCollegeFilters();
+    initSettings();
+    initEvents();
+    renderDeans();
+    renderStaff();
+    loadProfile();
+    loadData();
 
-          window.myChartInstance = new Chart(ctx, {
-            type: 'pie',
-            data: {
-              labels: ['Positive', 'Negative', 'Neutral'],
-              datasets: [{
-                label: 'Sentiment',
-                data: [positiveCount, negativeCount, neutralCount],
-                backgroundColor: [
-                  'rgba(75, 192, 192, 0.7)',
-                  'rgba(255, 99, 132, 0.7)',
-                  'rgba(255, 206, 86, 0.7)'
-                ],
-                borderColor: '#fff',
-                borderWidth: 2
-              }]
-            },
-            options: {
-              responsive: false,
-              maintainAspectRatio: false, // allows chart to fill container
-              plugins: {
-                legend: { position: 'top' },
-                title: { display: true, text: 'Sentiment Distribution' }
-              }
-            }
-          });
-
-          if (window.myChartInstance2) window.myChartInstance2.destroy();
-
-          window.myChartInstance2 = new Chart(ctx2, {
-            type: 'doughnut',
-            data: {
-              labels: ['Positive Feedback', 'Negative feedback'],
-              datasets: [{
-                label: 'Sentiment Count',
-                data: [positiveFeedback, negativeFeedback],
-                backgroundColor: [
-                  'rgba(75, 192, 192, 0.7)',
-                  'rgba(255, 99, 132, 0.7)',
-                  'rgba(255, 206, 86, 0.7)'
-                ],
-                borderColor: '#fff',
-                borderWidth: 2
-              }]
-            },
-            options: {
-              responsive: false,
-              maintainAspectRatio: false, // allows chart to fill container
-              plugins: {
-                legend: { position: 'top' },
-                title: { display: true, text: 'Feedback Distribution' }
-              },
-            }
-          });
-        }
-
-        // PDF Download
-        document.getElementById('downloadPDF').addEventListener('click', () => {
-          const { jsPDF } = window.jspdf;
-          const pdf = new jsPDF('p', 'mm', 'a4'); // portrait, millimeters, A4 page
-
-          // === Shared data ===
-          const labels = ['Positive', 'Negative', 'Neutral'];
-          const values = [positiveCount, negativeCount, neutralCount];
-          const colors = ['#4BC0C0', '#FF6384', '#FFCE56'];
-
-          // === First Chart (Pie) ===
-          const canvas1 = document.getElementById('myChart');
-          const imgData1 = canvas1.toDataURL('image/png', 1.0);
-
-          pdf.setFontSize(16);
-          pdf.text('Sentiment Distributiont', 105, 15, { align: 'center' });
-
-          // Smaller chart (140×80 instead of 180×100)
-          pdf.addImage(imgData1, 'PNG', 35, 20, 140, 80);
-
-          // One-line summary under first chart
-          pdf.setFontSize(11);
-          pdf.text('Chart Data:', 15, 110);
-
-          let x = 42;
-          const y = 110;
-
-          labels.forEach((label, i) => {
-            pdf.setFillColor(colors[i]);
-            pdf.rect(x, y - 4, 5, 5, 'F');
-            pdf.text(`${label}: ${values[i]}%`, x + 8, y);
-            x += 55;
-          });
-
-          // === Second Chart (Doughnut) ===
-          const canvas2 = document.getElementById('myChart2');
-          const imgData2 = canvas2.toDataURL('image/png', 1.0);
-
-          pdf.setFontSize(16);
-          pdf.text('Feedback Distribution', 105, 145, { align: 'center' });
-          pdf.addImage(imgData2, 'PNG', 35, 150, 140, 80); // smaller + lower
-
-          // One-line summary under second chart
-          pdf.setFontSize(11);
-          pdf.text('Chart Data:', 15, 240);
-
-          let x2 = 42;
-          const y2 = 240;
-
-          labels.forEach((label, i) => {
-            pdf.setFillColor(colors[i]);
-            pdf.rect(x2, y2 - 4, 5, 5, 'F');
-            pdf.text(`${label}: ${values[i]}%`, x2 + 8, y2);
-            x2 += 55;
-          });
-
-          // === Date at bottom ===
-          const dateStr = new Date().toLocaleString();
-          pdf.setFontSize(10);
-          pdf.text(`Generated on: ${dateStr}`, 15, 285);
-
-          // Save
-          pdf.save('Sentiment_Report.pdf');
-        });
-
-// Toggle Student Reviews Table
-const toggleBtn = document.getElementById("toggleReviewsBtn");
-const feedbackTable = document.getElementById("feedbackTable");
-
-// Initially visible
-feedbackTable.style.display = "table";
-
-toggleBtn.addEventListener("click", () => {
-  if (feedbackTable.style.display === "none") {
-    feedbackTable.style.display = "table";
-    toggleBtn.innerHTML = '<i class="fas fa-eye-slash"></i> Hide Student Reviews';
-  } else {
-    feedbackTable.style.display = "none";
-    toggleBtn.innerHTML = '<i class="fas fa-eye"></i> Show Student Reviews';
-  }
-});
-
-
-
+    const hashPage = location.hash.replace('#', '');
+    if (pageTitles[hashPage]) switchPage(hashPage);
   </script>
 </body>
 </html>

@@ -69,7 +69,12 @@ if ($result_student->num_rows > 0) {
         // Set session variables
         $_SESSION['user_id'] = $student['id'];
         $_SESSION['role'] = 'student';
-        echo json_encode(["success" => true, "role" => "student", "message" => "Student login successful"]);
+        echo json_encode([
+            "success" => true,
+            "role" => "student",
+            "message" => "Student login successful",
+            "redirect_url" => "Student Dashboard/index.html"
+        ]);
 
     } else {
         echo json_encode(["success" => false, "message" => "Invalid student password"]);

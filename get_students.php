@@ -15,32 +15,44 @@ include 'admin/dbinit.php';
 //     die(json_encode(["success" => false, "message" => "Database connection failed."]));
 // }
 
-// Get search term
-$search = $_GET['search'] ?? '';
+// Get search term and role
+$search = trim($_GET['search'] ?? '');
+$role = $_GET['role'] ?? '';
 
-if (empty($search)) {
-    die(json_encode(["success" => false, "message" => "Search term not provided."]));
+$sql = "SELECT id, student_id, student_name, email, section, program
+        FROM students
+        WHERE 1=1";
+
+// Academic/dean dashboard should show BSIT and BSCS students only.
+if ($role === 'academic' || $role === 'dean') {
+    $sql .= " AND (LOWER(program) LIKE '%bsit%' OR LOWER(program) LIKE '%bscs%')";
 }
 
-// Prepare query with placeholders
-$sql = "SELECT id, student_id, student_name, email, section, program 
-        FROM students
-        WHERE (student_name LIKE ? 
-           OR student_id LIKE ? 
-           OR section LIKE ?) AND status = ?
-        ORDER BY student_name ASC";
+if ($search !== '') {
+    $safeSearch = $conn->real_escape_string($search);
+    $searchPattern = strtolower($safeSearch);
+    $sql .= " AND (
+        LOWER(student_name) LIKE '%$searchPattern%' OR
+        LOWER(student_id) LIKE '%$searchPattern%' OR
+        LOWER(section) LIKE '%$searchPattern%' OR
+        LOWER(program) LIKE '%$searchPattern%' OR
+        LOWER(email) LIKE '%$searchPattern%'
+    )";
+}
 
-$stmt = $conn->prepare($sql);
+$sql .= " ORDER BY student_name ASC";
 
-// Add wildcards for LIKE
-$likeSearch = "%$search%";
-$status = 'active';
+$result = $conn->query($sql);
 
-// Bind parameters (4 placeholders = 4 variables)
-$stmt->bind_param("ssss", $likeSearch, $likeSearch, $likeSearch, $status);
-
-$stmt->execute();
-$result = $stmt->get_result();
+if (!$result) {
+    echo json_encode([
+        "success" => false,
+        "message" => "Failed to load students.",
+        "error" => $conn->error
+    ]);
+    $conn->close();
+    exit;
+}
 
 $students = $result->fetch_all(MYSQLI_ASSOC);
 
@@ -48,9 +60,9 @@ $students = $result->fetch_all(MYSQLI_ASSOC);
 echo json_encode([
     "success" => true,
     "search_received" => $search,
+    "role" => $role,
     "students" => $students
 ]);
 
-$stmt->close();
 $conn->close();
 ?>
