@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Student Dashboard - PLP Feedback</title>
+  <title>Student Dashboard - COED Feedback</title>
   <style>
     :root {
-      --college: #7600BC;
-      --college-dark: #65009f;
-      --college-soft: rgba(118, 0, 188, 0.16);
+      --college: #294789;
+      --college-dark: #001e60;
+      --college-soft: rgba(41, 71, 137, 0.16);
       --bg: #f3f4f7;
       --panel: #ffffff;
       --line: #e4e7ee;
@@ -190,7 +190,7 @@
       border-radius: 50%;
       display: grid;
       place-items: center;
-      color: var(--college);
+      color: var(--college-dark);
       background: var(--college-soft);
       cursor: pointer;
       font-weight: 900;
@@ -232,7 +232,7 @@
       border-radius: 50%;
       display: grid;
       place-items: center;
-      color: var(--college);
+      color: var(--college-dark);
       background: var(--college-soft);
       font-size: 23px;
       font-weight: 900;
@@ -295,7 +295,7 @@
       border-radius: 7px;
       display: grid;
       place-items: center;
-      color: var(--college);
+      color: var(--college-dark);
       background: var(--college-soft);
       margin-bottom: 16px;
     }
@@ -350,7 +350,7 @@
 
     .quick-action {
       min-height: 44px;
-      border: 1px solid color-mix(in srgb, var(--college) 28%, #ffffff);
+      border: 1px solid color-mix(in srgb, var(--college) 35%, #ffffff);
       border-radius: 7px;
       display: flex;
       align-items: center;
@@ -364,8 +364,8 @@
     }
 
     .quick-action:hover {
-      border-color: var(--college);
-      background: color-mix(in srgb, var(--college) 5%, #ffffff);
+      border-color: var(--college-dark);
+      background: color-mix(in srgb, var(--college) 8%, #ffffff);
     }
 
     .submit-intro {
@@ -387,13 +387,13 @@
     .choice-card {
       min-height: 240px;
       padding: 24px;
-      border: 2px solid color-mix(in srgb, var(--college) 22%, #ffffff);
+      border: 2px solid color-mix(in srgb, var(--college) 30%, #ffffff);
       cursor: pointer;
       transition: border-color 0.18s ease, transform 0.18s ease;
     }
 
     .choice-card:hover {
-      border-color: var(--college);
+      border-color: var(--college-dark);
       transform: translateY(-1px);
     }
 
@@ -470,7 +470,7 @@
 
     .field select:focus,
     .field input:focus {
-      border-color: var(--college);
+      border-color: var(--college-dark);
       box-shadow: 0 0 0 3px var(--college-soft);
     }
 
@@ -682,7 +682,7 @@
         <img src="../logoooo.jfif" alt="PLP Feedback logo">
         <div>
           <strong>PLP Feedback</strong>
-          <span id="sidebarCollege">Student</span>
+          <span id="sidebarCollege">Student · COED</span>
         </div>
       </div>
 
@@ -713,7 +713,7 @@
       <header class="topbar">
         <h1 id="pageTitle">Dashboard</h1>
         <div class="top-actions">
-          <span class="college-pill" id="topCollege">College</span>
+          <span class="college-pill" id="topCollege">COED</span>
           <span class="student-text">Student</span>
           <button class="profile-trigger" id="profileTrigger" type="button" aria-label="Open profile">S</button>
         </div>
@@ -729,7 +729,7 @@
               <div class="meta-row">
                 <span class="meta-chip">ID: <strong data-id>Loading</strong></span>
                 <span class="meta-chip">Section: <strong data-section>Loading</strong></span>
-                <span class="meta-chip">College: <strong data-college-code>---</strong></span>
+                <span class="meta-chip">College: <strong data-college-code>COED</strong></span>
               </div>
             </div>
             <span class="role-chip">Student</span>
@@ -891,10 +891,12 @@
       profile: 'My Profile'
     };
 
+    // COED is the default/fallback college theme for this dashboard.
     const collegeFallbacks = {
+      COED: { name: 'College of Education', color: '#294789' },
+      COE: { name: 'College of Engineering', color: '#FB7528' },
       CBA: { name: 'College of Business and Accountancy', color: '#FFB000' },
-      COED: { name: 'College of Education', color: '#0041C2' },
-      COE: { name: 'College of Engineering', color: '#D78C3D' },
+      BSA: { name: 'Bachelor of Science in Accountancy', color: '#FFB000' },
       CAS: { name: 'College of Arts and Sciences', color: '#7600BC' },
       CON: { name: 'College of Nursing', color: '#E7ACCF' },
       CCS: { name: 'College of Computer Studies', color: '#C5C6C7' },
@@ -912,13 +914,13 @@
     }
 
     function setCollegeTheme(college) {
-      const info = collegeFallbacks[college.code] || collegeFallbacks.CAS;
+      const info = collegeFallbacks[college.code] || collegeFallbacks.COED;
       const color = college.color || info.color;
       document.documentElement.style.setProperty('--college', color);
-      document.documentElement.style.setProperty('--college-dark', shade(color, -14));
+      document.documentElement.style.setProperty('--college-dark', shade(color, -16));
       document.documentElement.style.setProperty('--college-soft', color + '29');
       document.getElementById('topCollege').textContent = college.name || info.name;
-      document.getElementById('sidebarCollege').textContent = 'Student · ' + (college.code || 'CAS');
+      document.getElementById('sidebarCollege').textContent = 'Student · ' + (college.code || 'COED');
     }
 
     function switchPage(page) {
@@ -935,11 +937,11 @@
       document.querySelectorAll('[data-initial]').forEach(el => el.textContent = initial);
       document.querySelectorAll('[data-name]').forEach(el => el.textContent = student.name || 'Student');
       document.querySelectorAll('[data-id]').forEach(el => el.textContent = student.student_id || 'N/A');
-      document.querySelectorAll('[data-program]').forEach(el => el.textContent = student.program || 'N/A');
+      document.querySelectorAll('[data-program]').forEach(el => el.textContent = student.program || 'BS Education');
       document.querySelectorAll('[data-section]').forEach(el => el.textContent = student.section || 'N/A');
-      document.querySelectorAll('[data-college-code]').forEach(el => el.textContent = student.college.code || 'N/A');
-      document.querySelectorAll('[data-college-name]').forEach(el => el.textContent = student.college.name || 'N/A');
-      setCollegeTheme(student.college);
+      document.querySelectorAll('[data-college-code]').forEach(el => el.textContent = (student.college && student.college.code) || 'COED');
+      document.querySelectorAll('[data-college-name]').forEach(el => el.textContent = (student.college && student.college.name) || collegeFallbacks.COED.name);
+      setCollegeTheme(student.college || { code: 'COED' });
     }
 
     function logout() {
@@ -988,6 +990,9 @@
       alert('Password update form submitted.');
     });
 
+    // Apply the College of Education navy theme immediately so the page never flashes the wrong color.
+    setCollegeTheme({ code: 'COED' });
+
     fetch('../get_student_dashboard_profile.php')
       .then(response => response.json())
       .then(data => {
@@ -999,7 +1004,14 @@
         fillStudent(data.student);
       })
       .catch(() => {
-        alert('Unable to load student profile.');
+        // Fall back to a COED demo profile if the backend isn't reachable.
+        fillStudent({
+          name: 'Student',
+          student_id: 'N/A',
+          program: 'BS Education',
+          section: 'N/A',
+          college: { code: 'COED', name: collegeFallbacks.COED.name, color: '#294789' }
+        });
       });
 
     const hashPage = location.hash.replace('#', '');

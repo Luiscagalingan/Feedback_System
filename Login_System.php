@@ -15,6 +15,19 @@ include 'admin/dbinit.php';
 //     exit;
 // }
 
+// Maps a college code (stored on the student record) to the
+// dashboard file that college's students should land on.
+// Any code that isn't in this list falls back to dashboard_CAS.html.
+$collegeDashboards = [
+    'BSA'  => 'dashboard_BSA.html',
+    'COED' => 'dashboard_COED.html',
+    'COE'  => 'dashboard_COE.html',
+    'CAS'  => 'dashboard_CAS.html',
+    'CCS'  => 'dashboard_CCS.html',
+    'CON'  => 'dashboard_CON.html',
+    'CIHM' => 'dashboard_CIHM.html',
+];
+
 // Read input (supports JSON or regular POST)
 $input = json_decode(file_get_contents('php://input'), true);
 if (!$input) {
@@ -69,11 +82,19 @@ if ($result_student->num_rows > 0) {
         // Set session variables
         $_SESSION['user_id'] = $student['id'];
         $_SESSION['role'] = 'student';
+
+        // Pick the dashboard file for this student's college.
+        // Falls back to CAS if the stored value is blank or unrecognized.
+        $studentCollege = strtoupper(trim($student['college'] ?? ''));
+        $_SESSION['college'] = $studentCollege;
+        $dashboardFile = $collegeDashboards[$studentCollege] ?? 'dashboard_CAS.html';
+
         echo json_encode([
             "success" => true,
             "role" => "student",
             "message" => "Student login successful",
-            "redirect_url" => "Student Dashboard/index.html"
+            "college" => $studentCollege,
+            "redirect_url" => "Student Dashboard/" . $dashboardFile
         ]);
 
     } else {
