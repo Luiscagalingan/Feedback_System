@@ -20,7 +20,8 @@ switch ($role) {
         $nameField = 'student_name';
         break;
     case 'academic':
-        $tableName = 'academic_teachers';   
+    case 'dean':
+        $tableName = 'academic_teachers';
         $nameField = 'full_name';
         break;
     case 'nonacademic':
@@ -48,11 +49,29 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if ($user = $result->fetch_assoc()) {
+    $response = [
+        'success' => true,
+        'name' => $user[$nameField],
+        'email' => $user['email'] ?? '',
+        'college' => $_SESSION['college'] ?? '',
+        'role' => 'User'
+    ];
+
     if ($role === 'admin') {
-        echo json_encode(['success' => true, 'username' => $user[$nameField]]);
-    } else {
-        echo json_encode(['success' => true, 'name' => $user[$nameField], 'email' => $user['email']]);
+        $response['name'] = $user[$nameField];
+        $response['role'] = 'Admin';
+        $response['email'] = '';
+    } elseif ($role === 'academic') {
+        $response['role'] = 'Academic Teacher';
+    } elseif ($role === 'dean') {
+        $response['role'] = 'Dean';
+    } elseif ($role === 'student') {
+        $response['role'] = 'Student';
+    } elseif ($role === 'nonacademic') {
+        $response['role'] = 'Non-Academic';
     }
+
+    echo json_encode($response);
 } else {
     echo json_encode(['success' => false, 'message' => 'User not found.']);
 }

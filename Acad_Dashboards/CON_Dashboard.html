@@ -11,13 +11,26 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
+    :root {
+      --college: #fe86cd;
+      --college-dark: #d55da4;
+      --college-soft: rgba(254, 134, 205, 0.16);
+      --bg: #f3f4f7;
+      --panel: #ffffff;
+      --line: #e4e7ee;
+      --text: #071527;
+      --muted: #8b95a8;
+      --soft-text: #536176;
+      --shadow: 0 1px 4px rgba(12, 18, 28, 0.14);
+    }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { width: 100%; overflow-x: hidden; }
     body { font-family: 'Roboto', sans-serif; background: url('Background.jpg') center/cover no-repeat fixed; color: #333; min-height: 100vh; opacity: 0; transition: opacity 0.6s ease-in-out; }
     body.fade-in { opacity: 1; }
     body::before { content: ''; position: fixed; inset: 0; background: linear-gradient(135deg, rgba(0, 31, 63, 0.8), rgba(0, 64, 128, 0.6)); z-index: -1; }
     .container { max-width: 1200px; margin: 0 auto; padding: 20px; position: relative; z-index: 1; }
-    .navbar { background: linear-gradient(90deg, #001F3F, #004080, #0074D9); padding: 15px 0; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(15px); border-radius: 0 0 25px 25px; width: 100%; }
+    .navbar { background: linear-gradient(90deg, var(--college-dark), var(--college)); padding: 15px 0; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12); position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(8px); border-radius: 0 0 12px 12px; width: 100%; }
     .navbar-content { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
     .navbar-brand { font-size: 22px; font-weight: 700; color: #ffffff; letter-spacing: 1.5px; display: flex; align-items: center; gap: 10px; }
     .navbar-brand i { font-size: 24px; }
@@ -32,7 +45,7 @@
     .dashboard-header p { color: #555; font-size: 1.2em; font-weight: 300; }
     .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; margin-bottom: 30px; }
     .stat-card { background: rgba(255, 255, 255, 0.95); padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); transition: all 0.4s ease; border: 1px solid #e9ecef; text-align: center; position: relative; overflow: hidden; }
-    .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px; background: linear-gradient(90deg, #004080, #0074D9); border-radius: 20px 20px 0 0; }
+    .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px; background: linear-gradient(90deg, var(--college-dark), var(--college)); border-radius: 20px 20px 0 0; }
     .stat-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25); }
     .stat-card-value { font-size: 36px; font-weight: 700; color: #003366; margin-bottom: 10px; }
     .stat-card-label { font-size: 14px; color: #555; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 500; }
@@ -56,8 +69,8 @@
     .close { float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
     #downloadPDF { margin-top: 15px; padding: 8px 16px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; }
     #downloadPDF:hover { background-color: #45a049; }
-    #viewChartBtn, #addStudentBtn, #toggleTableBtn, #toggleReviewsBtn { background: linear-gradient(90deg, #004080, #0074D9); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 8px; }
-    #viewChartBtn:hover, #toggleReviewsBtn:hover { background: linear-gradient(90deg, #0059b3, #339CFF); transform: translateY(-2px); }
+    #viewChartBtn, #addStudentBtn, #toggleTableBtn, #toggleReviewsBtn { background: linear-gradient(90deg, var(--college-dark), var(--college)); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 8px; }
+    #viewChartBtn:hover, #toggleReviewsBtn:hover { filter: brightness(0.95); transform: translateY(-2px); }
     #addStudentBtn { background: linear-gradient(90deg, #28a745, #218838); }
     #addStudentBtn:hover { background: linear-gradient(90deg, #218838, #1e7e34); transform: translateY(-2px); }
     #toggleTableBtn { background: linear-gradient(90deg, #6c757d, #5a6268); }
@@ -65,8 +78,8 @@
     #csvForm { background: rgba(255, 255, 255, 0.9); padding: 20px; border-radius: 10px; margin-top: 20px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border: 1px solid #e0e0e0; }
     #csvForm label { font-weight: 600; color: #003366; margin-bottom: 10px; display: block; }
     #csvForm input[type="file"] { margin-bottom: 15px; }
-    #csvForm button { background: linear-gradient(90deg, #004080, #0074D9); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.3s ease, transform 0.2s ease; }
-    #csvForm button:hover { background: linear-gradient(90deg, #0059b3, #339CFF); transform: translateY(-2px); }
+    #csvForm button { background: linear-gradient(90deg, var(--college-dark), var(--college)); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.3s ease, transform 0.2s ease; }
+    #csvForm button:hover { filter: brightness(0.95); transform: translateY(-2px); }
     .student-table-container { width: 100%; overflow-x: auto; margin-top: 25px; }
     #studentTable { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
     #studentTable thead { background: #003366; color: white; }

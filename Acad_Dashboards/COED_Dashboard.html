@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COED Dashboard — Dean</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{
+    --college: #294789;
+    --college-dark: #001e60;
+    --college-soft: rgba(41, 71, 137, 0.16);
+    --gold: var(--college);
+    --gold-dark: var(--college-dark);
+    --navy:#0F1A2B;
+    --ink:#1F2937;
+    --muted:#6B7280;
+    --line:#E7E9EE;
+    --bg:#F4F5F7;
+    --card:#FFFFFF;
+    --pos:#22C55E;
+    --neu:#9CA3AF;
+    --neg:#EF4444;
+    --radius:14px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter', sans-serif; background:var(--bg); color:var(--ink); display:flex; min-height:100vh; }
+
+  /* SIDEBAR */
+  .sidebar { width:240px; flex-shrink:0; background:linear-gradient(180deg, var(--gold), var(--gold-dark)); display:flex; flex-direction:column; padding:24px 16px; }
+  .brand { display:flex; align-items:center; gap:10px; padding:6px 8px 26px; }
+  .brand-icon { width:36px; height:36px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; color:var(--gold-dark); font-size:14px; }
+  .brand-icon { width:36px; height:36px; border-radius:10px; overflow:hidden; background:#fff; display:flex; align-items:center; justify-content:center; }
+  .brand-icon img { width:100%; height:100%; object-fit:contain; }
+  .brand-text strong { display:block; font-size:14px; color:var(--navy); }
+  .brand-text span { display:block; font-size:11px; color:rgba(15,26,43,0.6); }
+  .nav-section { display:flex; flex-direction:column; gap:4px; flex:1; }
+  .nav-item { display:flex; align-items:center; gap:12px; padding:11px 14px; border-radius:10px; color:rgba(15,26,43,0.75); font-size:14px; font-weight:600; text-decoration:none; cursor:pointer; transition:background .2s ease, color .2s ease; }
+  .nav-item i { width:18px; text-align:center; font-size:14px; }
+  .nav-item:hover { background:rgba(255,255,255,0.35); }
+  .nav-item.active { background:var(--navy); color:#fff; box-shadow:0 6px 16px rgba(15,26,43,0.25); }
+  .sidebar-footer { padding-top:14px; border-top:1px solid rgba(15,26,43,0.15); }
+  .logout-link { display:flex; align-items:center; gap:12px; padding:11px 14px; border-radius:10px; color:rgba(15,26,43,0.75); font-weight:600; font-size:14px; cursor:pointer; background:none; border:none; width:100%; text-align:left; }
+  .logout-link:hover { background:rgba(255,255,255,0.35); }
+
+  /* MAIN */
+  .main { flex:1; min-width:0; display:flex; flex-direction:column; }
+  .topbar { background:#fff; border-bottom:1px solid var(--line); padding:16px 28px; display:flex; align-items:center; justify-content:space-between; }
+  .topbar-title { font-size:15px; font-weight:700; color:var(--ink); }
+  .topbar-right { display:flex; align-items:center; gap:14px; }
+  .scope-pill { display:flex; align-items:center; gap:8px; background:#F3F4F6; border:1px solid var(--line); border-radius:10px; padding:8px 14px; font-size:13px; color:var(--muted); }
+  .role-badge { background:var(--navy); color:#fff; font-size:12px; font-weight:700; padding:7px 14px; border-radius:8px; }
+  .avatar-wrap { position:relative; }
+  .avatar { width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg, var(--gold), var(--gold-dark)); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:13px; cursor:pointer; border:none; }
+  .avatar-menu { position:absolute; right:0; top:42px; background:#fff; border:1px solid var(--line); border-radius:12px; box-shadow:0 14px 36px rgba(15,26,43,0.16); width:190px; padding:8px; display:none; flex-direction:column; gap:2px; z-index:200; }
+  .avatar-menu.open { display:flex; }
+  .avatar-menu-header { padding:10px 12px 8px; border-bottom:1px solid var(--line); margin-bottom:4px; }
+  .avatar-menu-header strong { display:block; font-size:13px; color:var(--ink); }
+  .avatar-menu-header span { display:block; font-size:11.5px; color:var(--muted); }
+  .avatar-menu button { display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:8px; border:none; background:none; font-size:13.5px; font-weight:600; color:var(--ink); cursor:pointer; text-align:left; }
+  .avatar-menu button:hover { background:#F3F4F6; }
+  .avatar-menu button.danger { color:#DC2626; }
+  .avatar-menu button.danger:hover { background:#FEF2F2; }
+
+  .content { padding:28px; max-width:1320px; width:100%; margin:0 auto; }
+  .page-section { display:none; }
+  .page-section.active { display:block; }
+  .page-head { display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:14px; margin-bottom:24px; }
+  .page-head h1 { font-size:21px; font-weight:800; color:var(--ink); margin-bottom:4px; }
+  .page-head p { font-size:13.5px; color:var(--muted); }
+  .export-btn { background:var(--gold); color:#fff; border:none; padding:11px 18px; border-radius:10px; font-weight:700; font-size:13.5px; cursor:pointer; display:flex; align-items:center; gap:8px; box-shadow:0 6px 16px rgba(255,176,32,0.35); }
+  .export-btn:hover { background:var(--gold-dark); }
+
+  .stats-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:18px; margin-bottom:22px; }
+  .stat-card { background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:22px; }
+  .stat-icon { width:38px; height:38px; border-radius:10px; background:#FFF3DC; color:var(--gold-dark); display:flex; align-items:center; justify-content:center; margin-bottom:16px; font-size:15px; }
+  .stat-value { font-size:26px; font-weight:800; color:var(--ink); margin-bottom:4px; }
+  .stat-label { font-size:13px; color:var(--muted); font-weight:500; }
+
+  .charts-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:22px; }
+  .chart-card { background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:22px; }
+  .chart-card h3 { font-size:14.5px; font-weight:700; margin-bottom:18px; color:var(--ink); }
+  .chart-card canvas { max-height:230px; }
+  .legend-row { display:flex; gap:18px; justify-content:center; margin-top:14px; font-size:12.5px; color:var(--muted); }
+  .legend-dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; }
+
+  .table-card { background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:24px; margin-bottom:22px; }
+  .table-card-head { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:16px; }
+  .table-card-head h2 { font-size:16px; font-weight:700; }
+  .table-card-head p { font-size:12.5px; color:var(--muted); margin-top:2px; }
+  #studentSearch { width:100%; padding:10px 14px; margin-bottom:16px; border:1px solid var(--line); border-radius:10px; font-size:13.5px; }
+  #studentSearch:focus { outline:2px solid var(--gold); border-color:transparent; }
+  .toolbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:10px; }
+  .toolbar-left { display:flex; gap:10px; flex-wrap:wrap; }
+  .btn { border:none; padding:10px 16px; border-radius:9px; font-weight:600; font-size:13px; cursor:pointer; display:inline-flex; align-items:center; gap:7px; }
+  .btn-primary { background:var(--navy); color:#fff; }
+  .btn-success { background:var(--pos); color:#fff; }
+  .btn-muted { background:#EEF0F3; color:var(--ink); }
+  .btn-chart { background:var(--gold); color:#fff; }
+
+  #csvForm { background:#FAFAFB; padding:16px; border-radius:10px; margin-bottom:18px; border:1px solid var(--line); }
+  #csvForm label { font-weight:600; color:var(--ink); margin-bottom:8px; display:block; font-size:13px; }
+  #csvForm input[type="file"] { margin-bottom:12px; font-size:13px; }
+
+  .student-table-container { width:100%; overflow-x:auto; }
+  #studentTable, #archiveTable { width:100%; border-collapse:collapse; }
+  #studentTable thead, #archiveTable thead { background:#F8F9FB; }
+  #studentTable th, #archiveTable th { padding:12px 14px; text-align:left; font-weight:700; font-size:12.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em; border-bottom:1px solid var(--line); }
+  #studentTable td, #archiveTable td { padding:13px 14px; border-bottom:1px solid var(--line); font-size:13.5px; }
+  #studentTable tbody tr:hover, #archiveTable tbody tr:hover { background:#FAFAFB; }
+  #archiveSearch { width:100%; padding:10px 14px; margin-bottom:16px; border:1px solid var(--line); border-radius:10px; font-size:13.5px; }
+  #archiveSearch:focus { outline:2px solid var(--gold); border-color:transparent; }
+  .edit-btn, .delete-btn { padding:6px 11px; margin-right:6px; border:none; border-radius:7px; cursor:pointer; font-size:12px; font-weight:600; }
+  .edit-btn { background:#EAF2FF; color:#1D5DC9; }
+  .edit-btn:hover { background:#D6E7FF; }
+  .delete-btn { background:#FDE9E9; color:#C0392B; }
+  .delete-btn:hover { background:#FBD4D4; }
+
+  .modal { display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; overflow:auto; background:rgba(15,26,43,0.45); }
+  .modal.open { display:flex; align-items:center; justify-content:center; padding:20px; }
+  .modal-content { background:#fff; margin:auto; padding:24px; width:100%; max-width:500px; text-align:left; border-radius:18px; box-shadow:0 24px 60px rgba(15,23,42,0.15); }
+  .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
+  .modal-header h3 { margin:0; font-size:1.1rem; color:var(--ink); }
+  .modal-close { border:none; background:none; font-size:24px; font-weight:700; cursor:pointer; color:var(--muted); }
+  .modal-body { display:grid; gap:16px; }
+  .modal-body label { display:block; font-size:0.95rem; color:var(--muted); margin-bottom:6px; }
+  .modal-body input { width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:12px; font-size:0.95rem; color:var(--ink); }
+  .modal-body input:focus { outline:none; border-color:var(--gold); box-shadow:0 0 0 4px rgba(41,71,137,0.12); }
+  .modal-footer { display:flex; justify-content:flex-end; gap:12px; flex-wrap:wrap; margin-top:14px; }
+  .modal-footer button { min-width:110px; }
+  #downloadPDF { margin-top:16px; padding:10px 18px; background:var(--gold); color:#fff; border:none; border-radius:9px; cursor:pointer; font-weight:700; font-size:13.5px; }
+  #downloadPDF:hover { background:var(--gold-dark); }
+
+  @media (max-width:1000px){ .stats-grid{grid-template-columns:repeat(2,1fr);} .charts-grid{grid-template-columns:1fr;} }
+  @media (max-width:760px){ .sidebar{display:none;} .stats-grid{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-icon"><img src="../logoooo.jfif" alt="PLP Feedback logo"></div>
+    <div class="brand-text"><strong>PLP Feedback</strong><span>Dean · COED</span></div>
+  </div>
+  <nav class="nav-section">
+    <a class="nav-item active" data-page="dashboard"><i class="fas fa-grip"></i> Dashboard</a>
+    <a class="nav-item" data-page="studentManagement"><i class="fas fa-users"></i> Student Management</a>
+    <a class="nav-item" data-page="archiveList"><i class="fas fa-archive"></i> Archived Students</a>
+    <a class="nav-item" data-page="profile" id="profileNavLink"><i class="fas fa-user"></i> Profile</a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="logout-link" id="sidebarLogoutBtn"><i class="fas fa-arrow-right-from-bracket"></i> Logout</button>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">Dashboard</div>
+    <div class="topbar-right">
+      <div class="scope-pill"><i class="fas fa-building-columns"></i> College of Education</div>
+      <div class="role-badge">Dean</div>
+      <div class="avatar-wrap">
+        <button class="avatar" id="avatarBtn">EC</button>
+        <div class="avatar-menu" id="avatarMenu">
+          <div class="avatar-menu-header"><strong>Dr. Emmanuel Cruz</strong><span>e.cruz@university.edu</span></div>
+          <button id="menuProfileBtn"><i class="fas fa-user"></i> Profile</button>
+          <button class="danger" id="menuLogoutBtn"><i class="fas fa-arrow-right-from-bracket"></i> Logout</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div id="dashboardPage" class="page-section active">
+      <div class="page-head">
+        <div>
+          <h1>College of Education</h1>
+          <p>Dean · College of Education</p>
+        </div>
+        <button class="export-btn" id="viewChartBtn"><i class="fas fa-file-export"></i> Export PDF</button>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fas fa-comment-dots"></i></div>
+          <div class="stat-value" id="feedbackCount">0</div>
+          <div class="stat-label">Total Feedback</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#E9F9EE; color:#16A34A;"><i class="fas fa-arrow-trend-up"></i></div>
+          <div class="stat-value" id="positiveVal">0%</div>
+          <div class="stat-label">Positive</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#F1F2F4; color:#6B7280;"><i class="fas fa-chart-simple"></i></div>
+          <div class="stat-value" id="commentCount">0</div>
+          <div class="stat-label">Comments</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#FDEAEA; color:#DC2626;"><i class="fas fa-arrow-trend-down"></i></div>
+          <div class="stat-value" id="negativeVal">0%</div>
+          <div class="stat-label">Negative</div>
+        </div>
+      </div>
+
+      <div class="charts-grid">
+        <div class="chart-card">
+          <h3>Sentiment Distribution</h3>
+          <canvas id="myChart"></canvas>
+          <div class="legend-row">
+            <span><i class="legend-dot" style="background:var(--pos);"></i>Positive</span>
+            <span><i class="legend-dot" style="background:var(--neu);"></i>Neutral</span>
+            <span><i class="legend-dot" style="background:var(--neg);"></i>Negative</span>
+          </div>
+        </div>
+        <div class="chart-card">
+          <h3>Feedback Overview</h3>
+          <canvas id="overviewChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div id="studentManagementPage" class="page-section">
+      <div class="table-card">
+        <div class="table-card-head">
+          <div>
+            <h2><i class="fas fa-users"></i> Student Management</h2>
+            <p>Manage active COED students. Use Edit, Archive, or Delete actions.</p>
+          </div>
+        </div>
+        <input type="text" id="studentSearch" placeholder="Filter by student ID, name, section, or program..." />
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <button class="btn btn-success" id="addStudentBtn"><i class="fas fa-user-plus"></i> Add Student</button>
+            <button class="btn btn-muted" id="studentLogoutBtn"><i class="fas fa-arrow-right-from-bracket"></i> Logout</button>
+          </div>
+        </div>
+        <form id="csvForm" enctype="multipart/form-data">
+          <label for="csv_file">Or, upload students via CSV file:</label>
+          <input type="file" name="csv_file" id="csv_file" accept=".csv" required />
+          <button type="submit" class="btn btn-primary"><i class="fas fa-upload"></i> Upload CSV</button>
+        </form>
+        <div class="student-table-container">
+          <table id="studentTable">
+            <thead><tr><th>Student ID</th><th>Name</th><th>Section</th><th>Program</th><th>Actions</th></tr></thead>
+            <tbody><tr><td colspan="5" style="text-align:center;">Loading students...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="archiveListPage" class="page-section">
+      <div class="table-card">
+        <div class="table-card-head">
+          <div>
+            <h2><i class="fas fa-archive"></i> Archived Students</h2>
+            <p>Search and manage archived student records with the same layout as active students.</p>
+          </div>
+        </div>
+        <input type="text" id="archiveSearch" placeholder="Filter archived students..." />
+        <div class="student-table-container">
+          <table id="archiveTable">
+            <thead><tr><th>Student ID</th><th>Name</th><th>Section</th><th>Program</th><th>Actions</th></tr></thead>
+            <tbody><tr><td colspan="5" style="text-align:center;">Loading archived students...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="profilePage" class="page-section">
+      <div class="table-card">
+        <div class="table-card-head"><h2>Profile</h2></div>
+        <div class="profile-layout">
+          <div class="profile-card">
+            <div class="profile-head">
+              <div class="avatar" data-initial>D</div>
+              <div>
+                <h2 data-name>Loading...</h2>
+                <div class="stat-label">Dean</div>
+              </div>
+            </div>
+            <div class="profile-list">
+              <div class="profile-row"><span>Email</span><span data-email>Loading</span></div>
+              <div class="profile-row"><span>Phone</span><span data-phone>Loading</span></div>
+            </div>
+          </div>
+          <div class="password-card">
+            <h2>Change Password</h2>
+            <div class="form-grid">
+              <div class="field"><label for="currentPasswordInput">Current Password</label><input id="currentPasswordInput" type="password" placeholder="Current password"></div>
+              <div class="field"><label for="newPasswordInput">New Password</label><input id="newPasswordInput" type="password" placeholder="New password"></div>
+              <div class="field"><label for="confirmPasswordInput">Confirm New Password</label><input id="confirmPasswordInput" type="password" placeholder="Confirm new password"></div>
+              <div class="modal-footer"><button class="btn btn-muted" id="cancelChangePasswordBtn">Cancel</button><button class="btn btn-primary" id="saveChangePasswordBtn">Change Password</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="modal" id="chartModal">
+  <div class="modal-content">
+    <div class="modal-header"><h3>Export Chart</h3><button class="modal-close close">&times;</button></div>
+    <canvas id="exportChart" width="400" height="300"></canvas>
+    <button id="downloadPDF">Download PDF</button>
+  </div>
+</div>
+
+<script>
+  /* ---------- Avatar / profile dropdown ---------- */
+  const avatarBtn = document.getElementById("avatarBtn");
+  const avatarMenu = document.getElementById("avatarMenu");
+  avatarBtn.addEventListener("click", (e) => { e.stopPropagation(); avatarMenu.classList.toggle("open"); });
+  document.addEventListener("click", (e) => { if (!avatarMenu.contains(e.target) && e.target !== avatarBtn) avatarMenu.classList.remove("open"); });
+  function goProfile() { setActivePage('profilePage'); }
+  function doLogout() { if (confirm("Are you sure you want to log out?")) { window.location.href = "index.html"; } }
+  document.getElementById("menuProfileBtn").addEventListener("click", goProfile);
+  document.getElementById("menuLogoutBtn").addEventListener("click", doLogout);
+  document.getElementById("profileNavLink").addEventListener("click", goProfile);
+  document.getElementById("sidebarLogoutBtn").addEventListener("click", doLogout);
+  const studentLogoutBtn = document.getElementById('studentLogoutBtn');
+  if (studentLogoutBtn) studentLogoutBtn.addEventListener('click', doLogout);
+
+  /* ---------- CSV upload ---------- */
+  document.getElementById('csvForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var formData = new FormData();
+    formData.append('csv_file', document.getElementById('csv_file').files[0]);
+    fetch('../admin/import.php', { method: 'POST', body: formData })
+      .then(res => res.text())
+      .then(data => { alert(data); loadStudents(); })
+      .catch(err => alert("Error: " + err));
+  });
+
+  const navItems = document.querySelectorAll('.nav-item[data-page]');
+  function setActivePage(page) { document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active')); document.getElementById(page).classList.add('active'); }
+
+  document.querySelectorAll('.nav-item[data-page]').forEach(btn => btn.addEventListener('click', () => setActivePage(btn.dataset.page)));
+
+  /* ---------- Dashboard data + charts (COED) ---------- */
+  let positiveCount = 0, negativeCount = 0, neutralCount = 0;
+  fetch('../dashboard_data.php?role=COED')
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        document.getElementById('positiveVal').textContent = data.data.percentages["Positive Feedback"] + "%";
+        document.getElementById('negativeVal').textContent = data.data.percentages["Negative Feedback"] + "%";
+        document.getElementById('feedbackCount').textContent = data.data.row_count;
+        document.getElementById('commentCount').textContent = data.data.review_count;
+        positiveCount = data.data.review["Positive Review"] || 0;
+        negativeCount = data.data.review["Negative Review"] || 0;
+        neutralCount = data.data.review["Neutral Review"] || 0;
+      }
+      drawCharts();
+    })
+    .catch(err => { console.error('Fetch error:', err); drawCharts(); });
+
+  function drawCharts() {
+    const ctx = document.getElementById('myChart').getContext('2d');
+    if (window.myChartInstance) window.myChartInstance.destroy();
+    window.myChartInstance = new Chart(ctx, { type: 'doughnut', data: { labels: ['Positive','Negative','Neutral'], datasets:[{ data:[positiveCount, negativeCount, neutralCount], backgroundColor:['#22C55E','#EF4444','#9CA3AF'], borderColor:'#fff', borderWidth:2 }] }, options:{ responsive:true } });
+
+    const ctx2 = document.getElementById('overviewChart').getContext('2d');
+    if (window.overviewChartInstance) window.overviewChartInstance.destroy();
+    window.overviewChartInstance = new Chart(ctx2, { type:'bar', data:{ labels:['Positive','Negative','Neutral'], datasets:[{ data:[positiveCount, negativeCount, neutralCount], backgroundColor:['#22C55E','#EF4444','#9CA3AF'] }] }, options:{ responsive:true } });
+  }
+
+  document.getElementById('viewChartBtn').addEventListener('click', () => {
+    const modal = document.getElementById('chartModal'); modal.style.display = 'flex';
+    const ctx3 = document.getElementById('exportChart').getContext('2d');
+    if (window.exportChartInstance) window.exportChartInstance.destroy();
+    window.exportChartInstance = new Chart(ctx3, { type:'doughnut', data:{ labels:['Positive','Negative','Neutral'], datasets:[{ data:[positiveCount, negativeCount, neutralCount], backgroundColor:['#22C55E','#EF4444','#9CA3AF'] }] }, options:{ responsive:false } });
+  });
+
+  document.querySelector('.close').addEventListener('click', () => document.getElementById('chartModal').style.display = 'none');
+
+  document.getElementById('downloadPDF').addEventListener('click', () => {
+    const { jsPDF } = window.jspdf; const pdf = new jsPDF('p','mm','a4'); const canvas1 = document.getElementById('exportChart'); const imgData1 = canvas1.toDataURL('image/png',1.0);
+    pdf.setFontSize(16); pdf.text('COED Sentiment Distribution', 105, 15, { align:'center' }); pdf.addImage(imgData1,'PNG',35,20,140,80);
+    pdf.setFontSize(11); pdf.text('Chart Data:',15,110);
+    let x = 42; const y = 110; const labels=['Positive','Negative','Neutral']; const values=[positiveCount,negativeCount,neutralCount]; const colors=['#22C55E','#EF4444','#9CA3AF'];
+    labels.forEach((label,i)=>{ pdf.setFillColor(colors[i]); pdf.rect(x,y-4,5,5,'F'); pdf.text(`${label}: ${values[i]}%`, x+8, y); x+=55; });
+    pdf.setFontSize(10); pdf.text(`Generated on: ${new Date().toLocaleString()}`, 15, 285); pdf.save('COED_Sentiment_Report.pdf');
+  });
+</script>
+</body>
+</html>

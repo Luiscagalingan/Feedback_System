@@ -66,6 +66,13 @@ if (empty($identifier) || empty($password)) {
     exit;
 }
 
+function passwordMatches($inputPassword, $storedPassword) {
+    if (password_verify($inputPassword, $storedPassword)) {
+        return true;
+    }
+    return $inputPassword === $storedPassword;
+}
+
 /* 🛠️ ADMIN LOGIN */
 $sql_admin = "SELECT * FROM admins WHERE username = ?";
 $stmt = $conn->prepare($sql_admin);
@@ -76,7 +83,7 @@ $result_admin = $stmt->get_result();
 if ($result_admin->num_rows > 0) {
     $admin = $result_admin->fetch_assoc();
 
-    if ($password === $admin["password"]) {
+    if (passwordMatches($password, $admin["password"])) {
         // Set session variables
         $_SESSION['user_id'] = $admin['id'];
         $_SESSION['role'] = 'admin';
@@ -100,7 +107,7 @@ $result_student = $stmt->get_result();
 if ($result_student->num_rows > 0) {
     $student = $result_student->fetch_assoc();
 
-    if ($password === $student["password"]) {
+    if (passwordMatches($password, $student["password"])) {
         // Set session variables
         $_SESSION['user_id'] = $student['id'];
         $_SESSION['role'] = 'student';
@@ -137,7 +144,7 @@ $result_academic = $stmt->get_result();
 if ($result_academic->num_rows > 0) {
     $academic = $result_academic->fetch_assoc();
 
-    if ($password === $academic["password"]) {
+    if (passwordMatches($password, $academic["password"])) {
         $fullName = $academic['full_name'] ?? '';
         $email = $academic['email'] ?? '';
         $accountText = $fullName . ' ' . $email;
@@ -181,7 +188,7 @@ $result_nonacademic = $stmt->get_result();
 if ($result_nonacademic->num_rows > 0) {
     $nonacademic = $result_nonacademic->fetch_assoc();
 
-    if ($password === $nonacademic["password"]) {
+    if (passwordMatches($password, $nonacademic["password"])) {
         // Set session variables
         $_SESSION['user_id'] = $nonacademic['id'];
         $_SESSION['role'] = 'nonacademic';

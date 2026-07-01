@@ -32,6 +32,8 @@
   .sidebar { width:240px; flex-shrink:0; background:linear-gradient(180deg, var(--gold), var(--gold-dark)); display:flex; flex-direction:column; padding:24px 16px; }
   .brand { display:flex; align-items:center; gap:10px; padding:6px 8px 26px; }
   .brand-icon { width:36px; height:36px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; color:var(--gold-dark); font-size:14px; }
+  .brand-icon { width:36px; height:36px; border-radius:10px; overflow:hidden; background:#fff; display:flex; align-items:center; justify-content:center; }
+  .brand-icon img { width:100%; height:100%; object-fit:contain; }
   .brand-text strong { display:block; font-size:14px; color:var(--navy); }
   .brand-text span { display:block; font-size:11px; color:rgba(15,26,43,0.6); }
   .nav-section { display:flex; flex-direction:column; gap:4px; flex:1; }
@@ -117,8 +119,17 @@
   .delete-btn:hover { background:#FBD4D4; }
 
   .modal { display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; overflow:auto; background:rgba(15,26,43,0.45); }
-  .modal-content { background:#fff; margin:8% auto; padding:24px; width:440px; text-align:center; border-radius:16px; }
-  .close { float:right; font-size:24px; font-weight:bold; cursor:pointer; color:var(--muted); }
+  .modal.open { display:flex; align-items:center; justify-content:center; padding:20px; }
+  .modal-content { background:#fff; margin:auto; padding:24px; width:100%; max-width:500px; text-align:left; border-radius:18px; box-shadow:0 24px 60px rgba(15,23,42,0.15); }
+  .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
+  .modal-header h3 { margin:0; font-size:1.1rem; color:var(--ink); }
+  .modal-close { border:none; background:none; font-size:24px; font-weight:700; cursor:pointer; color:var(--muted); }
+  .modal-body { display:grid; gap:16px; }
+  .modal-body label { display:block; font-size:0.95rem; color:var(--muted); margin-bottom:6px; }
+  .modal-body input { width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:12px; font-size:0.95rem; color:var(--ink); }
+  .modal-body input:focus { outline:none; border-color:var(--gold); box-shadow:0 0 0 4px rgba(255,176,32,0.16); }
+  .modal-footer { display:flex; justify-content:flex-end; gap:12px; flex-wrap:wrap; margin-top:14px; }
+  .modal-footer button { min-width:110px; }
   #downloadPDF { margin-top:16px; padding:10px 18px; background:var(--gold); color:#fff; border:none; border-radius:9px; cursor:pointer; font-weight:700; font-size:13.5px; }
   #downloadPDF:hover { background:var(--gold-dark); }
 
@@ -130,14 +141,14 @@
 
 <aside class="sidebar">
   <div class="brand">
-    <div class="brand-icon">PLP</div>
+    <div class="brand-icon"><img src="../logoooo.jfif" alt="PLP Feedback logo"></div>
     <div class="brand-text"><strong>PLP Feedback</strong><span>Dean · CBA</span></div>
   </div>
   <nav class="nav-section">
     <a class="nav-item active" data-page="dashboard"><i class="fas fa-grip"></i> Dashboard</a>
     <a class="nav-item" data-page="studentManagement"><i class="fas fa-users"></i> Student Management</a>
     <a class="nav-item" data-page="archiveList"><i class="fas fa-archive"></i> Archived Students</a>
-    <a class="nav-item" id="profileNavLink"><i class="fas fa-user"></i> Profile</a>
+    <a class="nav-item" data-page="profile" id="profileNavLink"><i class="fas fa-user"></i> Profile</a>
   </nav>
   <div class="sidebar-footer">
     <button class="logout-link" id="sidebarLogoutBtn"><i class="fas fa-arrow-right-from-bracket"></i> Logout</button>
@@ -221,7 +232,10 @@
         </div>
         <input type="text" id="studentSearch" placeholder="Filter by student ID, name, section, or program..." />
         <div class="toolbar">
-          <button class="btn btn-success" id="addStudentBtn"><i class="fas fa-user-plus"></i> Add Student</button>
+          <div class="toolbar-left">
+            <button class="btn btn-success" id="addStudentBtn"><i class="fas fa-user-plus"></i> Add Student</button>
+            <button class="btn btn-muted" id="studentLogoutBtn"><i class="fas fa-arrow-right-from-bracket"></i> Logout</button>
+          </div>
         </div>
         <form id="csvForm" enctype="multipart/form-data">
           <label for="csv_file">Or, upload students via CSV file:</label>
@@ -256,6 +270,29 @@
         </div>
       </div>
     </div>
+
+    <div id="profilePage" class="page-section">
+      <div class="table-card">
+        <div class="table-card-head">
+          <div>
+            <h2><i class="fas fa-user-circle"></i> Profile</h2>
+            <p>Review your dean profile information without leaving the dashboard.</p>
+          </div>
+        </div>
+        <div class="profile-card" style="background:#fff; border:1px solid var(--line); border-radius:18px; padding:24px;">
+          <div style="display:grid; gap:18px;">
+            <div style="display:flex; justify-content:space-between; gap:12px; padding:18px; background:#F8F9FB; border-radius:14px;"><strong>Name</strong><span id="profileName">Loading...</span></div>
+            <div style="display:flex; justify-content:space-between; gap:12px; padding:18px; background:#F8F9FB; border-radius:14px;"><strong>Email</strong><span id="profileEmail">Loading...</span></div>
+            <div style="display:flex; justify-content:space-between; gap:12px; padding:18px; background:#F8F9FB; border-radius:14px;"><strong>Role</strong><span id="profileRole">Loading...</span></div>
+            <div style="display:flex; justify-content:space-between; gap:12px; padding:18px; background:#F8F9FB; border-radius:14px;"><strong>College</strong><span id="profileCollege">Loading...</span></div>
+          </div>
+          <div style="margin-top:24px; display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-end;">
+            <button class="btn btn-primary" id="profileEditButton" style="padding:12px 18px;">Edit Profile</button>
+            <button class="btn btn-muted" id="profilePasswordButton" style="padding:12px 18px;">Change Password</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -264,6 +301,52 @@
     <span class="close">&times;</span>
     <canvas id="exportChart" width="400" height="300"></canvas>
     <button id="downloadPDF">Download as PDF</button>
+  </div>
+</div>
+
+<div id="editProfileModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Edit Profile</h3>
+      <button class="modal-close" id="closeEditProfileModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div>
+        <label for="editNameInput">Name</label>
+        <input type="text" id="editNameInput" placeholder="Enter your display name">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-muted" id="cancelEditProfileBtn">Cancel</button>
+      <button class="btn btn-primary" id="saveEditProfileBtn">Save</button>
+    </div>
+  </div>
+</div>
+
+<div id="changePasswordModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Change Password</h3>
+      <button class="modal-close" id="closeChangePasswordModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div>
+        <label for="currentPasswordInput">Current Password</label>
+        <input type="password" id="currentPasswordInput" placeholder="Enter current password">
+      </div>
+      <div>
+        <label for="newPasswordInput">New Password</label>
+        <input type="password" id="newPasswordInput" placeholder="Enter new password">
+      </div>
+      <div>
+        <label for="confirmPasswordInput">Confirm New Password</label>
+        <input type="password" id="confirmPasswordInput" placeholder="Confirm new password">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-muted" id="cancelChangePasswordBtn">Cancel</button>
+      <button class="btn btn-primary" id="saveChangePasswordBtn">Change Password</button>
+    </div>
   </div>
 </div>
 
@@ -280,7 +363,7 @@
       avatarMenu.classList.remove("open");
     }
   });
-  function goProfile() { window.location.href = "../Profile_Acad.html"; }
+  function goProfile() { setActivePage('profilePage'); }
   function doLogout() {
     if (confirm("Are you sure you want to log out?")) {
       window.location.href = "http://localhost/FEEDBACK-SYSTEM-PLP/Feedback_System/index.html";
@@ -290,6 +373,9 @@
   document.getElementById("menuLogoutBtn").addEventListener("click", doLogout);
   document.getElementById("profileNavLink").addEventListener("click", goProfile);
   document.getElementById("sidebarLogoutBtn").addEventListener("click", doLogout);
+  // student management logout button (visible when sidebar may be hidden)
+  const studentLogoutBtn = document.getElementById('studentLogoutBtn');
+  if (studentLogoutBtn) studentLogoutBtn.addEventListener('click', doLogout);
 
   /* ---------- CSV upload ---------- */
   document.getElementById('csvForm').addEventListener('submit', function(e) {
@@ -387,6 +473,9 @@
     } else if (pageId === 'archiveListPage') {
       topbarTitle.textContent = 'Archived Students';
       loadArchivedStudents(archiveSearchInput.value.trim());
+    } else if (pageId === 'profilePage') {
+      topbarTitle.textContent = 'Profile';
+      loadProfileData();
     }
   }
 
@@ -451,6 +540,135 @@
   }
 
   loadStudents();
+
+  function loadProfileData() {
+    const profileName = document.getElementById('profileName');
+    const profileEmail = document.getElementById('profileEmail');
+    const profileRole = document.getElementById('profileRole');
+    const profileCollege = document.getElementById('profileCollege');
+
+    profileName.textContent = 'Loading...';
+    profileEmail.textContent = 'Loading...';
+    profileRole.textContent = 'Loading...';
+    profileCollege.textContent = 'Loading...';
+
+    fetch('../get_profile.php')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          profileName.textContent = data.name || 'N/A';
+          profileEmail.textContent = data.email || 'N/A';
+          profileRole.textContent = data.role || 'Dean';
+          profileCollege.textContent = data.college ? data.college.replace('BSA', 'College of Business and Accountancy') : 'College of Business and Accountancy';
+        } else {
+          profileName.textContent = 'Not available';
+          profileEmail.textContent = 'Not available';
+          profileRole.textContent = 'N/A';
+          profileCollege.textContent = 'N/A';
+          alert(data.message || 'Unable to load profile data.');
+        }
+      })
+      .catch(() => {
+        profileName.textContent = 'Error';
+        profileEmail.textContent = 'Error';
+        profileRole.textContent = 'Error';
+        profileCollege.textContent = 'Error';
+        alert('Failed to load profile information.');
+      });
+  }
+
+  const editProfileModal = document.getElementById('editProfileModal');
+  const changePasswordModal = document.getElementById('changePasswordModal');
+  const editNameInput = document.getElementById('editNameInput');
+  const currentPasswordInput = document.getElementById('currentPasswordInput');
+  const newPasswordInput = document.getElementById('newPasswordInput');
+  const confirmPasswordInput = document.getElementById('confirmPasswordInput');
+  const profileEditButton = document.getElementById('profileEditButton');
+  const profilePasswordButton = document.getElementById('profilePasswordButton');
+  const saveEditProfileBtn = document.getElementById('saveEditProfileBtn');
+  const cancelEditProfileBtn = document.getElementById('cancelEditProfileBtn');
+  const closeEditProfileModal = document.getElementById('closeEditProfileModal');
+  const saveChangePasswordBtn = document.getElementById('saveChangePasswordBtn');
+  const cancelChangePasswordBtn = document.getElementById('cancelChangePasswordBtn');
+  const closeChangePasswordModal = document.getElementById('closeChangePasswordModal');
+
+  function openModal(modal) {
+    modal.classList.add('open');
+  }
+  function closeModal(modal) {
+    modal.classList.remove('open');
+  }
+
+  profileEditButton.addEventListener('click', () => {
+    editNameInput.value = document.getElementById('profileName').textContent === 'Loading...' ? '' : document.getElementById('profileName').textContent;
+    openModal(editProfileModal);
+  });
+
+  profilePasswordButton.addEventListener('click', () => {
+    currentPasswordInput.value = '';
+    newPasswordInput.value = '';
+    confirmPasswordInput.value = '';
+    openModal(changePasswordModal);
+  });
+
+  closeEditProfileModal.addEventListener('click', () => closeModal(editProfileModal));
+  cancelEditProfileBtn.addEventListener('click', () => closeModal(editProfileModal));
+  closeChangePasswordModal.addEventListener('click', () => closeModal(changePasswordModal));
+  cancelChangePasswordBtn.addEventListener('click', () => closeModal(changePasswordModal));
+
+  saveEditProfileBtn.addEventListener('click', () => {
+    const nameValue = editNameInput.value.trim();
+    if (!nameValue) {
+      return alert('Please enter your name.');
+    }
+    fetch('../update_profile.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: nameValue })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          document.getElementById('profileName').textContent = data.name;
+          alert(data.message);
+          closeModal(editProfileModal);
+        } else {
+          alert(data.message || 'Unable to update profile.');
+        }
+      })
+      .catch(() => alert('Unable to update profile.'));
+  });
+
+  saveChangePasswordBtn.addEventListener('click', () => {
+    const current = currentPasswordInput.value.trim();
+    const next = newPasswordInput.value.trim();
+    const confirm = confirmPasswordInput.value.trim();
+
+    if (!current || !next || !confirm) {
+      return alert('Please fill out all password fields.');
+    }
+    if (next !== confirm) {
+      return alert('New password and confirm password do not match.');
+    }
+
+    fetch('../change_password.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ currentPassword: current, newPassword: next, confirmPassword: confirm })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert(data.message);
+          closeModal(changePasswordModal);
+        } else {
+          alert(data.message || 'Unable to change password.');
+        }
+      })
+      .catch(() => alert('Unable to change password.'));
+  });
+
+  loadProfileData();
 
   /* ---------- Dashboard data + charts ---------- */
   let positiveCount = 0, negativeCount = 0, neutralCount = 0;

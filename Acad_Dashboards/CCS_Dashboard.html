@@ -11,6 +11,19 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
+    :root {
+      --college: #C5C6C7;
+      --college-dark: #9c9d9e;
+      --college-soft: rgba(197, 198, 199, 0.16);
+      --bg: #f3f4f7;
+      --panel: #ffffff;
+      --line: #e4e7ee;
+      --text: #071527;
+      --muted: #8b95a8;
+      --soft-text: #536176;
+      --shadow: 0 1px 4px rgba(12, 18, 28, 0.14);
+    }
+
     /* Reset */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { width: 100%; overflow-x: hidden; }
@@ -38,14 +51,14 @@
 
     /* Navbar */
     .navbar {
-      background: linear-gradient(90deg, #001F3F, #004080, #0074D9);
-      padding: 15px 0;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      background: linear-gradient(90deg, var(--college-dark), var(--college));
+      padding: 12px 0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
       position: sticky;
       top: 0;
       z-index: 1000;
-      backdrop-filter: blur(15px);
-      border-radius: 0 0 25px 25px;
+      backdrop-filter: blur(8px);
+      border-radius: 0 0 12px 12px;
       width: 100%;
     }
 
@@ -123,7 +136,7 @@
       padding: 40px;
       border-radius: 20px;
       margin-bottom: 30px;
-      box-shadow: 0 15px 40px rgba(0, 64, 128, 0.15);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.06);
       backdrop-filter: blur(15px);
       text-align: center;
       border: 1px solid rgba(255, 255, 255, 0.2);
@@ -166,7 +179,7 @@
       content: '';
       position: absolute;
       top: 0; left: 0; right: 0; height: 5px;
-      background: linear-gradient(90deg, #004080, #0074D9);
+      background: linear-gradient(90deg, var(--college-dark), var(--college));
       border-radius: 20px 20px 0 0;
     }
 
@@ -178,7 +191,7 @@
     /* Student Table */
     table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
     table th, table td { padding: 12px; border: 1px solid #e9ecef; text-align: left; }
-    table th { background-color: #004080; color: white; }
+    table th { background-color: var(--college-dark); color: white; }
     table img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; }
 
     .edit-btn, .delete-btn {
@@ -197,7 +210,7 @@
     #loadingOverlay {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(255, 255, 255, 0.95); z-index: 3000; backdrop-filter: blur(10px);
-      justify-content: center; align-items: center; font-size: 22px; color: #004080; font-weight: bold;
+      justify-content: center; align-items: center; font-size: 22px; color: var(--college-dark); font-weight: bold;
       transition: opacity 0.3s ease; flex-direction: column; gap: 15px;
     }
     #loadingOverlay i { font-size: 40px; animation: spin 1s linear infinite; }
@@ -272,7 +285,7 @@
 
     /* View Chart Button Styling */
     #viewChartBtn {
-      background: linear-gradient(90deg, #004080, #0074D9);
+      background: linear-gradient(90deg, var(--college-dark), var(--college));
       color: white;
       border: none;
       padding: 10px 20px;
@@ -284,10 +297,7 @@
       align-items: center;
       gap: 8px;
     }
-    #viewChartBtn:hover {
-      background: linear-gradient(90deg, #0059b3, #339CFF);
-      transform: translateY(-2px);
-    }
+    #viewChartBtn:hover { filter: brightness(0.95); transform: translateY(-2px); }
     #addStudentBtn {
       background: linear-gradient(90deg, #28a745, #218838);
       color: white;
@@ -373,7 +383,7 @@
     }
 
     #studentTable thead {
-      background: #003366;
+      background: var(--college-dark);
       color: white;
     }
 
@@ -521,6 +531,7 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
           <div style="display:flex; gap: 10px; flex-wrap: wrap;">
             <button id="addStudentBtn"><i class="fas fa-user-plus"></i> Add Student</button>
+            <button id="studentLogoutBtn"><i class="fas fa-arrow-right-from-bracket"></i> Logout</button>
             <button id="toggleTableBtn"><i class="fas fa-eye-slash"></i> Hide Students</button>
           </div>
           <button id="viewChartBtn"><i class="fas fa-chart-pie"></i> VIEW SENTIMENT CHART</button>
@@ -600,6 +611,15 @@
       document.body.style.opacity = "0.7";
       setTimeout(() => { window.location.href = "Profile_Acad.html"; }, 1000);
     });
+
+    // Wire student-management logout button to main logout
+    const studentLogoutBtn = document.getElementById('studentLogoutBtn');
+    if (studentLogoutBtn) {
+      studentLogoutBtn.addEventListener('click', () => {
+        const mainLogout = document.getElementById('logoutBtn');
+        if (mainLogout) mainLogout.click(); else if(confirm('Are you sure you want to log out?')) { window.location.href = 'index.html'; }
+      });
+    }
 
     const searchInput    = document.getElementById("studentSearch");
     const studentTable    = document.getElementById("studentTable");
