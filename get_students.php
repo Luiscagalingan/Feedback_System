@@ -19,12 +19,26 @@ include 'admin/dbinit.php';
 $search = trim($_GET['search'] ?? '');
 $role = $_GET['role'] ?? '';
 
-$sql = "SELECT id, student_id, student_name, email, section, program
-        FROM students
-        WHERE 1=1";
+$requestedStatus = trim($_GET['status'] ?? 'active');
+$statusFilter = in_array($requestedStatus, ['active', 'archived'], true) ? $requestedStatus : 'active';
 
-// Academic/dean dashboard should show BSIT and BSCS students only.
-if ($role === 'academic' || $role === 'dean') {
+$tableName = $statusFilter === 'archived' ? 'archived_students' : 'students';
+
+if ($tableName === 'students') {
+    $sql = "SELECT id, student_id, student_name, email, section, program, college
+            FROM students
+            WHERE status = 'active'";
+} else {
+    $sql = "SELECT id, student_id, student_name, email, section, program, college
+            FROM archived_students
+            WHERE 1=1";
+}
+
+$collegeRole = strtoupper(trim($role));
+$collegeCodes = ['BSA', 'CAS', 'CCS', 'CIHM', 'COE', 'CON'];
+if (in_array($collegeRole, $collegeCodes, true)) {
+    $sql .= " AND college = ?";
+} elseif ($role === 'academic' || $role === 'dean') {
     $sql .= " AND (LOWER(program) LIKE '%bsit%' OR LOWER(program) LIKE '%bscs%')";
 }
 
@@ -41,8 +55,12 @@ if ($search !== '') {
 }
 
 $sql .= " ORDER BY student_name ASC";
-
-$result = $conn->query($sql);
+$stmt = $conn->prepare($sql);
+if (in_array($collegeRole, $collegeCodes, true)) {
+    $stmt->bind_param('s', $collegeRole);
+}
+$stmt->execute();
+$result = $stmt->get_result();
 
 if (!$result) {
     echo json_encode([

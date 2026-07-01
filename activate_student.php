@@ -10,7 +10,7 @@ if (!$studentId) {
 
 $conn->begin_transaction();
 
-$stmt = $conn->prepare("SELECT student_id, student_name, program, section, email, password, college, created_at, otp FROM students WHERE id = ?");
+$stmt = $conn->prepare("SELECT student_id, student_name, program, section, email, password, college, created_at, otp FROM archived_students WHERE id = ?");
 $stmt->bind_param("i", $studentId);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -19,12 +19,12 @@ $stmt->close();
 
 if (!$student) {
     $conn->rollback();
-    echo json_encode(['success' => false, 'message' => 'Student not found.']);
+    echo json_encode(['success' => false, 'message' => 'Archived student not found.']);
     $conn->close();
     exit;
 }
 
-$insert = $conn->prepare("INSERT INTO archived_students (student_id, student_name, program, section, email, password, college, created_at, otp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+$insert = $conn->prepare("INSERT INTO students (student_id, student_name, program, section, email, password, college, created_at, otp, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')");
 $insert->bind_param(
     "sssssssss",
     $student['student_id'],
@@ -40,18 +40,18 @@ $insert->bind_param(
 
 if (!$insert->execute()) {
     $conn->rollback();
-    echo json_encode(['success' => false, 'message' => 'Failed to archive student: ' . $insert->error]);
+    echo json_encode(['success' => false, 'message' => 'Failed to restore student: ' . $insert->error]);
     $insert->close();
     $conn->close();
     exit;
 }
 $insert->close();
 
-$delete = $conn->prepare("DELETE FROM students WHERE id = ?");
+$delete = $conn->prepare("DELETE FROM archived_students WHERE id = ?");
 $delete->bind_param("i", $studentId);
 if (!$delete->execute()) {
     $conn->rollback();
-    echo json_encode(['success' => false, 'message' => 'Failed to remove student from active list: ' . $delete->error]);
+    echo json_encode(['success' => false, 'message' => 'Failed to remove student from archive: ' . $delete->error]);
     $delete->close();
     $conn->close();
     exit;
@@ -59,6 +59,6 @@ if (!$delete->execute()) {
 $delete->close();
 
 $conn->commit();
-echo json_encode(['success' => true, 'message' => 'Student archived successfully.']);
+echo json_encode(['success' => true, 'message' => 'Student activated successfully.']);
 $conn->close();
 ?>
