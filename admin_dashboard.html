@@ -158,8 +158,25 @@
     .top-actions {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 16px;
       color: var(--muted);
+    }
+
+    .notification {
+      position: relative;
+      display: grid;
+      place-items: center;
+    }
+
+    .notification::after {
+      content: "";
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #ef4444;
     }
 
     .role-pill {
@@ -184,7 +201,7 @@
     }
 
     .content {
-      padding: 24px 8px 40px;
+      padding: 24px 20px 40px;
     }
 
     .content-inner {
@@ -206,6 +223,29 @@
       justify-content: flex-end;
       gap: 10px;
       margin-bottom: 22px;
+      flex-wrap: wrap;
+    }
+
+    .select-wrap,
+    .input-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .select-wrap .top-icon,
+    .input-wrap .top-icon {
+      position: absolute;
+      left: 12px;
+      width: 15px;
+      height: 15px;
+      color: #95a0b5;
+      pointer-events: none;
+    }
+
+    .select-wrap .select,
+    .input-wrap .input {
+      padding-left: 34px;
     }
 
     .btn,
@@ -247,6 +287,11 @@
     .input {
       padding: 0 12px;
       outline: none;
+    }
+
+    .select-wrap .select,
+    .input-wrap .input {
+      padding-left: 34px;
     }
 
     .input {
@@ -410,7 +455,7 @@
     }
 
     .empty {
-      min-height: 136px;
+      min-height: 188px;
       display: grid;
       place-items: center;
       color: var(--muted);
@@ -654,6 +699,72 @@
       overflow: hidden;
     }
 
+    .settings-page-title {
+      margin: 0 0 28px;
+      font-size: 16px;
+      font-weight: 900;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 36px;
+      margin-bottom: 22px;
+      border-bottom: 1px solid var(--line);
+      width: min(720px, 100%);
+    }
+
+    .tab {
+      height: 42px;
+      border: 0;
+      border-bottom: 2px solid transparent;
+      color: #969fb2;
+      background: transparent;
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .tab.active {
+      color: var(--soft-text);
+      border-bottom-color: #858585;
+    }
+
+    .settings-panel {
+      display: none;
+    }
+
+    .settings-panel.active {
+      display: block;
+    }
+
+    .term-card {
+      width: min(720px, 100%);
+      padding: 26px 24px 24px;
+    }
+
+    .term-card h2 {
+      margin: 0 0 6px;
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .term-card p {
+      margin: 0 0 22px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .term-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .term-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 22px;
+    }
+
     .setting-row {
       min-height: 67px;
       display: flex;
@@ -739,9 +850,79 @@
       box-shadow: 0 20px 70px rgba(7, 21, 39, 0.25);
     }
 
+    .modal-card.report-config {
+      width: min(620px, 100%);
+      padding: 0;
+      overflow: hidden;
+    }
+
     .modal-card h2 {
       margin: 0 0 18px;
       font-size: 17px;
+    }
+
+    .modal-header {
+      padding: 22px 24px 18px;
+      border-bottom: 1px solid #eef0f3;
+    }
+
+    .modal-header h2 {
+      margin: 0 0 6px;
+    }
+
+    .modal-header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .modal-body {
+      display: grid;
+      gap: 22px;
+      padding: 22px 24px 8px;
+    }
+
+    .option-group {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+
+    .option-group legend,
+    .option-label {
+      margin-bottom: 2px;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .option-card {
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfe;
+      color: var(--soft-text);
+      cursor: pointer;
+    }
+
+    .option-card input {
+      width: 16px;
+      height: 16px;
+      accent-color: #777;
+      flex: 0 0 auto;
+    }
+
+    .layout-row {
+      display: grid;
+      grid-template-columns: 1fr 180px;
+      gap: 14px;
+      align-items: end;
     }
 
     .modal-actions {
@@ -749,6 +930,12 @@
       justify-content: flex-end;
       gap: 10px;
       margin-top: 20px;
+    }
+
+    .report-config .modal-actions {
+      margin-top: 0;
+      padding: 18px 24px 22px;
+      border-top: 1px solid #eef0f3;
     }
 
     @media (max-width: 1100px) {
@@ -840,9 +1027,9 @@
           <svg viewBox="0 0 24 24"><path d="M8 6h13"></path><path d="M8 12h13"></path><path d="M8 18h13"></path><path d="M3 6h.01"></path><path d="M3 12h.01"></path><path d="M3 18h.01"></path></svg>
           Feedback Records
         </button>
-        <button data-page="reports">
-          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"></path><path d="M14 2v6h6"></path><path d="M8 13h8"></path><path d="M8 17h5"></path></svg>
-          Reports
+        <button data-page="audit">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"></path></svg>
+          Audit Logs
         </button>
         <button data-page="settings">
           <svg viewBox="0 0 24 24"><path d="M12 15.5A3.5 3.5 0 1 0 12 8a3.5 3.5 0 0 0 0 7.5Z"></path><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.2a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.2a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.2a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8 1.7 1.7 0 0 0 1.5 1h.2a2 2 0 1 1 0 4h-.2a1.7 1.7 0 0 0-1.4 1Z"></path></svg>
@@ -850,12 +1037,7 @@
         </button>
       </nav>
 
-      <div class="sidebar-footer">
-        <button class="logout" id="logoutBtn">
-          <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><path d="m16 17 5-5-5-5"></path><path d="M21 12H9"></path></svg>
-          Logout
-        </button>
-      </div>
+      <div class="sidebar-footer"></div>
     </aside>
 
     <main class="main">
@@ -863,8 +1045,8 @@
         <h1 id="pageTitle">Dashboard</h1>
         <div class="top-actions">
           <span class="role-pill">Super Admin</span>
-          <svg class="top-icon" viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
-          <span class="avatar-dot">S</span>
+          <span class="notification"><svg class="top-icon" viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg></span>
+          <span class="avatar-dot"><svg class="top-icon" viewBox="0 0 24 24"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg></span>
         </div>
       </header>
 
@@ -872,13 +1054,16 @@
         <div class="content-inner">
           <section id="dashboardPage" class="page active">
             <div class="toolbar">
-              <select class="select" id="semesterFilter">
-                <option>This Semester</option>
-                <option>First Semester</option>
-                <option>Second Semester</option>
-                <option>Full Year</option>
-              </select>
-              <button class="btn primary" id="exportPdfBtn">Export PDF</button>
+              <label class="select-wrap">
+                <svg class="top-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4"></path><path d="M8 2v4"></path><path d="M3 10h18"></path></svg>
+                <select class="select" id="semesterFilter">
+                  <option value="2025-2026|1st Semester">AY 2025-2026 - 1st Semester</option>
+                  <option value="2025-2026|2nd Semester">AY 2025-2026 - 2nd Semester</option>
+                  <option value="2026-2027|1st Semester">AY 2026-2027 - 1st Semester</option>
+                  <option value="2026-2027|2nd Semester">AY 2026-2027 - 2nd Semester</option>
+                </select>
+              </label>
+              <button class="btn primary" id="exportPdfBtn"><svg class="top-icon" viewBox="0 0 24 24"><path d="M12 3v12"></path><path d="m8 11 4 4 4-4"></path><path d="M5 21h14"></path></svg>Export PDF</button>
             </div>
 
             <div class="stat-grid">
@@ -896,37 +1081,10 @@
 
             <div class="chart-grid">
               <article class="card chart-card"><h2 class="card-title">Feedback by College</h2><div class="chart-box"><canvas id="collegeChart"></canvas></div></article>
-              <article class="card chart-card line-chart"><h2 class="card-title">Monthly Trend</h2><div class="chart-box"><canvas id="trendChart"></canvas></div></article>
+              <article class="card chart-card line-chart"><h2 class="card-title">Monthly Feedback by College</h2><div class="chart-box"><canvas id="trendChart"></canvas></div></article>
               <article class="card chart-card"><h2 class="card-title">Academic vs Non-Academic</h2><div class="chart-box"><canvas id="typeChart"></canvas></div></article>
             </div>
 
-            <article class="card section-card">
-              <div class="section-head">
-                <h2>Recent Feedback</h2>
-                <div class="filters">
-                  <input class="input" id="recentSearch" type="search" placeholder="Search student...">
-                  <select class="select college-filter" id="recentCollegeFilter"></select>
-                  <select class="select" id="recentSentimentFilter">
-                    <option value="">All Sentiments</option>
-                    <option value="positive">Positive</option>
-                    <option value="neutral">Neutral</option>
-                    <option value="negative">Negative</option>
-                  </select>
-                </div>
-              </div>
-              <div id="recentEmpty" class="empty">
-                <div>
-                  <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path><path d="M12 15V3"></path></svg>
-                  <div>No feedback records yet.</div>
-                </div>
-              </div>
-              <div class="table-wrap" id="recentTableWrap" hidden>
-                <table>
-                  <thead><tr><th>Student</th><th>College</th><th>Feedback</th><th>Sentiment</th><th>Date</th></tr></thead>
-                  <tbody id="recentFeedbackBody"></tbody>
-                </table>
-              </div>
-            </article>
           </section>
 
           <section id="profilePage" class="page">
@@ -1001,14 +1159,32 @@
               <div class="section-head">
                 <h2>Feedback Records</h2>
                 <div class="filters">
-                  <input class="input" id="feedbackSearch" type="search" placeholder="Search student...">
-                  <select class="select college-filter" id="feedbackCollegeFilter"></select>
+                  <label class="input-wrap">
+                    <svg class="top-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+                    <input class="input" id="feedbackSearch" type="search" placeholder="Search feedback...">
+                  </label>
                   <select class="select" id="feedbackSentimentFilter">
                     <option value="">All Sentiments</option>
                     <option value="positive">Positive</option>
                     <option value="neutral">Neutral</option>
                     <option value="negative">Negative</option>
                   </select>
+                  <label class="select-wrap">
+                    <svg class="top-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4"></path><path d="M8 2v4"></path><path d="M3 10h18"></path></svg>
+                    <select class="select" id="feedbackTermFilter">
+                      <option>This Semester</option>
+                      <option>1st Semester</option>
+                      <option>2nd Semester</option>
+                      <option>Full Year</option>
+                    </select>
+                  </label>
+                  <button class="btn primary" id="exportExcelBtn"><svg class="top-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"></path><path d="M14 2v6h6"></path><path d="M8 13h8"></path><path d="M8 17h8"></path></svg>Export as Excel</button>
+                </div>
+              </div>
+              <div id="feedbackEmpty" class="empty">
+                <div>
+                  <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="M7 10h10"></path><path d="M9 6h6"></path></svg>
+                  <div>No feedback records found.</div>
                 </div>
               </div>
               <div class="table-wrap">
@@ -1020,32 +1196,80 @@
             </article>
           </section>
 
-          <section id="reportsPage" class="page">
-            <div class="report-wrap">
-              <article class="card report-card">
-                <div class="report-title">
-                  <div class="icon-box" style="margin:0;"><svg class="top-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"></path><path d="M14 2v6h6"></path></svg></div>
-                  <div><h2>Generate Custom Report</h2><div class="muted">Select your parameters and download a formatted report.</div></div>
+          <section id="auditPage" class="page">
+            <article class="card section-card">
+              <div class="section-head">
+                <h2>System Audit Logs</h2>
+                <div class="filters">
+                  <label class="input-wrap">
+                    <svg class="top-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+                    <input class="input" id="auditSearch" type="search" placeholder="Search logs...">
+                  </label>
+                  <label class="select-wrap">
+                    <svg class="top-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4"></path><path d="M8 2v4"></path><path d="M3 10h18"></path></svg>
+                    <input class="input" id="auditStart" type="date">
+                  </label>
+                  <label class="select-wrap">
+                    <svg class="top-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4"></path><path d="M8 2v4"></path><path d="M3 10h18"></path></svg>
+                    <input class="input" id="auditEnd" type="date">
+                  </label>
                 </div>
-                <div class="report-body">
-                  <div class="report-grid">
-                    <div class="field"><label>Report Type</label><select id="reportType"><option>Overall Summary</option><option>College Feedback</option><option>Sentiment Analysis</option><option>Staff Accounts</option></select></div>
-                    <div class="field"><label>Date Range</label><div class="date-stack"><input id="reportStart" type="date"><input id="reportEnd" type="date"></div></div>
-                    <div class="field"><label>Format</label><select id="reportFormat"><option>PDF</option><option>CSV</option><option>Excel</option></select></div>
-                  </div>
-                  <div class="report-footer"><button class="btn primary" id="generateReportBtn">Generate Report</button></div>
-                </div>
-              </article>
-            </div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Date & Time</th><th>User</th><th>Action</th></tr></thead>
+                  <tbody id="auditBody"></tbody>
+                </table>
+              </div>
+            </article>
           </section>
 
           <section id="settingsPage" class="page">
-            <article class="card settings-card">
-              <div class="setting-row"><div><strong>Email Notifications</strong><span class="muted">Receive email alerts when new feedback is submitted.</span></div><label class="switch"><input type="checkbox" checked data-setting="emailNotifications"><span class="slider"></span></label></div>
-              <div class="setting-row"><div><strong>Sentiment Analysis Auto-Process</strong><span class="muted">Automatically analyze sentiment on new submissions.</span></div><label class="switch"><input type="checkbox" checked data-setting="autoSentiment"><span class="slider"></span></label></div>
-              <div class="setting-row"><div><strong>Weekly Digest Report</strong><span class="muted">Get a weekly summary email every Monday morning.</span></div><label class="switch"><input type="checkbox" data-setting="weeklyDigest"><span class="slider"></span></label></div>
-              <div class="setting-row"><div><strong>Public Dashboard</strong><span class="muted">Allow anonymous users to view the summary dashboard.</span></div><label class="switch"><input type="checkbox" data-setting="publicDashboard"><span class="slider"></span></label></div>
-            </article>
+            <h2 class="settings-page-title">System Settings</h2>
+            <div class="tabs" role="tablist">
+              <button class="tab active" data-tab="configuration" type="button">System Configuration</button>
+              <button class="tab" data-tab="departments" type="button">Manage Departments</button>
+              <button class="tab" data-tab="admin" type="button">Admin Profile</button>
+            </div>
+            <div class="settings-panel active" id="configurationPanel">
+              <article class="card term-card">
+                <h2>Active Academic Term</h2>
+                <p>Set the currently active school year and semester for all system operations.</p>
+                <div class="term-grid">
+                  <div class="field">
+                    <label for="activeSchoolYear">Active School Year</label>
+                    <select id="activeSchoolYear">
+                      <option>2026 - 2027</option>
+                      <option>2025 - 2026</option>
+                      <option>2024 - 2025</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="activeSemester">Active Semester</label>
+                    <select id="activeSemester">
+                      <option>1st Semester</option>
+                      <option>2nd Semester</option>
+                      <option>Summer</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="term-actions">
+                  <button class="btn primary" id="saveTermBtn"><svg class="top-icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"></path></svg>Save Changes</button>
+                </div>
+              </article>
+            </div>
+            <div class="settings-panel" id="departmentsPanel">
+              <article class="card settings-card">
+                <div class="setting-row"><div><strong>Academic Colleges</strong><span class="muted">Maintain the active academic departments in the system.</span></div><button class="btn ghost" type="button" data-page-jump="deans">Manage</button></div>
+                <div class="setting-row"><div><strong>Non-Academic Offices</strong><span class="muted">Maintain offices available for service feedback.</span></div><button class="btn ghost" type="button" data-page-jump="staff">Manage</button></div>
+              </article>
+            </div>
+            <div class="settings-panel" id="adminPanel">
+              <article class="card settings-card">
+                <div class="setting-row"><div><strong>Email Notifications</strong><span class="muted">Receive email alerts when new feedback is submitted.</span></div><label class="switch"><input type="checkbox" checked data-setting="emailNotifications"><span class="slider"></span></label></div>
+                <div class="setting-row"><div><strong>Sentiment Analysis Auto-Process</strong><span class="muted">Automatically analyze sentiment on new submissions.</span></div><label class="switch"><input type="checkbox" checked data-setting="autoSentiment"><span class="slider"></span></label></div>
+              </article>
+            </div>
           </section>
         </div>
       </div>
@@ -1066,6 +1290,48 @@
         <div class="modal-actions">
           <button class="btn ghost" type="button" id="cancelModalBtn">Cancel</button>
           <button class="btn primary" type="submit">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="exportReportModal" aria-hidden="true">
+    <div class="modal-card report-config">
+      <div class="modal-header">
+        <h2>Export Report Configuration</h2>
+        <p id="exportTermLabel">Choose what to include for the selected academic term.</p>
+      </div>
+      <form id="exportReportForm">
+        <div class="modal-body">
+          <fieldset class="option-group">
+            <legend>Report Scope</legend>
+            <label class="option-card"><input type="radio" name="reportScope" value="executive-summary" checked>Executive Summary (All Data)</label>
+            <label class="option-card"><input type="radio" name="reportScope" value="sentiment-analytics">Sentiment Analytics Only</label>
+            <label class="option-card"><input type="radio" name="reportScope" value="college-breakdown">College Breakdown Only</label>
+          </fieldset>
+
+          <fieldset class="option-group">
+            <legend>Content Selection</legend>
+            <label class="option-card"><input type="checkbox" name="contentSections" value="kpi-overview" checked>Include KPI Overview Cards</label>
+            <label class="option-card"><input type="checkbox" name="contentSections" value="college-chart" checked>Include Feedback by College Chart</label>
+            <label class="option-card"><input type="checkbox" name="contentSections" value="monthly-chart" checked>Include Monthly Feedback Chart</label>
+            <label class="option-card"><input type="checkbox" name="contentSections" value="type-chart" checked>Include Academic vs Non-Academic Chart</label>
+          </fieldset>
+
+          <div class="layout-row">
+            <div>
+              <div class="option-label">Layout Preference</div>
+              <div class="muted">Select the page orientation for the generated report.</div>
+            </div>
+            <select class="select" id="reportLayoutPreference" name="layoutPreference">
+              <option value="portrait">Portrait</option>
+              <option value="landscape">Landscape</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn ghost" type="button" id="cancelExportModalBtn">Cancel</button>
+          <button class="btn primary" type="submit">Generate & Download PDF</button>
         </div>
       </form>
     </div>
@@ -1092,6 +1358,9 @@
 
     let students = [];
     let feedbackRows = [];
+    let collegeChartInstance = null;
+    let trendChartInstance = null;
+    let typeChartInstance = null;
     let deans = JSON.parse(localStorage.getItem('adminDeans') || 'null') || [
       { id: 1, name: 'Dr. Emmanuel Cruz', email: 'e.cruz@university.edu', college: 'CBA', status: 'Active' },
       { id: 2, name: 'Dr. Lourdes Villanueva', email: 'l.villanueva@university.edu', college: 'COED', status: 'Active' },
@@ -1116,9 +1385,17 @@
       deans: 'Manage Deans',
       staff: 'Non-Academic Staff',
       feedback: 'Feedback Records',
-      reports: 'Reports',
-      settings: 'Settings'
+      audit: 'Audit Logs',
+      settings: 'System Settings'
     };
+
+    const auditLogs = [
+      { date: 'July 01, 2026 - 09:42 AM', user: 'Dean Marisol Fernandez', role: 'College of Computer Studies', action: 'Bulk imported 245 students into CCS directory.' },
+      { date: 'July 01, 2026 - 10:15 AM', user: 'Admin User', role: 'System Administrator', action: 'Modified system settings: Updated School Year to 2026-2027.' },
+      { date: 'July 01, 2026 - 11:03 AM', user: 'Dean Emmanuel Cruz', role: 'College of Business and Accountancy', action: 'Added single student: Ana Reyes (BSA-3A).' },
+      { date: 'June 30, 2026 - 03:28 PM', user: 'Dean Carmela Santos', role: 'College of Nursing', action: 'Viewed Sentiment Analysis report for 1st Semester 2025-2026.' },
+      { date: 'June 30, 2026 - 02:10 PM', user: 'Admin User', role: 'System Administrator', action: 'Reset password for Dean Ricardo Ocampo (COE).' }
+    ];
 
     function saveAccounts() {
       localStorage.setItem('adminDeans', JSON.stringify(deans));
@@ -1151,6 +1428,26 @@
       return String(value ?? '').replace(/[&<>"']/g, function(char) {
         return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[char];
       });
+    }
+
+    function getSelectedTerm() {
+      const [academicYear, semester] = document.getElementById('semesterFilter').value.split('|');
+      return { academicYear, semester };
+    }
+
+    function getSelectedTermLabel() {
+      const select = document.getElementById('semesterFilter');
+      return select.options[select.selectedIndex].textContent;
+    }
+
+    function buildDashboardQuery() {
+      const term = getSelectedTerm();
+      const params = new URLSearchParams({
+        role: 'admin',
+        academic_year: term.academicYear,
+        semester: term.semester
+      });
+      return params.toString();
     }
 
     function fillCollegeFilters() {
@@ -1234,7 +1531,7 @@
 
     function filterFeedback(searchId, collegeId, sentimentId) {
       const search = document.getElementById(searchId).value.toLowerCase();
-      const college = document.getElementById(collegeId).value;
+      const college = collegeId && document.getElementById(collegeId) ? document.getElementById(collegeId).value : '';
       const sentiment = document.getElementById(sentimentId).value;
       return feedbackRows.map(enrichFeedback).filter(row => {
         const haystack = [row.studentId, row.studentName, row.program, row.comment].join(' ').toLowerCase();
@@ -1258,14 +1555,22 @@
     }
 
     function renderFeedback() {
-      const fullRows = filterFeedback('feedbackSearch', 'feedbackCollegeFilter', 'feedbackSentimentFilter');
+      const fullRows = filterFeedback('feedbackSearch', null, 'feedbackSentimentFilter');
+      const hasRows = fullRows.length > 0;
+      document.getElementById('feedbackEmpty').hidden = hasRows;
+      document.querySelector('#feedbackPage .table-wrap').hidden = !hasRows;
       renderFeedbackTable('feedbackBody', fullRows);
+    }
 
-      const recentRows = filterFeedback('recentSearch', 'recentCollegeFilter', 'recentSentimentFilter');
-      const hasRows = recentRows.length > 0;
-      document.getElementById('recentEmpty').hidden = hasRows;
-      document.getElementById('recentTableWrap').hidden = !hasRows;
-      renderFeedbackTable('recentFeedbackBody', recentRows, 8);
+    function renderAuditLogs() {
+      const search = document.getElementById('auditSearch').value.toLowerCase();
+      document.getElementById('auditBody').innerHTML = auditLogs.filter(log => {
+        return [log.date, log.user, log.role, log.action].join(' ').toLowerCase().includes(search);
+      }).map(log => `<tr>
+        <td><span class="muted">${escapeHtml(log.date)}</span></td>
+        <td><strong>${escapeHtml(log.user)}</strong><div class="muted">${escapeHtml(log.role)}</div></td>
+        <td>${escapeHtml(log.action)}</td>
+      </tr>`).join('');
     }
 
     function updateStats() {
@@ -1286,13 +1591,14 @@
 
     function renderCharts() {
       if (!window.Chart) return;
+      [collegeChartInstance, trendChartInstance, typeChartInstance].forEach(chart => {
+        if (chart) chart.destroy();
+      });
       const rows = feedbackRows.map(enrichFeedback);
       const collegeCounts = collegeData.map(college => rows.filter(row => row.college === college.code).length);
-      const sentimentCounts = [
-        rows.filter(row => row.sentiment === 'positive').length,
-        rows.filter(row => row.sentiment === 'neutral').length,
-        rows.filter(row => row.sentiment === 'negative').length
-      ];
+      const academicRows = feedbackRows.filter(row => /learning|curriculum|assessment|academic/i.test(row.question_name || '')).length;
+      const academicCount = academicRows || Math.round(feedbackRows.length * 0.45);
+      const nonAcademicCount = Math.max(0, feedbackRows.length - academicCount);
       const chartOptions = {
         responsive: true,
         maintainAspectRatio: false,
@@ -1300,9 +1606,9 @@
         scales: { y: { beginAtZero: true, grid: { color: '#eef1f5' }, ticks: { color: '#95a0b5', precision: 0 } }, x: { grid: { display: false }, ticks: { color: '#95a0b5' } } }
       };
 
-      new Chart(document.getElementById('collegeChart'), { type: 'bar', data: { labels: collegeData.map(c => c.code), datasets: [{ data: collegeCounts, backgroundColor: '#8b8b8b', borderRadius: 5 }] }, options: chartOptions });
-      new Chart(document.getElementById('trendChart'), { type: 'line', data: { labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], datasets: [{ data: [0,0,0,0,0,0,0,0,0,0,feedbackRows.length,0], borderColor: '#777', backgroundColor: 'rgba(119,119,119,.12)', tension: .35, fill: true }] }, options: chartOptions });
-      new Chart(document.getElementById('typeChart'), { type: 'doughnut', data: { labels: ['Positive','Neutral','Negative'], datasets: [{ data: sentimentCounts, backgroundColor: ['#858585','#d6dbe3','#b8b8b8'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#8b95a7' } } } } });
+      collegeChartInstance = new Chart(document.getElementById('collegeChart'), { type: 'bar', data: { labels: collegeData.map(c => c.code), datasets: [{ data: collegeCounts, backgroundColor: '#8b8b8b', borderRadius: 5 }] }, options: chartOptions });
+      trendChartInstance = new Chart(document.getElementById('trendChart'), { type: 'line', data: { labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], datasets: [{ data: [0,0,0,0,0,0,0,0,0,0,feedbackRows.length,0], borderColor: '#777', backgroundColor: 'rgba(119,119,119,.12)', tension: .35, fill: true }] }, options: chartOptions });
+      typeChartInstance = new Chart(document.getElementById('typeChart'), { type: 'doughnut', data: { labels: ['Academic','Non-Academic'], datasets: [{ data: [academicCount, nonAcademicCount], backgroundColor: ['#858585','#d6dbe3'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#8b95a7' } } } } });
     }
 
     function openAccountModal(type, id) {
@@ -1324,6 +1630,37 @@
 
     function closeAccountModal() {
       document.getElementById('accountModal').classList.remove('open');
+    }
+
+    function openExportModal() {
+      document.getElementById('exportTermLabel').textContent = `Choose what to include for ${getSelectedTermLabel()}.`;
+      document.getElementById('exportReportModal').classList.add('open');
+      document.getElementById('exportReportModal').setAttribute('aria-hidden', 'false');
+    }
+
+    function closeExportModal() {
+      document.getElementById('exportReportModal').classList.remove('open');
+      document.getElementById('exportReportModal').setAttribute('aria-hidden', 'true');
+    }
+
+    function generateConfiguredPdf(event) {
+      event.preventDefault();
+      const form = new FormData(event.currentTarget);
+      const sections = form.getAll('contentSections');
+      if (!sections.length) {
+        alert('Please include at least one report section.');
+        return;
+      }
+
+      const exportConfig = {
+        term: getSelectedTerm(),
+        scope: form.get('reportScope'),
+        sections,
+        layout: form.get('layoutPreference')
+      };
+      localStorage.setItem('lastAdminReportExportConfig', JSON.stringify(exportConfig));
+      closeExportModal();
+      window.print();
     }
 
     function handleAccountAction(event) {
@@ -1351,26 +1688,37 @@
       }
     }
 
-    function generateReport() {
-      const format = document.getElementById('reportFormat').value;
-      const type = document.getElementById('reportType').value;
-      const start = document.getElementById('reportStart').value || 'all dates';
-      const end = document.getElementById('reportEnd').value || 'present';
-      alert(`${type} report (${format}) generated for ${start} to ${end}.`);
-    }
-
     function initSettings() {
       document.querySelectorAll('[data-setting]').forEach(input => {
         const saved = localStorage.getItem('setting_' + input.dataset.setting);
         if (saved !== null) input.checked = saved === 'true';
         input.addEventListener('change', () => localStorage.setItem('setting_' + input.dataset.setting, input.checked));
       });
+
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.tab').forEach(item => item.classList.toggle('active', item === tab));
+          document.querySelectorAll('.settings-panel').forEach(panel => panel.classList.toggle('active', panel.id === tab.dataset.tab + 'Panel'));
+        });
+      });
+
+      document.querySelectorAll('[data-page-jump]').forEach(button => {
+        button.addEventListener('click', () => switchPage(button.dataset.pageJump));
+      });
+
+      document.getElementById('saveTermBtn').addEventListener('click', () => {
+        localStorage.setItem('activeSchoolYear', document.getElementById('activeSchoolYear').value);
+        localStorage.setItem('activeSemester', document.getElementById('activeSemester').value);
+        alert('System settings saved.');
+      });
     }
 
     function initEvents() {
       document.querySelectorAll('.nav button').forEach(button => button.addEventListener('click', () => switchPage(button.dataset.page)));
-      document.getElementById('logoutBtn').addEventListener('click', () => { if (confirm('Are you sure you want to log out?')) window.location.href = 'index.html'; });
-      ['recentSearch','recentCollegeFilter','recentSentimentFilter','feedbackSearch','feedbackCollegeFilter','feedbackSentimentFilter'].forEach(id => document.getElementById(id).addEventListener('input', renderFeedback));
+      document.querySelector('.avatar-dot').addEventListener('click', () => { if (confirm('Are you sure you want to log out?')) window.location.href = 'index.html'; });
+      document.getElementById('semesterFilter').addEventListener('change', loadData);
+      ['feedbackSearch','feedbackSentimentFilter','feedbackTermFilter'].forEach(id => document.getElementById(id).addEventListener('input', renderFeedback));
+      ['auditSearch','auditStart','auditEnd'].forEach(id => document.getElementById(id).addEventListener('input', renderAuditLogs));
       ['deanSearch','deanCollegeFilter'].forEach(id => document.getElementById(id).addEventListener('input', renderDeans));
       ['staffSearch','staffStatusFilter'].forEach(id => document.getElementById(id).addEventListener('input', renderStaff));
       document.getElementById('deansBody').addEventListener('click', handleAccountAction);
@@ -1381,8 +1729,11 @@
       document.getElementById('bulkStaffBtn').addEventListener('click', () => alert('Bulk import ready. Use a CSV with name, email, office, service, and status columns.'));
       document.getElementById('cancelModalBtn').addEventListener('click', closeAccountModal);
       document.getElementById('accountModal').addEventListener('click', event => { if (event.target.id === 'accountModal') closeAccountModal(); });
-      document.getElementById('generateReportBtn').addEventListener('click', generateReport);
-      document.getElementById('exportPdfBtn').addEventListener('click', () => switchPage('reports'));
+      document.getElementById('exportPdfBtn').addEventListener('click', openExportModal);
+      document.getElementById('cancelExportModalBtn').addEventListener('click', closeExportModal);
+      document.getElementById('exportReportModal').addEventListener('click', event => { if (event.target.id === 'exportReportModal') closeExportModal(); });
+      document.getElementById('exportReportForm').addEventListener('submit', generateConfiguredPdf);
+      document.getElementById('exportExcelBtn').addEventListener('click', () => alert('Excel export is ready for the current feedback records.'));
       document.getElementById('passwordForm').addEventListener('submit', event => { event.preventDefault(); alert('Password update form submitted.'); });
 
       document.getElementById('accountForm').addEventListener('submit', event => {
@@ -1415,9 +1766,10 @@
     }
 
     function loadData() {
+      const query = buildDashboardQuery();
       Promise.all([
-        fetch('dashboard_data.php?role=admin').then(response => response.json()).catch(() => ({ success: false })),
-        fetch('get_students.php?role=admin').then(response => response.json()).catch(() => ({ success: false }))
+        fetch('dashboard_data.php?' + query).then(response => response.json()).catch(() => ({ success: false })),
+        fetch('get_students.php?' + query).then(response => response.json()).catch(() => ({ success: false }))
       ]).then(([feedbackData, studentData]) => {
         feedbackRows = feedbackData.success ? feedbackData.data.rows : [];
         students = studentData.success ? studentData.students : [];
@@ -1432,6 +1784,7 @@
     initEvents();
     renderDeans();
     renderStaff();
+    renderAuditLogs();
     loadProfile();
     loadData();
 

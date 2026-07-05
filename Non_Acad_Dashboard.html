@@ -3,778 +3,955 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Non-Academic Dashboard - Feedback System</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <title>PLP Feedback - Non-Academic</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    /* Reset */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { width: 100%; overflow-x: hidden; }
+    :root {
+      --bg: #f3f4f6;
+      --panel: #ffffff;
+      --sidebar: #f7f7f8;
+      --line: #e4e7ec;
+      --line-soft: #eef0f3;
+      --text: #071527;
+      --muted: #8b95a7;
+      --soft-text: #536176;
+      --button: #858585;
+      --button-hover: #737373;
+      --active: #e9e9ea;
+      --shadow: 0 1px 3px rgba(12, 18, 28, 0.12);
+      --green: #10b981;
+      --red: #f43f5e;
+      --purple: #7c3aed;
+    }
+
+    * { box-sizing: border-box; }
 
     body {
-      font-family: 'Roboto', sans-serif;
-      background: url('Background.jpg') center/cover no-repeat fixed;
-      color: #333;
+      margin: 0;
       min-height: 100vh;
-      opacity: 0;
-      transition: opacity 0.6s ease-in-out;
+      color: var(--text);
+      background: var(--bg);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 14px;
     }
 
-    body.fade-in {
-      opacity: 1;
+    button,
+    input,
+    select {
+      font: inherit;
     }
 
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(0, 31, 63, 0.8), rgba(0, 64, 128, 0.6));
-      z-index: -1;
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 176px 1fr;
     }
 
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-      position: relative;
-      z-index: 1;
-    }
-
-/* Navbar */
-    .navbar {
-      background: linear-gradient(90deg, #001F3F, #004080, #0074D9);
-      padding: 15px 0;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    .sidebar {
       position: sticky;
       top: 0;
-      z-index: 1000;
-      backdrop-filter: blur(15px);
-      border-radius: 0 0 25px 25px;
-      width: 100%;
-    }
-
-    .navbar-content {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 20px;
+      height: 100vh;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      flex-direction: column;
+      background: var(--sidebar);
+      border-right: 1px solid var(--line);
     }
 
-    .navbar-brand {
-      font-size: 22px;
-      font-weight: 700;
-      color: #ffffff;
-      letter-spacing: 1.5px;
+    .brand {
+      height: 64px;
       display: flex;
       align-items: center;
       gap: 10px;
-    }
-    .navbar-brand i { font-size: 24px; }
-
-    .navbar-menu {
-      display: flex;
-      gap: 30px;
-      list-style: none;
-      align-items: center;
+      padding: 0 12px;
+      border-bottom: 1px solid var(--line);
     }
 
-    .navbar-menu a {
-      color: #f1f1f1;
-      text-decoration: none;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 5px;
+    .brand img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid var(--line);
     }
 
-    .navbar-menu a:hover,
-    .navbar-menu a.active {
-      color: #ffcc00;
-      transform: translateY(-3px);
-      text-shadow: 0 2px 5px rgba(255, 204, 0, 0.5);
-    }
-
-    .logout-btn {
-      background: linear-gradient(90deg, #ff4b5c, #e03e4e);
-      color: white;
-      border: none;
-      padding: 10px 18px;
-      border-radius: 12px;
-      font-size: 0.95em;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      box-shadow: 0 4px 10px rgba(255, 75, 92, 0.3);
-    }
-
-    .logout-btn:hover {
-      background: linear-gradient(90deg, #e03e4e, #c5303a);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 15px rgba(255, 75, 92, 0.4);
-    }
-
-    #dashboardPage {
+    .brand strong {
       display: block;
-      padding-top: 30px;
-      animation: fadeIn 0.5s ease-in;
+      font-size: 12px;
+      line-height: 1.2;
     }
 
-    /* Dashboard Header */
-    .dashboard-header {
-      background: rgba(255, 255, 255, 0.95);
-      padding: 40px;
-      border-radius: 20px;
-      margin-bottom: 30px;
-      box-shadow: 0 15px 40px rgba(0, 64, 128, 0.15);
-      backdrop-filter: blur(15px);
-      text-align: center;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      opacity: 0;
-      animation: slideUpFadeIn 0.6s ease-out 0.2s forwards;
+    .brand span {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 10px;
     }
 
-    .dashboard-header h1 {
+    .nav {
+      display: grid;
+      gap: 8px;
+      padding: 26px 8px;
+    }
+
+    .nav button {
+      width: 100%;
+      min-height: 29px;
+      border: 0;
+      border-radius: 5px;
       display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 10px;
+      color: #898989;
+      background: transparent;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+      text-align: left;
+    }
+
+    .nav button:hover,
+    .nav button.active {
+      color: var(--text);
+      background: var(--active);
+    }
+
+    svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex: 0 0 auto;
+    }
+
+    .main {
+      min-width: 0;
+    }
+
+    .topbar {
+      height: 35px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px 0 8px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--line-soft);
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: var(--muted);
+    }
+
+    .role-pill {
+      min-height: 18px;
+      padding: 3px 8px;
+      border-radius: 5px;
+      color: #ffffff;
+      background: #7e7e7e;
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .notification {
+      position: relative;
+      display: grid;
+      place-items: center;
+    }
+
+    .notification::after {
+      content: "";
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #ef4444;
+    }
+
+    .avatar-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: #777;
+      background: #ececec;
+      cursor: pointer;
+    }
+
+    .content {
+      padding: 18px 8px 34px;
+    }
+
+    .content-inner {
+      width: 100%;
+      max-width: 1720px;
+      margin: 0 auto;
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn,
+    .select,
+    .input {
+      min-height: 27px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #fbfcfe;
+      color: var(--soft-text);
+      outline: none;
+    }
+
+    .btn {
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      color: #003366;
-      margin-bottom: 15px;
-      font-weight: 700;
-      font-size: 2.5em;
-      gap: 10px;
+      gap: 7px;
+      padding: 0 12px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 800;
     }
 
-    .dashboard-header p {
-      color: #666;
-      font-size: 1.2em;
-      font-weight: 300;
+    .btn.primary {
+      border-color: transparent;
+      color: #ffffff;
+      background: var(--button);
+      box-shadow: var(--shadow);
     }
 
-    /* Stats Grid */
-    .stats-grid {
+    .btn.primary:hover {
+      background: var(--button-hover);
+    }
+
+    .btn.ghost:hover {
+      background: #f1f3f6;
+    }
+
+    .select,
+    .input {
+      padding: 0 11px;
+      font-size: 12px;
+    }
+
+    .input {
+      min-width: 164px;
+    }
+
+    .select-wrap,
+    .input-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .select-wrap svg,
+    .input-wrap svg {
+      position: absolute;
+      left: 10px;
+      width: 13px;
+      height: 13px;
+      color: #95a0b5;
+      pointer-events: none;
+    }
+
+    .select-wrap .select,
+    .input-wrap .input {
+      padding-left: 30px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      box-shadow: var(--shadow);
+    }
+
+    .stat-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 25px;
-      margin-bottom: 30px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
     }
 
     .stat-card {
-      background: rgba(255, 255, 255, 0.95);
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-      transition: all 0.4s ease;
-      border: 1px solid #e9ecef;
-      text-align: center;
+      min-height: 102px;
+      padding: 16px 14px;
+    }
+
+    .icon-box {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      display: grid;
+      place-items: center;
+      color: #777;
+      background: #e7e8ea;
+      margin-bottom: 14px;
+    }
+
+    .icon-box svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .stat-number {
+      margin: 0 0 8px;
+      font-size: 20px;
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .stat-label {
+      color: var(--soft-text);
+      font-size: 12px;
+    }
+
+    .chart-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .chart-card {
+      height: 220px;
+      padding: 18px 14px;
+    }
+
+    .chart-card.tall {
+      height: 222px;
+    }
+
+    .card-title {
+      margin: 0 0 12px;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .chart-box {
+      height: 166px;
       position: relative;
-      overflow: hidden;
-    }
-    .stat-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0; height: 5px;
-      background: linear-gradient(90deg, #004080, #0074D9);
-      border-radius: 20px 20px 0 0;
     }
 
-    .stat-card:hover {
-      transform: translateY(-8px) scale(1.02);
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+    .profile-wrap {
+      width: min(360px, 100%);
+      display: grid;
+      gap: 18px;
     }
 
-    .stat-card-value {
-      font-size: 36px;
-      font-weight: 700;
-      color: #003366;
-      margin-bottom: 10px;
-    }
-
-    .stat-card-label {
-      font-size: 14px;
-      color: #666;
-      display: flex;
+    .profile-card {
+      min-height: 130px;
+      display: grid;
+      grid-template-columns: 58px 1fr;
+      gap: 16px;
       align-items: center;
-      justify-content: center;
-      gap: 8px;
-      white-space: nowrap;
-      font-weight: 500;
+      padding: 18px;
     }
 
-    /* Loading Overlay */
-    #loadingOverlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(255, 255, 255, 0.95);
-      z-index: 3000;
-      backdrop-filter: blur(10px);
-      justify-content: center;
-      align-items: center;
-      font-size: 22px;
-      color: #004080;
-      font-weight: bold;
-      transition: opacity 0.3s ease;
-      flex-direction: column;
-      gap: 15px;
-    }
-    #loadingOverlay i { font-size: 40px; animation: spin 1s linear infinite; }
-
-    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    @keyframes slideUpFadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-    /* Student Table */
-    table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-    table th, table td { padding: 12px; border: 1px solid #e9ecef; text-align: left; }
-    table th { background-color: #004080; color: white; }
-    table img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; }
-
-    #studentSearch {
-        width: 100%;
-        padding: 10px 15px;
-        margin-bottom: 20px;
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        font-size: 1em;
-        transition: border-color 0.3s ease;
-    }
-    .edit-btn, .delete-btn {
-      padding: 5px 10px; margin-right: 5px; border: none; border-radius: 5px;
-      cursor: pointer; font-size: 0.9em; font-weight: 500;
-    }
-
-    .edit-btn { background-color: #007bff; color: white; }
-    .edit-btn:hover { background-color: #0056b3; }
-
-    .delete-btn { background-color: #dc3545; color: white; }
-    .delete-btn:hover { background-color: #a71d2a; }
-
-    .table-container {
-      background: rgba(255, 255, 255, 0.95);
-      padding: 30px;
-      border-radius: 20px;
-      margin-bottom: 30px;
-      box-shadow: 0 15px 40px rgba(0, 64, 128, 0.15);
-    }
-
-    /* Modal Background */
-    .modal {
-      display: none; /* For demo — you can toggle it dynamically */
-      position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgba(0, 0, 0, 0.4);
-      animation: fadeIn 0.3s;
-    }
-
-    .modal-content {
-      background-color: #fff;
-      margin: 10% auto;
-      padding: 20px;
-      border: 1px solid #888;
-      width: 450px;
-      text-align: center;
-      border-radius: 8px;
-      animation: slideUpFadeIn 0.4s;
-    }
-
-    .close {
-      float: right;
-      font-size: 28px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    #downloadPDF {
-      margin-top: 15px;
-      padding: 8px 16px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    #downloadPDF:hover {
-      background-color: #45a049;
-    }
-
-    #viewChartBtn {
-      background: linear-gradient(90deg, #004080, #0074D9);
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.3s ease, transform 0.2s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-    #viewChartBtn:hover {
-      background: linear-gradient(90deg, #0059b3, #339CFF);
-      transform: translateY(-2px);
-    }
-
-    /* CSV Upload Form Styling */
-    #csvForm {
-      background: rgba(255, 255, 255, 0.9);
-      padding: 20px;
-      border-radius: 10px;
-      margin-top: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-      border: 1px solid #e0e0e0;
-    }
-
-    #csvForm label {
-      font-weight: 600;
-      color: #003366;
-      margin-bottom: 10px;
-      display: block;
-    }
-
-    #csvForm input[type="file"] {
-      margin-bottom: 15px;
-    }
-
-    #csvForm button {
-      background: linear-gradient(90deg, #004080, #0074D9);
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.3s ease, transform 0.2s ease;
-    }
-
-    #csvForm button:hover {
-      background: linear-gradient(90deg, #0059b3, #339CFF);
-      transform: translateY(-2px);
-    }
-
-    .student-table-container {
-      width: 100%;
-      overflow-x: auto;
-      margin-top: 25px;
-    }
-
-    #studentTable {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-    }
-
-    #studentTable thead {
-      background: #003366;
-      color: white;
-    }
-
-    #studentTable th {
-      padding: 15px;
-      text-align: left;
-      font-weight: 600;
+    .big-avatar {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: #777;
+      background: #e8e8e8;
+      font-weight: 900;
       font-size: 15px;
     }
 
-    #studentTable td {
-      padding: 14px;
-      border-bottom: 1px solid #dddddd;
+    .profile-card h2 {
+      margin: 0 0 6px;
       font-size: 14px;
     }
 
-    #studentTable tbody tr:hover {
-      background: rgba(0, 64, 128, 0.10);
-      cursor: pointer;
+    .muted {
+      color: var(--muted);
+      font-size: 12px;
     }
 
-    .edit-btn {
-      padding: 6px 12px;
-      background: #007bff;
-      border: none;
-      color: white;
+    .password-card {
+      padding: 20px 18px 18px;
+    }
+
+    .password-card h2 {
+      margin: 0 0 18px;
+      font-size: 12px;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      min-height: 30px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 0 11px;
+      color: var(--soft-text);
+      background: #fbfcfe;
+      outline: none;
+      font-size: 12px;
+    }
+
+    .section-card {
+      overflow: hidden;
+    }
+
+    .section-head {
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--line-soft);
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .filters {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+
+    .empty {
+      min-height: 142px;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      text-align: center;
+      font-size: 12px;
+    }
+
+    .empty svg {
+      width: 30px;
+      height: 30px;
+      margin-bottom: 9px;
+      color: #d9dde4;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f0f2f5;
+      text-align: left;
+      vertical-align: middle;
+      white-space: nowrap;
+      font-size: 12px;
+    }
+
+    th {
+      color: #969fb2;
+      background: #fbfcfe;
+      font-size: 10px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 19px;
+      padding: 2px 8px;
       border-radius: 5px;
-      cursor: pointer;
+      font-size: 11px;
+      font-weight: 700;
     }
 
-    .delete-btn {
-      padding: 6px 12px;
-      background: #dc3545;
-      border: none;
-      color: white;
-      border-radius: 5px;
-      cursor: pointer;
+    .badge.positive {
+      color: #007a53;
+      background: #e9fff6;
     }
 
-    .delete-btn:hover {
-      background: #a71d2a;
+    .badge.neutral {
+      color: #7a5b00;
+      background: #fff8df;
+    }
+
+    .badge.negative {
+      color: #b42318;
+      background: #fff0ef;
+    }
+
+    @media (max-width: 1100px) {
+      .stat-grid,
+      .chart-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+        height: auto;
+      }
+
+      .nav {
+        grid-template-columns: 1fr;
+        padding: 12px 8px;
+      }
+
+      .topbar {
+        height: auto;
+        min-height: 42px;
+      }
+
+      .content {
+        padding: 14px 10px 28px;
+      }
+
+      .stat-grid,
+      .chart-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .section-head,
+      .toolbar {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .filters,
+      .input,
+      .select,
+      .btn {
+        width: 100%;
+      }
     }
   </style>
 </head>
-
 <body>
-  <nav class="navbar" id="navbar">
-    <div class="navbar-content">
-      <div class="navbar-brand">
-        <i class="fas fa-building"></i>
-        Non-Academic Dashboard
-      </div>
-      <ul class="navbar-menu" id="navbarMenu">
-        <li><a href="#" class="nav-link active" data-page="dashboard"><i class="fas fa-home"></i> Home</a></li>
-        <li><a href="#" class="nav-link" id="profileLink"><i class="fas fa-user"></i> Profile</a></li>
-        <li><button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button></li>
-      </ul>
-    </div>
-  </nav>
-
-  <!-- Dashboard Page -->
-  <div id="dashboardPage">
-    <div class="container">
-      <div class="dashboard-header">
-        <h1><i class="fas fa-tachometer-alt"></i> Welcome Non-Academic Teacher!</h1>
-        <p>Here's an overview of the non-academic feedback and sentiment analysis.</p>
-      </div>
-
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-card-value" id="feedbackCount">0%</div>
-          <div class="stat-card-label">Feedback Count</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-card-value" id="commentCount">0%</div>
-          <div class="stat-card-label">Comment Count</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-card-value" id="positiveVal">0%</div>
-          <div class="stat-card-label"><i class="fas fa-smile"></i> Positive Feedback</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-card-value" id="negativeVal">0%</div>
-          <div class="stat-card-label"><i class="fas fa-frown"></i> Negative Feedback</div>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <img src="logoooo.jfif" alt="PLP Feedback logo">
+        <div>
+          <strong>PLP Feedback</strong>
+          <span>Non-Academic Admin</span>
         </div>
       </div>
 
-      <div class="table-container">
-        <div class="dashboard-header" style="padding: 20px; margin-bottom: 20px;">
-          <h2><i class="fas fa-users"></i> Student Management</h2>
-          <p>Search for students or upload a list via CSV.</p>
+      <nav class="nav" aria-label="Non-academic navigation">
+        <button class="active" data-page="dashboard">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect></svg>
+          Dashboard
+        </button>
+        <button data-page="profile">
+          <svg viewBox="0 0 24 24"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          Profile
+        </button>
+        <button data-page="feedback">
+          <svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"></rect><path d="M9 7h1"></path><path d="M14 7h1"></path><path d="M9 11h1"></path><path d="M14 11h1"></path></svg>
+          Non-Academic Feedback
+        </button>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <h1 id="pageTitle">Dashboard</h1>
+        <div class="top-actions">
+          <span class="role-pill">Non-Academic</span>
+          <span class="notification"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg></span>
+          <span class="avatar-dot" title="Logout"><svg viewBox="0 0 24 24"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg></span>
         </div>
+      </header>
 
-        <input type="text" id="studentSearch" placeholder="Search Students by ID, name, or email..." />
-        <div style="text-align: right; margin-bottom: 20px;">
-          <button id="viewChartBtn"><i class="fas fa-chart-pie"></i> VIEW SENTIMENT CHART</button>
-        </div>
+      <div class="content">
+        <div class="content-inner">
+          <section id="dashboardPage" class="page active">
+            <div class="toolbar">
+              <label class="select-wrap">
+                <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4"></path><path d="M8 2v4"></path><path d="M3 10h18"></path></svg>
+                <select class="select" id="semesterFilter">
+                  <option value="2025-2026|1st Semester">This Semester</option>
+                  <option value="2025-2026|2nd Semester">2nd Semester</option>
+                  <option value="2026-2027|1st Semester">AY 2026-2027 - 1st Semester</option>
+                  <option value="2026-2027|2nd Semester">AY 2026-2027 - 2nd Semester</option>
+                </select>
+              </label>
+              <button class="btn primary" id="exportPdfBtn"><svg viewBox="0 0 24 24"><path d="M12 3v12"></path><path d="m8 11 4 4 4-4"></path><path d="M5 21h14"></path></svg>Export PDF</button>
+            </div>
 
-        <form id="csvForm" enctype="multipart/form-data">
-          <label for="csv_file">Upload Students via CSV File:</label>
-          <input type="file" name="csv_file" id="csv_file" accept=".csv" required>
-          <button type="submit"><i class="fas fa-upload"></i> Upload CSV</button>
-        </form>
+            <div class="stat-grid">
+              <article class="card stat-card">
+                <div class="icon-box"><svg viewBox="0 0 24 24"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z"></path></svg></div>
+                <p class="stat-number" id="totalFeedback">0</p>
+                <div class="stat-label">Total Feedback</div>
+              </article>
+              <article class="card stat-card">
+                <div class="icon-box"><svg viewBox="0 0 24 24"><path d="m7 14 5-5 5 5"></path><path d="M12 9v10"></path></svg></div>
+                <p class="stat-number" id="positiveCount">0</p>
+                <div class="stat-label">Positive</div>
+              </article>
+              <article class="card stat-card">
+                <div class="icon-box"><svg viewBox="0 0 24 24"><path d="M8 12h8"></path><path d="M12 8v8"></path></svg></div>
+                <p class="stat-number" id="neutralCount">0</p>
+                <div class="stat-label">Neutral</div>
+              </article>
+              <article class="card stat-card">
+                <div class="icon-box"><svg viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"></path><path d="M12 15V5"></path></svg></div>
+                <p class="stat-number" id="negativeCount">0</p>
+                <div class="stat-label">Negative</div>
+              </article>
+            </div>
 
-        <div class="student-table-container">
-          <!-- Student Table -->
-          <table id="studentTable" style="display:none;">
-            <thead>
-              <tr>
-                <th>ID</th><th>Name</th><th>Program</th><th>Section</th><th>Email</th><th>Actions</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
+            <div class="chart-grid">
+              <article class="card chart-card"><h2 class="card-title">Feedback by Department</h2><div class="chart-box"><canvas id="departmentChart"></canvas></div></article>
+              <article class="card chart-card"><h2 class="card-title">Monthly Trend</h2><div class="chart-box"><canvas id="trendChart"></canvas></div></article>
+              <article class="card chart-card tall"><h2 class="card-title">Sentiment Distribution</h2><div class="chart-box"><canvas id="sentimentChart"></canvas></div></article>
+              <article class="card chart-card tall"><h2 class="card-title">Academic vs. Non-Academic</h2><div class="chart-box"><canvas id="typeChart"></canvas></div></article>
+            </div>
+          </section>
+
+          <section id="profilePage" class="page">
+            <div class="profile-wrap">
+              <article class="card profile-card">
+                <div class="big-avatar" id="profileInitial">N</div>
+                <div>
+                  <h2 id="profileName">Non-Academic Administrator</h2>
+                  <div class="muted" id="profileRole">Non-Academic Administrator</div>
+                </div>
+              </article>
+
+              <article class="card password-card">
+                <h2>Change Password</h2>
+                <form class="form-grid" id="passwordForm">
+                  <div class="field"><label for="currentPassword">Current Password</label><input id="currentPassword" type="password" value="password"></div>
+                  <div class="field"><label for="newPassword">New Password</label><input id="newPassword" type="password" placeholder="Min. 8 characters"></div>
+                  <div class="field"><label for="confirmPassword">Confirm Password</label><input id="confirmPassword" type="password" value="password"></div>
+                  <div><button class="btn primary" type="submit"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>Update Password</button></div>
+                </form>
+              </article>
+            </div>
+          </section>
+
+          <section id="feedbackPage" class="page">
+            <article class="card section-card">
+              <div class="section-head">
+                <h2>Feedback Records</h2>
+                <div class="filters">
+                  <label class="input-wrap">
+                    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+                    <input class="input" id="feedbackSearch" type="search" placeholder="Search feedback...">
+                  </label>
+                  <select class="select" id="sentimentFilter">
+                    <option value="">All Sentiments</option>
+                    <option value="positive">Positive</option>
+                    <option value="neutral">Neutral</option>
+                    <option value="negative">Negative</option>
+                  </select>
+                  <label class="select-wrap">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4"></path><path d="M8 2v4"></path><path d="M3 10h18"></path></svg>
+                    <select class="select" id="feedbackTermFilter">
+                      <option>This Semester</option>
+                      <option>2nd Semester</option>
+                      <option>Full Year</option>
+                    </select>
+                  </label>
+                  <button class="btn primary" id="exportExcelBtn"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"></path><path d="M14 2v6h6"></path><path d="M8 13h8"></path><path d="M8 17h8"></path></svg>Export as Excel</button>
+                </div>
+              </div>
+
+              <div id="feedbackEmpty" class="empty">
+                <div>
+                  <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="M7 10h10"></path><path d="M9 6h6"></path></svg>
+                  <div>No feedback records found. New non-academic feedback submissions will appear here.</div>
+                </div>
+              </div>
+
+              <div class="table-wrap" id="feedbackTableWrap" hidden>
+                <table>
+                  <thead><tr><th>Department</th><th>Feedback</th><th>Sentiment</th><th>Date</th></tr></thead>
+                  <tbody id="feedbackBody"></tbody>
+                </table>
+              </div>
+            </article>
+          </section>
         </div>
       </div>
-    </div>
-  </div>
-
-  <div id="chartModal" class="modal">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <canvas id="myChart" width="400" height="300"></canvas>
-      <button id="downloadPDF">Download as PDF</button>
-    </div>
-  </div>
-
-  <div id="loadingOverlay">
-    <i class="fas fa-spinner"></i>
-    Loading...
+    </main>
   </div>
 
   <script>
-    document.getElementById('csvForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      var formData = new FormData();
-      formData.append('csv_file', document.getElementById('csv_file').files[0]);
-      
-      fetch('admin/import.php', { method: 'POST', body: formData })
-          .then(res => res.text())
-          .then(data => alert(data))
-          .catch(err => alert("Error: " + err));
-    });
+    const departments = ['Security', 'Campus Fac', 'Non-Teach', 'Registrar', 'Library', 'Student Af', 'Health', 'Guidance'];
+    const pageTitles = {
+      dashboard: 'Dashboard',
+      profile: 'My Profile',
+      feedback: 'Non-Academic Feedback Records'
+    };
 
-    window.addEventListener("load", () => {
-      document.body.classList.add("fade-in");
-    });
+    let feedbackRows = [];
+    let chartInstances = [];
 
-    const loadingOverlay = document.getElementById("loadingOverlay");
-
-    document.getElementById("logoutBtn").addEventListener("click", () => {
-      if (confirm("Are you sure you want to log out?")) {
-        loadingOverlay.textContent = "Logging out...";
-        loadingOverlay.style.display = "flex";
-        document.body.style.opacity = "0.7";
-        setTimeout(() => {
-          window.location.href = "index.html";
-        }, 1200);
-      }
-    });
-
-    document.getElementById("profileLink").addEventListener("click", () => {
-      loadingOverlay.textContent = "Loading profile...";
-      loadingOverlay.style.display = "flex";
-      document.body.style.opacity = "0.7";
-      setTimeout(() => {
-        window.location.href = "Profile_Non_Acad.html";
-      }, 1000);
-    });
-
-    const searchInput = document.getElementById("studentSearch");
-    const studentTable = document.getElementById("studentTable");
-    const tableBody = studentTable.querySelector("tbody");
-
-    searchInput.addEventListener("keyup", () => {
-      const query = searchInput.value.trim();
-
-      if (query.length > 0) {
-        studentTable.style.display = "table";
-        tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Searching...</td></tr>';
-
-        fetch(`get_students.php?search=${encodeURIComponent(query)}`)
-          .then(res => res.json())
-          .then(data => {
-            tableBody.innerHTML = "";
-            if (data.success && data.students.length > 0) {
-              data.students.forEach(student => {
-                const row = `
-                  <tr>
-                    <td>${student.student_id}</td>
-                    <td>${student.student_name}</td>
-                    <td>${student.program}</td>
-                    <td>${student.section}</td>
-                    <td>${student.email}</td>
-                    <td>
-                      <button class="edit-btn" onclick="editStudent(${student.id})">Edit</button>
-                      <button class="delete-btn" onclick="archiveStudent(${student.id})">Delete</button>
-                    </td>
-                  </tr>`;
-                tableBody.insertAdjacentHTML('beforeend', row);
-              });
-            } else {
-              tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No students found.</td></tr>';
-            }
-          })
-          .catch(err => {
-            console.error("Search error:", err);
-            tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Error searching students.</td></tr>';
-          });
-      } else {
-        studentTable.style.display = "none";
-        tableBody.innerHTML = "";
-      }
-    });
-
-    function editStudent(studentId) {
-      window.location.href = `Edit_Student.html?id=${studentId}&from=Non_Acad_Dashboard.html`;
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[char]);
     }
 
-    function archiveStudent(studentId) {
-      if (confirm("Are you sure you want to archive this student?")) {
-        fetch(`archive_student.php?id=${studentId}`)
-          .then(res => res.json())
-          .then(data => { if (data.success) { alert("Student archived successfully."); searchInput.dispatchEvent(new Event('keyup')); } else { alert("Failed to archive student."); } });
-      }
+    function buildDashboardQuery() {
+      const [academicYear, semester] = document.getElementById('semesterFilter').value.split('|');
+      return new URLSearchParams({
+        role: 'nonacademic',
+        academic_year: academicYear,
+        semester
+      }).toString();
     }
-   let positiveCount = 0, negativeCount = 0, neutralCount = 0;
 
-fetch('dashboard_data.php?role=nonacademic')
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      positiveCount = data.data.review["Positive Review"] || 0;
-      negativeCount = data.data.review["Negative Review"] || 0;
-      neutralCount = data.data.review["Neutral Review"] || 0;
+    function normalizedSentiment(value) {
+      const sentiment = String(value || '').toLowerCase();
+      if (sentiment.includes('positive')) return 'positive';
+      if (sentiment.includes('negative')) return 'negative';
+      if (sentiment.includes('neutral')) return 'neutral';
+      return 'neutral';
+    }
 
-      // Update the dashboard stats
-      document.getElementById('positiveVal').textContent = data.data.percentages["Positive Feedback"] + "%";
-      document.getElementById('negativeVal').textContent = data.data.percentages["Negative Feedback"] + "%";
-      document.getElementById('feedbackCount').textContent = data.data.row_count;
-      document.getElementById('commentCount').textContent = data.data.review_count;
+    function inferDepartment(row) {
+      const source = [row.question_name, row.feedback_type, row.service, row.department, row.office].join(' ').toLowerCase();
+      if (source.includes('guard') || source.includes('security')) return 'Security';
+      if (source.includes('facility') || source.includes('campus')) return 'Campus Fac';
+      if (source.includes('teaching') || source.includes('non_teach')) return 'Non-Teach';
+      if (source.includes('registrar')) return 'Registrar';
+      if (source.includes('library')) return 'Library';
+      if (source.includes('affair')) return 'Student Af';
+      if (source.includes('health')) return 'Health';
+      if (source.includes('guidance')) return 'Guidance';
+      return 'Non-Teach';
+    }
 
-      // Enable chart button only after data loads
-      document.getElementById('viewChartBtn').onclick = function() {
-        document.getElementById("chartModal").style.display = "block";
-        drawChart(); // Use the updated global counts
+    function enrichFeedback(row) {
+      return {
+        department: inferDepartment(row),
+        comment: row.answer_text || row.positive_feedback || row.negative_feedback || row.comment || '',
+        sentiment: normalizedSentiment(row.review_result),
+        date: row.last_updated || row.created_at || ''
       };
-    } else {
-      console.error("Failed to load dashboard data:", data.message);
     }
-  })
-  .catch(err => console.error(err));
 
-function drawChart() {
-  const ctx = document.getElementById('myChart').getContext('2d');
-  if (window.myChartInstance) window.myChartInstance.destroy();
-
-  window.myChartInstance = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: ['Positive', 'Negative', 'Neutral'],
-      datasets: [{
-        label: 'Sentiment',
-        data: [positiveCount, negativeCount, neutralCount],
-        backgroundColor: [
-          'rgba(75, 192, 192, 0.7)',
-          'rgba(255, 99, 132, 0.7)',
-          'rgba(255, 206, 86, 0.7)'
-        ],
-        borderColor: '#fff',
-        borderWidth: 2
-      }]
-    },
-    options: {
-      responsive: false,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'top' },
-        title: { display: true, text: 'Sentiment Distribution' }
-      }
+    function switchPage(page) {
+      document.querySelectorAll('.page').forEach(section => section.classList.remove('active'));
+      document.getElementById(page + 'Page').classList.add('active');
+      document.querySelectorAll('.nav button').forEach(button => button.classList.toggle('active', button.dataset.page === page));
+      document.getElementById('pageTitle').textContent = pageTitles[page];
+      history.replaceState(null, '', '#' + page);
     }
-  });
-}
 
-
-        // Get modal and button
-        const modal = document.getElementById("chartModal");
-        const btn = document.getElementById("viewChartBtn");
-        const span = document.getElementsByClassName("close")[0];
-
-        // Open modal on button click
-        btn.onclick = function() {
-          modal.style.display = "block";
-          drawChart(positiveFeedback, negativeFeedback); // Draw chart when modal opens
-        }
-
-        // Close modal when clicking the 'x'
-        span.onclick = function() {
-          modal.style.display = "none";
-        }
-
-        // Close modal when clicking outside content
-        window.onclick = function(event) {
-          if (event.target == modal) {
-            modal.style.display = "none";
-          }
-        }
-
-      // Function to draw Chart.js chart
-       function drawChart(positiveFeedback, negativeFeedback) {
-          const ctx = document.getElementById('myChart').getContext('2d');
-
-
-          if (window.myChartInstance) window.myChartInstance.destroy();
-
-window.myChartInstance = new Chart(ctx, {
-  type: 'doughnut',
-  data: {
-    labels: ['Positive', 'Negative', 'Neutral'],
-    datasets: [{
-      label: 'Sentiment',
-      data: [positiveCount, negativeCount, neutralCount],
-      backgroundColor: [
-        'rgba(75, 192, 192, 0.7)',
-        'rgba(255, 99, 132, 0.7)',
-        'rgba(255, 206, 86, 0.7)'
-      ],
-      borderColor: '#fff',
-      borderWidth: 2
-    }]
-  },
-  options: {
-    responsive: false,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { position: 'top' },
-      title: { display: true, text: 'Sentiment Distribution' }
+    function updateStats() {
+      const rows = feedbackRows.map(enrichFeedback);
+      document.getElementById('totalFeedback').textContent = feedbackRows.length;
+      document.getElementById('positiveCount').textContent = rows.filter(row => row.sentiment === 'positive').length;
+      document.getElementById('neutralCount').textContent = rows.filter(row => row.sentiment === 'neutral').length;
+      document.getElementById('negativeCount').textContent = rows.filter(row => row.sentiment === 'negative').length;
     }
-  }
-});
+
+    function renderCharts() {
+      if (!window.Chart) return;
+      chartInstances.forEach(chart => chart.destroy());
+      chartInstances = [];
+
+      const rows = feedbackRows.map(enrichFeedback);
+      const departmentCounts = departments.map(department => rows.filter(row => row.department === department).length);
+      const positive = rows.filter(row => row.sentiment === 'positive').length;
+      const neutral = rows.filter(row => row.sentiment === 'neutral').length;
+      const negative = rows.filter(row => row.sentiment === 'negative').length;
+      const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: '#eef1f5' }, ticks: { color: '#95a0b5', precision: 0, maxTicksLimit: 5 } },
+          x: { grid: { display: false }, ticks: { color: '#95a0b5', maxRotation: 28, minRotation: 28, font: { size: 9 } } }
         }
+      };
 
+      chartInstances.push(new Chart(document.getElementById('departmentChart'), {
+        type: 'bar',
+        data: { labels: departments, datasets: [{ data: departmentCounts, backgroundColor: '#8b8b8b', borderRadius: 4 }] },
+        options: chartOptions
+      }));
 
-        // PDF Download
-        document.getElementById('downloadPDF').addEventListener('click', () => {
-          const { jsPDF } = window.jspdf;
-          const pdf = new jsPDF('p', 'mm', 'a4'); // portrait, millimeters, A4 page
+      chartInstances.push(new Chart(document.getElementById('trendChart'), {
+        type: 'line',
+        data: { labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], datasets: [{ data: [0,0,0,0,0,0,0,0,0,0,feedbackRows.length,0], borderColor: '#777', backgroundColor: 'rgba(119,119,119,.10)', tension: 0.32, fill: false, pointRadius: 0 }] },
+        options: chartOptions
+      }));
 
-          // === Shared data ===
-          const labels = ['Positive', 'Negative', 'Neutral'];
-          const values = [positiveCount, negativeCount, neutralCount];
-          const colors = ['#4BC0C0', '#FF6384', '#FFCE56'];
+      chartInstances.push(new Chart(document.getElementById('sentimentChart'), {
+        type: 'doughnut',
+        data: { labels: ['Positive','Neutral','Negative'], datasets: [{ data: [positive, neutral, negative], backgroundColor: ['#10b981','#9ca3af','#f43f5e'], borderWidth: 0 }] },
+        options: { responsive: true, maintainAspectRatio: false, cutout: '72%', plugins: { legend: { position: 'bottom', labels: { color: '#8b95a7', boxWidth: 7, boxHeight: 7 } } } }
+      }));
 
-          // === First Chart (Pie) ===
-          const canvas1 = document.getElementById('myChart');
-          const imgData1 = canvas1.toDataURL('image/png', 1.0);
+      chartInstances.push(new Chart(document.getElementById('typeChart'), {
+        type: 'doughnut',
+        data: { labels: ['Academic','Non-Academic'], datasets: [{ data: [0, feedbackRows.length], backgroundColor: ['#858585','#d6dbe3'], borderWidth: 0 }] },
+        options: { responsive: true, maintainAspectRatio: false, cutout: '72%', plugins: { legend: { position: 'bottom', labels: { color: '#8b95a7', boxWidth: 7, boxHeight: 7 } } } }
+      }));
+    }
 
-          pdf.setFontSize(16);
-          pdf.text('Sentiment Distributiont', 105, 15, { align: 'center' });
+    function filterFeedback() {
+      const search = document.getElementById('feedbackSearch').value.toLowerCase();
+      const sentiment = document.getElementById('sentimentFilter').value;
+      return feedbackRows.map(enrichFeedback).filter(row => {
+        const haystack = [row.department, row.comment, row.date].join(' ').toLowerCase();
+        return (!search || haystack.includes(search)) && (!sentiment || row.sentiment === sentiment);
+      });
+    }
 
-          // Smaller chart (140×80 instead of 180×100)
-          pdf.addImage(imgData1, 'PNG', 35, 20, 140, 80);
+    function renderFeedbackTable() {
+      const rows = filterFeedback();
+      const hasRows = rows.length > 0;
+      document.getElementById('feedbackEmpty').hidden = hasRows;
+      document.getElementById('feedbackTableWrap').hidden = !hasRows;
+      document.getElementById('feedbackBody').innerHTML = rows.map(row => `<tr>
+        <td>${escapeHtml(row.department)}</td>
+        <td style="white-space:normal; min-width:320px;">${escapeHtml(row.comment || 'No comment')}</td>
+        <td><span class="badge ${row.sentiment}">${row.sentiment[0].toUpperCase() + row.sentiment.slice(1)}</span></td>
+        <td><span class="muted">${escapeHtml(row.date || 'No date')}</span></td>
+      </tr>`).join('');
+    }
 
-          // One-line summary under first chart
-          pdf.setFontSize(11);
-          pdf.text('Chart Data:', 15, 110);
+    function exportFeedbackCsv() {
+      const rows = filterFeedback();
+      const header = ['Department', 'Feedback', 'Sentiment', 'Date'];
+      const csvRows = [header, ...rows.map(row => [row.department, row.comment || 'No comment', row.sentiment, row.date || 'No date'])];
+      const csv = csvRows.map(row => row.map(value => `"${String(value).replace(/"/g, '""')}"`).join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'non_academic_feedback_records.csv';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
 
-          let x = 42;
-          const y = 110;
+    function loadProfile() {
+      fetch('get_profile.php')
+        .then(response => response.json())
+        .then(data => {
+          if (!data.success) return;
+          const name = data.name || 'Non-Academic Administrator';
+          document.getElementById('profileName').textContent = name;
+          document.getElementById('profileRole').textContent = data.role === 'Non-Academic' ? 'Non-Academic Administrator' : (data.role || 'Non-Academic Administrator');
+          document.getElementById('profileInitial').textContent = name.trim().charAt(0).toUpperCase() || 'N';
+        })
+        .catch(() => {});
+    }
 
-          labels.forEach((label, i) => {
-            pdf.setFillColor(colors[i]);
-            pdf.rect(x, y - 4, 5, 5, 'F');
-            pdf.text(`${label}: ${values[i]}%`, x + 8, y);
-            x += 55;
-          });
-
-          // === Date at bottom ===
-          const dateStr = new Date().toLocaleString();
-          pdf.setFontSize(10);
-          pdf.text(`Generated on: ${dateStr}`, 15, 285);
-
-          // Save
-          pdf.save('Sentiment_Report.pdf');
+    function loadDashboardData() {
+      fetch('dashboard_data.php?' + buildDashboardQuery())
+        .then(response => response.json())
+        .then(data => {
+          if (!data.success) return;
+          feedbackRows = data.data.rows || [];
+          updateStats();
+          renderFeedbackTable();
+          renderCharts();
+        })
+        .catch(() => {
+          updateStats();
+          renderFeedbackTable();
+          renderCharts();
         });
+    }
+
+    function initEvents() {
+      document.querySelectorAll('.nav button').forEach(button => {
+        button.addEventListener('click', () => switchPage(button.dataset.page));
+      });
+
+      document.querySelector('.avatar-dot').addEventListener('click', () => {
+        if (confirm('Are you sure you want to log out?')) window.location.href = 'index.html';
+      });
+
+      document.getElementById('semesterFilter').addEventListener('change', loadDashboardData);
+      document.getElementById('feedbackSearch').addEventListener('input', renderFeedbackTable);
+      document.getElementById('sentimentFilter').addEventListener('change', renderFeedbackTable);
+      document.getElementById('feedbackTermFilter').addEventListener('change', renderFeedbackTable);
+      document.getElementById('exportPdfBtn').addEventListener('click', () => window.print());
+      document.getElementById('exportExcelBtn').addEventListener('click', exportFeedbackCsv);
+
+      document.getElementById('passwordForm').addEventListener('submit', event => {
+        event.preventDefault();
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        if (newPassword.length < 8) {
+          alert('New password must be at least 8 characters.');
+          return;
+        }
+        if (newPassword !== confirmPassword) {
+          alert('New password and confirmation do not match.');
+          return;
+        }
+        alert('Password update submitted.');
+      });
+    }
+
+    initEvents();
+    loadProfile();
+    loadDashboardData();
+
+    const hashPage = location.hash.replace('#', '');
+    if (pageTitles[hashPage]) switchPage(hashPage);
   </script>
 </body>
 </html>
