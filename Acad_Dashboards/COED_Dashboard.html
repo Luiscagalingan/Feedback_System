@@ -182,7 +182,7 @@
           <h1>College of Education</h1>
           <p>Dean · College of Education</p>
         </div>
-        <button class="export-btn" id="viewChartBtn"><i class="fas fa-file-export"></i> Export PDF</button>
+        <button class="export-btn" id="viewChartBtn"><i class="fas fa-chart-pie"></i> View Chart</button>
       </div>
 
       <div class="stats-grid">
@@ -340,9 +340,14 @@
   });
 
   const navItems = document.querySelectorAll('.nav-item[data-page]');
-  function setActivePage(page) { document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active')); document.getElementById(page).classList.add('active'); }
+  function setActivePage(page) {
+    document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+    document.getElementById(page).classList.add('active');
+    navItems.forEach(item => item.classList.toggle('active', item.dataset.page === page));
+    document.querySelector('.topbar-title').textContent = page === 'studentManagementPage' ? 'Student Management' : page === 'archiveListPage' ? 'Archived Students' : page === 'profilePage' ? 'Profile' : 'Dashboard';
+  }
 
-  document.querySelectorAll('.nav-item[data-page]').forEach(btn => btn.addEventListener('click', () => setActivePage(btn.dataset.page)));
+  document.querySelectorAll('.nav-item[data-page]').forEach(btn => btn.addEventListener('click', (event) => { event.preventDefault(); setActivePage(btn.dataset.page); }));
 
   /* ---------- Dashboard data + charts (COED) ---------- */
   let positiveCount = 0, negativeCount = 0, neutralCount = 0;
