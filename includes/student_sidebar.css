@@ -1,0 +1,14 @@
+/* Shared student sidebar: copied from the finalized Student Dashboard design. */
+.student-page-layout { min-height:100vh; display:grid; grid-template-columns:240px 1fr; }
+.student-sidebar { position:sticky; top:0; height:100vh; display:flex; flex-direction:column; color:#fff; background:var(--student-sidebar-color,#7d7d7d); }
+.student-sidebar-brand { height:68px; display:flex; align-items:center; gap:12px; padding:0 20px; border-bottom:1px solid rgba(0,0,0,.12); }
+.student-sidebar-brand img { width:34px; height:34px; border-radius:50%; object-fit:cover; background:#fff; border:1px solid rgba(0,0,0,.15); }
+.student-sidebar-brand strong,.student-sidebar-brand span { display:block; }
+.student-sidebar-brand strong { font-size:13px; line-height:1.2; }
+.student-sidebar-brand span { margin-top:4px; color:rgba(255,255,255,.78); font-size:11px; }
+.student-sidebar-nav { display:grid; gap:4px; padding:16px 10px; }
+.student-sidebar-nav a,.student-sidebar-footer a { width:100%; min-height:38px; border:0; border-radius:7px; display:flex; align-items:center; gap:12px; padding:0 12px; color:rgba(255,255,255,.72); background:transparent; cursor:pointer; font:800 14px Arial,Helvetica,sans-serif; text-align:left; text-decoration:none; }
+.student-sidebar-nav a:hover,.student-sidebar-nav a.active,.student-sidebar-footer a:hover { color:#fff; background:rgba(255,255,255,.18); }
+.student-sidebar-footer { margin-top:auto; padding:18px 10px; border-top:1px solid rgba(0,0,0,.12); }
+.student-sidebar-icon { width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; flex:0 0 auto; }
+@media (max-width:900px) { .student-page-layout { grid-template-columns:1fr; }.student-sidebar { position:static; height:auto; }.student-sidebar-nav { grid-template-columns:repeat(3,1fr); }.student-sidebar-footer { margin-top:0; }.student-sidebar-footer a { width:max-content; } }

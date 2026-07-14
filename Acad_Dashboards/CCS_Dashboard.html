@@ -15,6 +15,7 @@
       --college: #C5C6C7;
       --college-dark: #9c9d9e;
       --college-soft: rgba(197, 198, 199, 0.16);
+      --college-name: 'College of Computer Studies';
       --bg: #f3f4f7;
       --panel: #ffffff;
       --line: #e4e7ee;
@@ -474,6 +475,7 @@
       background: rgba(0, 64, 128, 0.10);
     }
   </style>
+  <link rel="stylesheet" href="student-dashboard-ui.css">
 </head>
 
 <body>
@@ -486,6 +488,7 @@
       </div>
       <ul class="navbar-menu" id="navbarMenu">
         <li><a href="#" class="nav-link active" data-page="dashboard"><i class="fas fa-home"></i> Home</a></li>
+        <li><a href="#" class="nav-link student-management-nav"><i class="fas fa-users"></i> Student Management</a></li>
         <li><a href="#" class="nav-link" id="profileLink"><i class="fas fa-user"></i> Profile</a></li>
         <li><button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button></li>
       </ul>
@@ -518,6 +521,18 @@
           <div class="stat-card-label"><i class="fas fa-frown"></i> Negative Feedback</div>
         </div>
       </div>
+
+      <section class="bsa-charts" aria-label="Feedback charts">
+        <article class="bsa-chart-card">
+          <h3>Sentiment Distribution</h3>
+          <div class="bsa-chart-space"></div>
+          <div class="bsa-legend"><span class="positive">● Positive</span><span class="neutral">● Neutral</span><span class="negative">● Negative</span></div>
+        </article>
+        <article class="bsa-chart-card">
+          <h3>Feedback Overview</h3>
+          <div class="bsa-overview-grid" aria-hidden="true"></div>
+        </article>
+      </section>
 
       <!-- Student Management Section -->
       <div class="table-container">
@@ -572,6 +587,7 @@
   </div>
 
   <div id="loadingOverlay">
+  <script src="student-management-navigation.js"></script>
     <i class="fas fa-spinner"></i>
     Loading...
   </div>
@@ -813,5 +829,6 @@
           pdf.save('CCS_Sentiment_Report.pdf');
         });
   </script>
+<script src="../role_dashboard_guard.js"></script>
 </body>
 </html>

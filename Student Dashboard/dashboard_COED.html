@@ -673,6 +673,9 @@
         grid-template-columns: 1fr;
       }
     }
+    /* Standardized Student Feedback category screen. */
+    body.submit-feedback-view { background:#f4f5f7; } body.submit-feedback-view .app { grid-template-columns:1fr; } body.submit-feedback-view .sidebar { display:none; } body.submit-feedback-view .topbar { padding:0 18px; background:#fff; } body.submit-feedback-view .student-text { color:#1f1f1f; background:#d4d4d4; } body.submit-feedback-view .profile-trigger { color:#888; background:#eee; } body.submit-feedback-view .content { min-height:calc(100vh - 50px); padding:74px 20px 44px; } .submit-heading { text-align:center; } .submit-heading span { display:block; color:#888; font-size:12px; font-weight:900; letter-spacing:1.2px; text-transform:uppercase; } .submit-heading h2 { margin:8px 0 0; font-size:24px; } .submit-heading + .submit-intro { margin-top:10px; } body.submit-feedback-view .feedback-choice-grid { width:min(790px,100%); gap:22px; } .submit-feedback-view .choice-card { min-height:356px; padding:28px; border-color:#e1e1e1; } .submit-feedback-view .choice-card:hover { border-color:#999; } .submit-feedback-view .icon-box { color:#777; background:#e4e4e4; } .submit-feedback-view .tag { background:#f5f5f5; color:#526078; }
+    body.submit-feedback-view .app { grid-template-columns:240px 1fr; } body.submit-feedback-view .sidebar { display:flex; }
   </style>
 </head>
 <body>
@@ -775,20 +778,21 @@
         </section>
 
         <section id="submitPage" class="page">
+          <div class="submit-heading"><span>Student Feedback</span><h2>PLP Offices</h2></div>
           <p class="submit-intro">Select the type of feedback you would like to submit.</p>
           <div class="feedback-choice-grid">
             <article class="card choice-card" data-feedback-type="academic">
               <div class="icon-box"><svg class="icon" viewBox="0 0 24 24"><path d="M4 19.5V5a2 2 0 0 1 2-2h7a3 3 0 0 1 3 3v13a3 3 0 0 0-3-3H6a2 2 0 0 0-2 2Z"></path><path d="M20 19.5V5a2 2 0 0 0-2-2h-2"></path></svg></div>
               <h2>Academic Feedback</h2>
-              <p>Teaching quality, curriculum, assessments, library, and academic facilities.</p>
-              <div class="tag-row"><span class="tag">Teaching Quality</span><span class="tag">Curriculum Content</span><span class="tag">Assessment Methods</span><span class="tag">Library Resources</span><span class="tag">+1 more</span></div>
+              <p>Rate academic support services — library resources, college enrollment offices, and faculty consultation.</p>
+              <div class="tag-row"><span class="tag">Library Office</span><span class="tag">College Enrollment Offices (per College)</span><span class="tag">Faculty / Teacher Consultation Services</span></div>
             </article>
 
             <article class="card choice-card" data-feedback-type="nonacademic">
               <div class="icon-box"><svg class="icon" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"></rect><path d="M9 7h1"></path><path d="M14 7h1"></path><path d="M9 11h1"></path><path d="M14 11h1"></path></svg></div>
               <h2>Non-Academic Feedback</h2>
-              <p>Security, campus facilities, registrar, library, student affairs, and other services.</p>
-              <div class="tag-row"><span class="tag">Security Services</span><span class="tag">Campus Facilities</span><span class="tag">Non-Teaching</span><span class="tag">Registrar Services</span><span class="tag">+1 more</span></div>
+              <p>Rate administrative and student support services — registrar, guidance, clinic, accounting, and more.</p>
+              <div class="tag-row"><span class="tag">Registrar's Office</span><span class="tag">Guidance Office</span><span class="tag">Clinic Office</span><span class="tag">Accounting Office</span><span class="tag">+7 more</span></div>
             </article>
           </div>
         </section>
@@ -924,6 +928,7 @@
     }
 
     function switchPage(page) {
+      document.body.classList.toggle('submit-feedback-view', page === 'submit');
       document.querySelectorAll('.page').forEach(section => section.classList.remove('active'));
       document.getElementById(page + 'Page').classList.add('active');
       document.querySelectorAll('.nav button').forEach(button => button.classList.toggle('active', button.dataset.page === page));
@@ -945,9 +950,7 @@
     }
 
     function logout() {
-      if (confirm('Are you sure you want to log out?')) {
-        window.location.href = '../index.html';
-      }
+      showLogoutConfirmation();
     }
 
     document.querySelectorAll('.nav button').forEach(button => {
@@ -959,7 +962,7 @@
     });
 
     document.querySelectorAll('[data-feedback-type]').forEach(card => {
-      card.addEventListener('click', () => switchPage(card.dataset.feedbackType));
+      card.addEventListener('click', () => { window.location.href = card.dataset.feedbackType === 'academic' ? '../Academic_Feedbacks/index.php' : '../Non_Acad_feedback/index.php'; });
     });
 
     document.getElementById('academicSelect').addEventListener('change', event => {
@@ -1017,5 +1020,6 @@
     const hashPage = location.hash.replace('#', '');
     if (pageTitles[hashPage]) switchPage(hashPage);
   </script>
+<script src="../logout_confirm.js"></script><script src="../student_dashboard_guard.js"></script>
 </body>
 </html>

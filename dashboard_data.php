@@ -16,6 +16,7 @@ $role = $_GET['role'] ?? '';
 
 // Define table mapping
 $nonAcademicTables = [
+    'office_feedback',
     'Registrar_Feedback',
     'Non_Academic_Library_Feedback',
     'Student_Affairs_Feedback',
@@ -26,6 +27,7 @@ $nonAcademicTables = [
 ];
 
 $academicTables = [
+    'office_feedback',
     'learning_feedback',
     'Curriculum_Feedback',
     'Assessment_Feedback',
@@ -40,7 +42,7 @@ if ($role === 'academic') {
 } elseif ($role === 'nonacademic') {
     $tables = $nonAcademicTables;
 } elseif ($role === 'admin') {
-    $tables = array_merge($academicTables, $nonAcademicTables);
+    $tables = array_values(array_unique(array_merge($academicTables, $nonAcademicTables)));
 }
 
 // Prepare aggregation variables
@@ -57,6 +59,11 @@ $neutralReview  = 0;
 // Loop through each relevant table and fetch data
 foreach ($tables as $table) {
     $sql = "SELECT * FROM `$table`";
+    if ($table === 'office_feedback' && $role === 'academic') {
+        $sql .= " WHERE category = 'academic'";
+    } elseif ($table === 'office_feedback' && $role === 'nonacademic') {
+        $sql .= " WHERE category = 'nonacademic'";
+    }
     $result = $conn->query($sql);
 
     if ($result && $result->num_rows > 0) {

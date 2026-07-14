@@ -1,0 +1,131 @@
+/* Shared presentation for legacy college dashboards, based on BSA_Dashboard's layout. */
+:root {
+  --bg: #F4F5F7; --panel: #fff; --line: #E7E9EE; --text: #1F2937;
+  --muted: #6B7280; --soft-text: #6B7280; --shadow: 0 14px 36px rgba(15,26,43,.10);
+  --radius: 14px;
+}
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body, body.fade-in {
+  margin: 0; opacity: 1; color: var(--text); background: var(--bg) !important;
+  font-family: 'Inter', Arial, Helvetica, sans-serif !important; font-size: 14px;
+}
+body::before { display: none !important; }
+button, input, select, textarea { font: inherit; }
+
+/* Existing sidebar-based dashboards */
+.sidebar {
+  width: 240px !important; height: 100vh; position: sticky !important; top: 0;
+  padding: 24px 16px !important; color: #0F1A2B !important; background: linear-gradient(180deg, var(--college), var(--college-dark)) !important;
+  box-shadow: none !important;
+}
+.brand { height: auto; gap: 10px; padding: 6px 8px 26px; border-bottom: 0; }
+.brand-icon { width: 34px !important; height: 34px !important; background: #fff !important; }
+.brand-icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.brand-text strong { font-size: 13px !important; color: #071527 !important; }
+.brand-text span { color: rgba(7,21,39,.68) !important; font-size: 11px !important; }
+.nav-section { display: flex; flex-direction: column; gap: 4px; padding: 0 !important; }
+.nav-item, .logout-link { min-height: auto; border: 0 !important; border-radius: 10px !important; padding: 11px 14px !important; color: rgba(15,26,43,.75) !important; background: transparent !important; font-weight: 600 !important; box-shadow: none !important; }
+.nav-item:hover, .logout-link:hover { color: #0F1A2B !important; background: rgba(255,255,255,.35) !important; transform: none !important; }
+.nav-item.active { color: #fff !important; background: #0F1A2B !important; box-shadow: 0 6px 16px rgba(15,26,43,.25) !important; }
+.sidebar-footer { padding: 14px 0 0 !important; border-top: 1px solid rgba(15,26,43,.15) !important; }
+.main { min-width: 0; }
+.topbar { height: auto !important; padding: 16px 28px !important; background: var(--panel) !important; border-bottom: 1px solid var(--line) !important; }
+.topbar-title { font-size: 15px !important; font-weight: 700 !important; color: var(--text) !important; }
+.scope-pill { padding: 8px 14px !important; border: 1px solid var(--line) !important; border-radius: 10px !important; color: var(--muted) !important; background: #F3F4F6 !important; font-size: 13px !important; }
+.role-badge { padding: 7px 14px !important; border-radius: 8px !important; color: #fff !important; background: #0F1A2B !important; font-size: 12px !important; font-weight: 700 !important; }
+.avatar { background: linear-gradient(135deg,var(--college),var(--college-dark)) !important; color: #fff !important; box-shadow: none !important; }
+.content { max-width: 1320px; padding: 28px !important; }
+.page-head h1, .page-head h2 { color: var(--text) !important; font-size: 21px !important; font-weight: 800 !important; }
+.page-head p, .table-card-head p { color: var(--soft-text) !important; }
+
+/* Legacy dashboards are fitted to the BSA shell without changing their controls or scripts. */
+.navbar { position: fixed !important; inset: 0 auto 0 0 !important; width: 240px !important; height: 100vh !important; padding: 24px 16px !important; border-radius: 0 !important; background: linear-gradient(180deg,var(--college),var(--college-dark)) !important; box-shadow: none !important; z-index: 1000; }
+.navbar-content { height: 100%; display: flex !important; flex-direction: column; align-items: stretch !important; padding: 0 !important; }
+.navbar-brand { height: auto; padding: 6px 8px 26px; display: flex !important; font-size: 14px !important; letter-spacing: 0 !important; color: var(--sidebar-nav-text, #0F1A2B) !important; border-bottom: 0; }
+.navbar-menu { flex: 1; display: grid !important; align-content: start; gap: 4px; margin: 0 !important; padding: 0 !important; }
+.navbar-menu li:last-child { margin-top: auto; }
+.navbar-menu a, .logout-btn { min-height: auto; padding: 11px 14px !important; border: 0 !important; border-radius: 10px !important; color: var(--sidebar-nav-text, rgba(15,26,43,.75)) !important; background: transparent !important; font-weight: 600 !important; box-shadow: none !important; transform: none !important; text-shadow: none !important; }
+.navbar-menu a:hover, .logout-btn:hover { color: var(--sidebar-nav-text, #0F1A2B) !important; background: rgba(255,255,255,.35) !important; transform: none !important; filter: none !important; }
+.navbar-menu a.active { color: #fff !important; background: #0F1A2B !important; }
+#dashboardPage { position: relative; min-height: 100vh; margin-left: 240px; padding: 112px 28px 28px !important; animation: none !important; }
+#dashboardPage::before {
+  content: 'Dashboard'; position: absolute; top: 0; left: 0; right: 0; height: 84px;
+  display: flex; align-items: center; padding: 0 36px; color: var(--text); background: #fff;
+  border-bottom: 1px solid var(--line); font-size: 15px; font-weight: 700;
+}
+#dashboardPage::after {
+  content: '▦  ' var(--college-name) '     Dean'; position: absolute; z-index: 1;
+  top: 22px; right: 28px; min-height: 40px; display: flex; align-items: center;
+  padding: 0 14px; border: 1px solid var(--line); border-radius: 10px;
+  color: var(--muted); background: #F3F4F6; font-size: 13px;
+}
+#dashboardPage[data-page="student-management"]::before { content: 'Student Management'; }
+.container { max-width: none !important; padding: 0 !important; }
+
+/* Shared cards, tables, forms, and modal styling. */
+.table-container, .table-card, .chart-card, .profile-card {
+  color: var(--text) !important; background: var(--panel) !important; border: 1px solid var(--line) !important;
+  border-radius: var(--radius) !important; box-shadow: none !important; backdrop-filter: none !important;
+}
+.dashboard-header { padding: 0 !important; margin-bottom: 24px !important; text-align: left !important; opacity: 1 !important; animation: none !important; background: transparent !important; border: 0 !important; box-shadow: none !important; }
+.dashboard-header h1 { justify-content: flex-start !important; margin: 0 0 4px !important; color: var(--text) !important; font-size: 21px !important; font-weight: 800 !important; }
+.dashboard-header p { margin: 0 !important; color: var(--soft-text) !important; font-size: 13px !important; }
+.dashboard-header:first-child { padding-right: 185px !important; }
+.stats-grid { grid-template-columns: repeat(4,minmax(0,1fr)) !important; gap: 18px !important; margin-bottom: 22px !important; }
+.stat-card { min-height: auto; padding: 22px !important; text-align: left !important; color: var(--text) !important; background: var(--panel) !important; border: 1px solid var(--line) !important; border-radius: var(--radius) !important; box-shadow: none !important; }
+.stat-card::before { display: none !important; }
+.stat-card:hover { transform: none !important; box-shadow: none !important; }
+.stat-card-value, .stat-value { margin: 0 0 4px !important; color: var(--text) !important; font-size: 26px !important; line-height: normal !important; font-weight: 800 !important; }
+.stat-card-label, .stat-label { justify-content: flex-start !important; color: var(--muted) !important; font-size: 13px !important; }
+.table-container, .table-card { padding: 24px !important; margin-bottom: 22px !important; }
+#dashboardPage[data-page="student-management"] .container > .dashboard-header:first-child,
+#dashboardPage[data-page="student-management"] .stats-grid,
+#dashboardPage[data-page="student-management"] .bsa-charts { display: none !important; }
+#dashboardPage:not([data-page]) .table-container { display: none !important; }
+#dashboardPage[data-page="student-management"] .table-container { margin: 0 !important; }
+#dashboardPage[data-page="student-management"] .table-container > .dashboard-header {
+  display: block !important; margin: 0 0 16px !important; padding: 0 !important;
+}
+#dashboardPage[data-page="student-management"] .table-container > .dashboard-header h2 {
+  margin: 0 !important; color: var(--text) !important; font-size: 16px !important; font-weight: 700 !important;
+}
+#dashboardPage[data-page="student-management"] .table-container > .dashboard-header p {
+  margin: 2px 0 0 !important; color: var(--muted) !important; font-size: 12.5px !important;
+}
+#dashboardPage[data-page="student-management"] #studentSearch { width: 100%; margin: 0 0 16px !important; padding: 10px 14px !important; border: 1px solid var(--line) !important; border-radius: 10px !important; }
+#dashboardPage[data-page="student-management"] #csvForm { margin: 18px 0 !important; padding: 16px !important; border-radius: 10px !important; }
+.chart-card { padding: 22px !important; }
+.bsa-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 22px; }
+.bsa-chart-card { min-height: 425px; padding: 28px; color: var(--text); background: #fff; border: 1px solid var(--line); border-radius: var(--radius); }
+.bsa-chart-card h3 { margin: 0; font-size: 14.5px; font-weight: 700; }
+.bsa-chart-space { min-height: 300px; }
+.bsa-legend { display: flex; justify-content: center; gap: 18px; color: var(--muted); font-size: 12.5px; }
+.bsa-legend .positive { color: #22C55E; }.bsa-legend .neutral { color: #9CA3AF; }.bsa-legend .negative { color: #EF4444; }
+.bsa-overview-grid { height: 300px; margin-top: 32px; border-left: 1px solid #d8dce2; border-bottom: 1px solid #d8dce2; background-image: linear-gradient(to bottom, transparent 24px, rgba(148,163,184,.25) 25px), linear-gradient(to right, transparent 24%, rgba(148,163,184,.2) 25%); background-size: 100% 25px, 25% 100%; }
+.student-table-container { margin-top: 18px !important; }
+table, #studentTable, #archiveTable, #feedbackTable { background: #fff !important; border-radius: 0 !important; box-shadow: none !important; }
+table th, #studentTable th, #archiveTable th, #feedbackTable th { padding: 12px 14px !important; color: var(--muted) !important; background: #f8f9fb !important; border: 0 !important; border-bottom: 1px solid var(--line) !important; font-size: 12px !important; text-transform: uppercase; letter-spacing: .03em; }
+table td, #studentTable td, #archiveTable td, #feedbackTable td { padding: 13px 14px !important; color: var(--text) !important; border: 0 !important; border-bottom: 1px solid var(--line) !important; font-size: 13px !important; }
+tbody tr:hover, #studentTable tbody tr:hover, #feedbackTable tbody tr:hover { background: var(--college-soft) !important; }
+input[type=text], input[type=email], input[type=password], input[type=file], select, textarea { min-height: 40px; border: 1px solid #aab4c5 !important; border-radius: 7px !important; color: var(--text) !important; background: #fff !important; box-shadow: none !important; }
+input:focus, select:focus, textarea:focus { outline: 0 !important; border-color: var(--college-dark) !important; box-shadow: 0 0 0 3px var(--college-soft) !important; }
+#csvForm { padding: 16px !important; border: 1px solid var(--line) !important; border-radius: 7px !important; background: #fafafb !important; box-shadow: none !important; }
+button, #viewChartBtn, #toggleReviewsBtn, #addStudentBtn, #toggleTableBtn, #downloadPDF, #csvForm button, .export-btn, .btn { min-height: 37px; padding: 0 15px !important; border: 0 !important; border-radius: 7px !important; color: #071527 !important; background: var(--college) !important; box-shadow: none !important; font-weight: 900 !important; }
+button:hover, #viewChartBtn:hover, #toggleReviewsBtn:hover, #addStudentBtn:hover, #toggleTableBtn:hover, #downloadPDF:hover, #csvForm button:hover, .export-btn:hover, .btn:hover { color: #fff !important; background: var(--college-dark) !important; transform: none !important; }
+/* Keep the existing chart action with the dashboard charts, clear of card content. */
+#dashboardPage #viewChartBtn.dashboard-chart-action { position: static !important; min-height: 40px; margin: 16px 0 18px !important; padding: 0 16px !important; border-radius: 9px !important; color: #fff !important; box-shadow: 0 6px 16px color-mix(in srgb, var(--college) 35%, transparent) !important; }
+.edit-btn, .delete-btn { min-height: 30px; padding: 0 10px !important; border-radius: 6px !important; box-shadow: none !important; font-size: 12px !important; }
+.edit-btn { color: #071527 !important; background: var(--college-soft) !important; }
+.delete-btn { color: #fff !important; background: #dc2626 !important; }
+.modal { background: rgba(7,21,39,.35) !important; }
+.modal-content { width: min(450px,calc(100% - 32px)) !important; margin: 10vh auto !important; padding: 22px !important; color: var(--text) !important; border: 1px solid var(--line) !important; border-radius: 10px !important; box-shadow: 0 18px 45px rgba(7,21,39,.16) !important; animation: none !important; }
+
+@media (max-width: 900px) {
+  .sidebar { position: static !important; width: 100% !important; height: auto !important; }
+  .main { width: 100%; } .topbar { height: auto !important; min-height: 50px; }
+  .navbar { position: static !important; width: 100% !important; height: auto !important; }
+  .navbar-content { height: auto; } .navbar-menu { grid-template-columns: repeat(3,1fr); }
+  #dashboardPage { margin-left: 0; } .stats-grid { grid-template-columns: repeat(2,1fr) !important; } .bsa-charts { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) { .topbar { padding: 12px !important; } .topbar-right { flex-wrap: wrap; } .navbar-menu { grid-template-columns: 1fr; } #dashboardPage { padding: 102px 16px 36px !important; } #dashboardPage::before { padding: 0 16px; } #dashboardPage::after { display:none; } .dashboard-header:first-child { padding-right: 0 !important; padding-top: 58px !important; } .content { padding: 16px 10px 36px !important; } .stats-grid { grid-template-columns: 1fr !important; } }

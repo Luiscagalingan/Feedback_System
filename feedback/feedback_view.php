@@ -1,0 +1,23 @@
+<?php
+require_once dirname(__DIR__) . '/includes/student_sidebar.php';
+
+function feedback_header(array $student): void { ?>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Submit Feedback</title><link rel="stylesheet" href="../../feedback/feedback.css"><link rel="stylesheet" href="../../includes/student_sidebar.css"></head>
+<body style="--student-sidebar-color: <?= htmlspecialchars(feedback_college_color($student['college'] ?? '')) ?>">
+<div class="student-page-layout"><?php render_student_sidebar($student, 'submit'); ?><div class="feedback-main"><header class="feedback-topbar"><strong>Submit Feedback</strong><div class="student-meta"><span><?= htmlspecialchars(feedback_college_name($student['college'] ?? '')) ?></span><span>Student</span></div></header>
+<?php }
+
+function feedback_footer(): void { ?><script src="../../feedback/feedback.js"></script></div></div></body></html><?php }
+
+function feedback_aside(string $category, array $student, ?array $office = null): void { ?>
+<aside class="feedback-aside"><a class="back-link" href="<?= htmlspecialchars($office ? 'index.php' : feedback_dashboard_url($student['college'] ?? '', 'submit')) ?>">&larr; Back</a><div class="aside-content"><img src="../../plpwalaa.png" alt="PLP Service Satisfaction logo"><p class="school">PAMANTASAN NG LUNGSOD NG PASIG</p><h1><?= htmlspecialchars($office['name'] ?? 'PLP Offices') ?></h1><?php if ($office): ?><p><?= htmlspecialchars($office['section']) ?></p><?php endif; ?><div class="category-label"><small>Student Feedback Survey</small><br><?= $category === 'academic' ? 'Academic Feedback' : 'Non-Academic Feedback' ?></div></div></aside>
+<?php }
+
+function feedback_selection(array $student, string $category, array $offices): void { feedback_header($student); ?>
+<main class="feedback-shell"><?php feedback_aside($category, $student); ?><section class="selection"><div class="field"><label>Student ID</label><input value="<?= htmlspecialchars($student['student_id']) ?>" readonly></div><h1><?= $category === 'academic' ? 'Academic Feedback' : 'Non-Academic Feedback' ?></h1><p>Select the office you would like to evaluate.</p><div class="office-list"><?php foreach ($offices as $key => $office): ?><a href="feedback_form.php?office=<?= rawurlencode($key) ?>"><?= htmlspecialchars($office['name']) ?></a><?php endforeach; ?></div></section></main>
+<?php feedback_footer(); }
+
+function feedback_form_page(array $student, string $category, string $key, array $office, ?string $message = null, bool $error = false): void { feedback_header($student); ?>
+<main class="feedback-shell"><?php feedback_aside($category, $student, $office); ?><section class="form-wrap"><?php if ($message): ?><p class="message<?= $error ? ' error' : '' ?>"><?= htmlspecialchars($message) ?></p><?php endif; ?><form method="post" action="../../feedback/submit_feedback.php" data-feedback-form><input type="hidden" name="category" value="<?= $category ?>"><input type="hidden" name="office" value="<?= htmlspecialchars($key) ?>"><input type="hidden" name="csrf" value="<?= htmlspecialchars(feedback_csrf_token()) ?>"><div class="field"><label>Student ID</label><input value="<?= htmlspecialchars($student['student_id']) ?>" readonly></div><div class="field"><label>Office</label><select onchange="if(this.value) location.href='feedback_form.php?office='+encodeURIComponent(this.value)"><?php foreach ($GLOBALS['feedback_offices'] as $choiceKey => $choice): ?><option value="<?= htmlspecialchars($choiceKey) ?>"<?= $choiceKey === $key ? ' selected' : '' ?>><?= htmlspecialchars($choice['name']) ?></option><?php endforeach; ?></select></div><h2 class="section-heading"><?= htmlspecialchars($office['section']) ?></h2><?php foreach ($office['questions'] as $number => [$question, $options]): ?><fieldset class="question"><legend><?= ($number + 1) ?>. <?= htmlspecialchars($question) ?></legend><?php foreach ($options as $label => $value): ?><label class="option"><input type="radio" name="ratings[<?= $number ?>]" value="<?= (int) $value ?>" required> <?= htmlspecialchars($label) ?></label><?php endforeach; ?></fieldset><?php endforeach; ?><div class="field"><label for="comments">Comments/Suggestions <small>(optional)</small></label><textarea id="comments" name="comments" placeholder="Share any additional feedback about this office..."></textarea></div><p class="notice">Your responses are confidential and will be used to improve service quality.</p><button class="button" type="submit">Submit Feedback</button><a class="button button-secondary" href="index.php">Choose a Different Office</a></form></section></main>
+<?php feedback_footer(); }

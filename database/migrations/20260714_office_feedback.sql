@@ -1,0 +1,19 @@
+CREATE TABLE IF NOT EXISTS office_feedback (
+  id INT NOT NULL AUTO_INCREMENT,
+  student_id VARCHAR(50) NOT NULL,
+  category ENUM('academic','nonacademic') NOT NULL,
+  office_key VARCHAR(80) NOT NULL,
+  office_name VARCHAR(150) NOT NULL,
+  section_title VARCHAR(180) NOT NULL,
+  responses_json TEXT NOT NULL,
+  rating_average DECIMAL(4,2) NOT NULL,
+  positive_feedback_percentage DECIMAL(5,2) NOT NULL DEFAULT 0,
+  neutral_feedback_percentage DECIMAL(5,2) NOT NULL DEFAULT 0,
+  negative_feedback_percentage DECIMAL(5,2) NOT NULL DEFAULT 0,
+  answer_text TEXT NULL,
+  review_result VARCHAR(45) NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY office_feedback_category_idx (category),
+  KEY office_feedback_student_idx (student_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

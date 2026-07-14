@@ -196,6 +196,10 @@
             color: #8f9aae;
         }
 
+        .password-control input { padding-right: 70px; }
+        .password-toggle { position:absolute; right:12px; top:50%; transform:translateY(-50%); border:0; padding:6px; color:#536176; background:transparent; cursor:pointer; font:700 12px Arial,Helvetica,sans-serif; }
+        .password-toggle:hover,.password-toggle:focus-visible { color:#1a263b; outline:none; }
+
         .input-group input:focus {
             border-color: #aab4c5;
             background: #ffffff;
@@ -370,12 +374,13 @@
 
                 <div class="input-group">
                     <label for="password">Password</label>
-                    <div class="field-control">
+                    <div class="field-control password-control">
                         <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <rect width="18" height="11" x="3" y="11" rx="2"></rect>
                             <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                         </svg>
                         <input type="password" id="password" name="password" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" required autocomplete="current-password" aria-describedby="password-error">
+                        <button class="password-toggle" id="passwordToggle" type="button" aria-label="Show password" aria-pressed="false">Show</button>
                     </div>
                     <div id="password-error" class="error-message" role="alert">This field is required.</div>
                 </div>
@@ -404,6 +409,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const loginBtnText = document.getElementById('loginBtnText');
     const usernameError = document.getElementById('username-error');
     const passwordError = document.getElementById('password-error');
+    const passwordToggle = document.getElementById('passwordToggle');
+
+    passwordToggle.addEventListener('click', function() {
+        const visible = passwordInput.type === 'text';
+        passwordInput.type = visible ? 'password' : 'text';
+        passwordToggle.textContent = visible ? 'Show' : 'Hide';
+        passwordToggle.setAttribute('aria-label', visible ? 'Show password' : 'Hide password');
+        passwordToggle.setAttribute('aria-pressed', String(!visible));
+        passwordInput.focus();
+    });
 
     function setError(input, element, message) {
         input.classList.add('error');
@@ -482,7 +497,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         setLoading(true);
 
-        fetch('Login_System.php', {
+        fetch('auth/Login_System.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

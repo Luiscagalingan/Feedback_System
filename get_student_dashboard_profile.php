@@ -2,6 +2,7 @@
 session_start();
 header('Content-Type: application/json');
 include 'admin/dbinit.php';
+require_once __DIR__ . '/auth/auth_helpers.php';
 
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'student') {
     echo json_encode(['success' => false, 'message' => 'Not logged in as a student.']);
@@ -15,6 +16,7 @@ $userId = $_SESSION['user_id'];
 function collegeInfo($code) {
     $map = [
         'BSA'  => ['code' => 'BSA',  'name' => 'College of Business and Accountancy', 'color' => '#FFB000'],
+        'CBA'  => ['code' => 'CBA',  'name' => 'College of Business and Accountancy', 'color' => '#FFB000'],
         'COED' => ['code' => 'COED', 'name' => 'College of Education',                'color' => '#294789'],
         'COE'  => ['code' => 'COE',  'name' => 'College of Engineering',              'color' => '#FB7528'],
         'CAS'  => ['code' => 'CAS',  'name' => 'College of Arts and Sciences',        'color' => '#7600BC'],
@@ -33,7 +35,15 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if ($student = $result->fetch_assoc()) {
-    $college = collegeInfo($student['college']);
+    $collegeCode = normalize_college($student['college']);
+    $dashboardPath = student_dashboard_path($collegeCode);
+    if ($collegeCode === '' || $dashboardPath === null) {
+        echo json_encode(['success' => false, 'message' => 'Your student account has no recognized college assignment.']);
+        exit;
+    }
+    $_SESSION['college'] = $collegeCode;
+    $_SESSION['dashboard_path'] = $dashboardPath;
+    $college = collegeInfo($collegeCode);
 
     echo json_encode([
         'success' => true,
@@ -44,7 +54,8 @@ if ($student = $result->fetch_assoc()) {
             'program' => $student['program'],
             'section' => $student['section'],
             'email' => $student['email'],
-            'college' => $college
+            'college' => $college,
+            'dashboard_path' => $dashboardPath
         ]
     ]);
 } else {
