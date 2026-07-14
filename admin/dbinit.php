@@ -1,12 +1,3 @@
 <?php
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "feedbackdata";
-
-$conn = new mysqli($servername, $username, $password, $dbname);
-if ($conn->connect_error) {
-    echo json_encode(["success" => false, "message" => "Database connection failed."]);
-    exit;
-}
-?>
+// Compatibility entry point for existing admin pages during the folder migration.
+require_once dirname(__DIR__) . '/config/database.php';
