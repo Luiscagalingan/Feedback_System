@@ -398,6 +398,7 @@
     </section>
 </main>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     document.body.classList.add('fade-in');
@@ -512,12 +513,20 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(function(result) {
             if (result.success) {
-                alert(result.message);
-                document.body.classList.remove('fade-in');
-                setTimeout(function() {
-                    redirectByRole(result);
-                }, 300);
-                return;
+                return Swal.fire({
+                    icon: 'success',
+                    title: 'Login successful!',
+                    text: result.message,
+                    confirmButtonText: 'Continue',
+                    confirmButtonColor: '#878786',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false
+                }).then(function() {
+                    document.body.classList.remove('fade-in');
+                    setTimeout(function() {
+                        redirectByRole(result);
+                    }, 300);
+                });
             }
 
             setError(usernameInput, usernameError, result.message || 'Invalid username or password.');
