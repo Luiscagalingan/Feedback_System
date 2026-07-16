@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../auth/access.php';
+require_once dirname(__DIR__, 2) . '/config/database.php';
+require_once dirname(__DIR__, 2) . '/auth/access.php';
 $session=require_roles(['dean']);
 $input=json_decode(file_get_contents('php://input'),true)?:[];
 $id=(int)($input['id']??0);$studentId=trim((string)($input['student_id']??''));$name=trim((string)($input['student_name']??''));$program=trim((string)($input['program']??''));$section=trim((string)($input['section']??''));$email=strtolower(trim((string)($input['email']??'')));
