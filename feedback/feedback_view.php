@@ -8,10 +8,10 @@ function feedback_header(array $student): void { ?>
 <div class="student-page-layout"><?php render_student_sidebar($student, 'submit'); ?><div class="feedback-main"><header class="feedback-topbar"><strong>Submit Feedback</strong><div class="student-meta"><span><?= htmlspecialchars(feedback_college_name($student['college'] ?? '')) ?></span><span>Student</span></div></header>
 <?php }
 
-function feedback_footer(): void { ?><script src="../../feedback/feedback.js"></script></div></div></body></html><?php }
+function feedback_footer(): void { ?><script src="../../shared-alerts.js"></script><script src="../../feedback/feedback.js"></script></div></div></body></html><?php }
 
 function feedback_aside(string $category, array $student, ?array $office = null): void { ?>
-<aside class="feedback-aside"><a class="back-link" href="<?= htmlspecialchars($office ? 'index.php' : feedback_dashboard_url($student['college'] ?? '', 'submit')) ?>">&larr; Back</a><div class="aside-content"><img src="../../plpwalaa.png" alt="PLP Service Satisfaction logo"><p class="school">PAMANTASAN NG LUNGSOD NG PASIG</p><h1><?= htmlspecialchars($office['name'] ?? 'PLP Offices') ?></h1><?php if ($office): ?><p><?= htmlspecialchars($office['section']) ?></p><?php endif; ?><div class="category-label"><small>Student Feedback Survey</small><br><?= $category === 'academic' ? 'Academic Feedback' : 'Non-Academic Feedback' ?></div></div></aside>
+<aside class="feedback-aside"><a class="back-link" href="<?= htmlspecialchars($office ? 'index.php' : feedback_dashboard_url($student['college'] ?? '', 'submit')) ?>">&larr; Back</a><div class="aside-content"><img src="../../logoooo.jfif" alt="PLP Service Satisfaction logo"><p class="school">PAMANTASAN NG LUNGSOD NG PASIG</p><h1><?= htmlspecialchars($office['name'] ?? 'PLP Offices') ?></h1><?php if ($office): ?><p><?= htmlspecialchars($office['section']) ?></p><?php endif; ?><div class="category-label"><small>Student Feedback Survey</small><br><?= $category === 'academic' ? 'Academic Feedback' : 'Non-Academic Feedback' ?></div></div></aside>
 <?php }
 
 function feedback_selection(array $student, string $category, array $offices): void { feedback_header($student); ?>

@@ -1,7 +1,8 @@
 <?php
-session_start();
 header('Content-Type: application/json');
 include 'admin/dbinit.php';
+require_once __DIR__ . '/auth/access.php';
+start_secure_session();
 
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['role'])) {
     echo json_encode(['success' => false, 'message' => 'Not logged in.']);
@@ -70,6 +71,7 @@ if ($row = $result->fetch_assoc()) {
     $updateStmt->bind_param('si', $newHashedPassword, $userId);
 
     if ($updateStmt->execute()) {
+        audit_log($conn, 'password_changed', 'User changed their password.');
         echo json_encode(['success' => true, 'message' => 'Password updated successfully.']);
     } else {
         echo json_encode(['success' => false, 'message' => 'Unable to update password.']);

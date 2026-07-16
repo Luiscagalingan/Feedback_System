@@ -1,5 +1,6 @@
 <?php
-session_start();
+require_once __DIR__ . '/auth/access.php';
+start_secure_session();
 header('Content-Type: application/json');
 include 'admin/dbinit.php';
 
@@ -38,7 +39,11 @@ switch ($role) {
         exit;
 }
 
-if ($hasEmail) {
+if ($role === 'admin') {
+    $stmt = $conn->prepare("SELECT username, name FROM admins WHERE id = ?");
+} elseif ($role === 'nonacademic') {
+    $stmt = $conn->prepare("SELECT full_name, email, office_key, office_category, service FROM non_academic_teachers WHERE id = ?");
+} elseif ($hasEmail) {
     $stmt = $conn->prepare("SELECT $nameField, email FROM $tableName WHERE id = ?");
 } else {
     $stmt = $conn->prepare("SELECT $nameField FROM $tableName WHERE id = ?");
@@ -58,7 +63,8 @@ if ($user = $result->fetch_assoc()) {
     ];
 
     if ($role === 'admin') {
-        $response['name'] = $user[$nameField];
+        $response['name'] = $user['name'] ?: $user['username'];
+        $response['username'] = $user['username'];
         $response['role'] = 'Admin';
         $response['email'] = '';
     } elseif ($role === 'academic') {
@@ -68,7 +74,10 @@ if ($user = $result->fetch_assoc()) {
     } elseif ($role === 'student') {
         $response['role'] = 'Student';
     } elseif ($role === 'nonacademic') {
-        $response['role'] = 'Non-Academic';
+        $response['role'] = 'Office Account';
+        $response['office_key'] = $user['office_key'] ?? '';
+        $response['office_category'] = $user['office_category'] ?? 'nonacademic';
+        $response['service'] = $user['service'] ?? '';
     }
 
     echo json_encode($response);

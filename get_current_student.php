@@ -1,5 +1,6 @@
 <?php
-session_start();
+require_once __DIR__ . '/auth/access.php';
+start_secure_session('student');
 header('Content-Type: application/json');
 
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'student') {

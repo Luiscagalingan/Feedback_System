@@ -1,89 +1,87 @@
 <?php
+declare(strict_types=1);
+
 session_start();
+header('Content-Type: application/json');
 
-function send_json_response($success, $message) {
-    header('Content-Type: application/json');
-    echo json_encode(['success' => $success, 'message' => $message]);
-    exit();
-}
-
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-// DB connection
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "feedbackdb";
-
-$conn = new mysqli($servername, $username, $password, $dbname);
-if ($conn->connect_error) {
-    send_json_response(false, 'Database connection failed.');
-}
-
-// PHPMailer
-require 'PHPMailer-master/src/Exception.php';
-require 'PHPMailer-master/src/PHPMailer.php';
-require 'PHPMailer-master/src/SMTP.php';
+require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/PHPMailer-master/src/Exception.php';
+require_once __DIR__ . '/PHPMailer-master/src/PHPMailer.php';
+require_once __DIR__ . '/PHPMailer-master/src/SMTP.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
+function respond(bool $success, string $message, int $status = 200): never
+{
+    http_response_code($status);
+    echo json_encode(['success' => $success, 'message' => $message]);
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    send_json_response(false, 'Invalid request method.');
+    respond(false, 'Invalid request method.', 405);
 }
 
-$email = trim($_POST['email'] ?? '');
-
-if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    send_json_response(false, 'Please provide a valid email address.');
+$email = strtolower(trim((string) ($_POST['email'] ?? '')));
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    respond(false, 'Please enter a valid email address.', 422);
 }
 
-// ✅ Correct DB column
-$sql = "SELECT student_id FROM students WHERE email = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $email);
+$stmt = $conn->prepare('SELECT id FROM students WHERE LOWER(email) = ? LIMIT 1');
+$stmt->bind_param('s', $email);
 $stmt->execute();
-$result = $stmt->get_result();
+$student = $stmt->get_result()->fetch_assoc();
 
-if ($result->num_rows == 0) {
-    send_json_response(true, 'If an account with that email exists, a verification code has been sent.');
+if (!$student) {
+    respond(false, 'No student account is registered with that email address.', 404);
 }
 
-// Generate OTP
-$otp = rand(100000, 999999);
+$mailConfig = [];
+$localConfig = __DIR__ . '/config/mail.php';
+if (is_file($localConfig)) {
+    $mailConfig = require $localConfig;
+}
 
-// ✅ Correct update query
-$update_stmt = $conn->prepare("UPDATE students SET otp = ? WHERE email = ?");
-$update_stmt->bind_param("ss", $otp, $email);
-$update_stmt->execute();
+$gmailUser = (string) ($mailConfig['username'] ?? getenv('GMAIL_USERNAME') ?: '');
+$gmailPassword = (string) ($mailConfig['app_password'] ?? getenv('GMAIL_APP_PASSWORD') ?: '');
+$fromName = (string) ($mailConfig['from_name'] ?? 'PLP Feedback System');
 
-// Send Email
+if ($gmailUser === '' || $gmailPassword === '') {
+    respond(false, 'Email sending is not configured. Add your Gmail address and app password in config/mail.php.', 503);
+}
+
+$otp = (string) random_int(100000, 999999);
+
 $mail = new PHPMailer(true);
 try {
     $mail->isSMTP();
     $mail->Host = 'smtp.gmail.com';
     $mail->SMTPAuth = true;
-
-    $mail->Username = 'YOUR_GMAIL@gmail.com';
-    $mail->Password = 'YOUR_APP_PASSWORD';
-
-    $mail->SMTPSecure = 'tls';
+    $mail->Username = $gmailUser;
+    $mail->Password = $gmailPassword;
+    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
     $mail->Port = 587;
-
-    $mail->setFrom('YOUR_GMAIL@gmail.com', 'Feedback System');
+    $mail->CharSet = 'UTF-8';
+    $mail->setFrom($gmailUser, $fromName);
     $mail->addAddress($email);
-
     $mail->isHTML(true);
-    $mail->Subject = "Password Reset OTP";
-    $mail->Body = "<h2>Your OTP is: <b>$otp</b></h2><p>This code is valid for 10 minutes.</p>";
-
+    $mail->Subject = 'Your password reset verification code';
+    $mail->Body = '<h2>Password reset</h2><p>Your verification code is:</p><p style="font-size:28px;font-weight:bold;letter-spacing:6px">' . $otp . '</p><p>This code expires in 10 minutes. If you did not request it, you can ignore this email.</p>';
+    $mail->AltBody = "Your password reset verification code is {$otp}. It expires in 10 minutes.";
     $mail->send();
-
-    send_json_response(true, 'Verification code sent successfully.');
-
-} catch (Exception $e) {
-    send_json_response(false, "Mailer Error: {$mail->ErrorInfo}");
+} catch (Exception $exception) {
+    error_log('Password reset email failed: ' . $mail->ErrorInfo);
+    respond(false, 'The verification email could not be sent. Check the Gmail configuration and try again.', 502);
 }
-?>
+
+$_SESSION['password_reset'] = [
+    'student_id' => (int) $student['id'],
+    'email' => $email,
+    'otp_hash' => password_hash($otp, PASSWORD_DEFAULT),
+    'expires_at' => time() + 600,
+    'attempts' => 0,
+    'verified' => false,
+];
+
+respond(true, 'Verification code sent. Please check your Gmail inbox.');

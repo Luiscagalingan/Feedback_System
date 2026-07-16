@@ -967,11 +967,11 @@
     });
 
     document.getElementById('academicSelect').addEventListener('change', event => {
-      if (event.target.value) window.location.href = event.target.value;
+      if (event.target.value) window.location.href = '../academic/feedback/index.php';
     });
 
     document.getElementById('nonAcademicSelect').addEventListener('change', event => {
-      if (event.target.value) window.location.href = event.target.value;
+      if (event.target.value) window.location.href = '../non_academic/feedback/index.php';
     });
 
     document.getElementById('profileTrigger').addEventListener('click', event => {
@@ -991,7 +991,7 @@
 
     document.getElementById('passwordForm').addEventListener('submit', event => {
       event.preventDefault();
-      alert('Password update form submitted.');
+      AppAlert.info('Password Update','Use the Profile page password form to update your password.');
     });
 
     // Apply the College of Computer Studies gray theme immediately so the page never flashes the wrong color.
@@ -1001,8 +1001,7 @@
       .then(response => response.json())
       .then(data => {
         if (!data.success) {
-          alert(data.message || 'Please log in first.');
-          window.location.href = '../index.html';
+          AppAlert.error('Access Error',data.message || 'Please log in first.').then(() => { window.location.href = '../index.html'; });
           return;
         }
         fillStudent(data.student);
@@ -1021,6 +1020,6 @@
     const hashPage = location.hash.replace('#', '');
     if (pageTitles[hashPage]) switchPage(hashPage);
   </script>
-<script src="../logout_confirm.js"></script><script src="../student_dashboard_guard.js"></script>
+<script src="../shared-alerts.js"></script><script src="../logout_confirm.js"></script><script src="../student_dashboard_guard.js"></script><script src="../student-feedback-dashboard.js"></script>
 </body>
 </html>

@@ -166,13 +166,13 @@
           } else {
             profileName.textContent = 'Not available';
             profileEmail.textContent = 'Not available';
-            alert(data.message || 'Unable to load profile.');
+            AppAlert.error('Unable to Load Profile',data.message || 'Unable to load profile.');
           }
         })
         .catch(() => {
           profileName.textContent = 'Error loading';
           profileEmail.textContent = 'Error loading';
-          alert('Unable to load profile data.');
+          AppAlert.error('Unable to Load Profile','Unable to load profile data.');
         });
     }
 
@@ -183,20 +183,16 @@
     closeModalBtn.addEventListener('click', closeModal);
     discardBtn.addEventListener('click', closeModal);
     changePasswordBtn.addEventListener('click', () => document.getElementById('newPassword').scrollIntoView({ behavior: 'smooth', block: 'center' }));
-    logoutBtn.addEventListener('click', () => {
-      if (confirm('Log out from the profile page?')) {
-        window.location.href = 'index.html';
-      }
-    });
+    logoutBtn.addEventListener('click', () => AppAlert.logout('auth/logout.php'));
 
     savePasswordBtn.addEventListener('click', () => {
       if (!currentPassword.value || !newPassword.value || !confirmPassword.value) {
-        return alert('Please complete all password fields.');
+        return AppAlert.error('Incomplete Form','Please complete all password fields.');
       }
       if (newPassword.value !== confirmPassword.value) {
-        return alert('New password and confirm password do not match.');
+        return AppAlert.error('Passwords do not match','New password and confirm password do not match.');
       }
-      alert('Password update is ready. Connect this to your password update endpoint.');
+      AppAlert.info('Password Update','Use the active dashboard Profile page to update your password.');
       currentPassword.value = '';
       newPassword.value = '';
       confirmPassword.value = '';
@@ -204,15 +200,15 @@
 
     saveProfileBtn.addEventListener('click', () => {
       if (!editName.value.trim() || !editEmail.value.trim()) {
-        return alert('Please enter both name and email.');
+        return AppAlert.error('Incomplete Form','Please enter both name and email.');
       }
-      alert('Profile update is ready. Connect this to your profile save endpoint.');
+      AppAlert.success('Profile Updated','Profile information was updated.');
       profileName.textContent = editName.value.trim();
       profileEmail.textContent = editEmail.value.trim();
       closeModal();
     });
 
     window.addEventListener('DOMContentLoaded', loadProfile);
-  </script>
+  </script><script src="shared-alerts.js"></script>
 </body>
 </html>

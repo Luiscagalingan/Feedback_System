@@ -15,9 +15,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bind_param("sss", $full_name, $email, $password);
 
         if ($stmt->execute()) {
-            echo "<script>alert('Academic account created successfully!'); window.location.href='Admin_Dashboard.html';</script>";
+            echo "<script src='shared-alerts.js'></script><script>AppAlert.success('Account Created','Academic account created successfully.').then(()=>window.location.href='admin_dashboard.html');</script>";
         } else {
-            echo "<script>alert('Error: Email already exists or failed to insert.'); window.history.back();</script>";
+            echo "<script src='shared-alerts.js'></script><script>AppAlert.error('Account Creation Failed','Email already exists or the record could not be saved.').then(()=>window.history.back());</script>";
         }
         $stmt->close();
     } else {

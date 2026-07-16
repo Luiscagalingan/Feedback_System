@@ -78,14 +78,14 @@
 
       <button type="submit">Save Changes</button>
     </form>
-    <a href="Acad_Dashboard.html" class="back-link">← Back to Dashboard</a>
+    <a href="javascript:history.back()" class="back-link">← Back to Dashboard</a>
   </div>
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const urlParams = new URLSearchParams(window.location.search);
       const studentId = urlParams.get('id');
-      const fromPage = urlParams.get('from') || 'Acad_Dashboard.html'; // Default to Acad_Dashboard
+      const fromPage = urlParams.get('from') || 'javascript:history.back()';
       document.querySelector('.back-link').href = fromPage;
 
       if (studentId) {
@@ -101,20 +101,17 @@
               document.getElementById('section').value = student.section;
               document.getElementById('email').value = student.email;
             } else {
-              alert('Error: Could not fetch student details.');
-              window.location.href = fromPage;
+              AppAlert.error('Unable to Load Student','Could not fetch student details.').then(()=>window.location.href=fromPage);
             }
           })
           .catch(error => {
             console.error('Fetch error:', error);
-            alert('An error occurred while fetching student data.');
-            window.location.href = fromPage;
+            AppAlert.error('Unable to Load Student','An error occurred while fetching student data.').then(()=>window.location.href=fromPage);
           });
       } else {
-        alert('No student ID provided.');
-        window.location.href = fromPage;
+        AppAlert.error('Missing Student ID','No student ID was provided.').then(()=>window.location.href=fromPage);
       }
     });
-  </script>
+  </script><script src="shared-alerts.js"></script>
 </body>
 </html>

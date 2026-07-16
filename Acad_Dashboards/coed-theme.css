@@ -1,0 +1,37 @@
+/* Dark COED, CAS, and CIHM accents need light text for accessible contrast. */
+.light-text-theme .sidebar,
+.light-text-theme .sidebar .brand small,
+.light-text-theme .sidebar .nav button,
+.light-text-theme .sidebar .logout {
+  color: #fff;
+}
+
+.light-text-theme .sidebar .nav button.active,
+.light-text-theme .sidebar .nav button:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.light-text-theme .top-meta .role,
+.light-text-theme #exportPdf,
+.light-text-theme #bulkImport,
+.light-text-theme #saveProfile,
+.light-text-theme #passwordForm .btn.primary,
+.light-text-theme #exportCsv {
+  color: #fff;
+}
+
+.dark-text-theme .sidebar,
+.dark-text-theme .sidebar .brand small,
+.dark-text-theme .sidebar .nav button,
+.dark-text-theme .sidebar .logout,
+.dark-text-theme .sidebar .nav button.active,
+.dark-text-theme .sidebar .nav button:hover,
+.dark-text-theme .top-meta .role,
+.dark-text-theme #exportPdf,
+.dark-text-theme #bulkImport,
+.dark-text-theme #saveProfile,
+.dark-text-theme #passwordForm .btn.primary,
+.dark-text-theme #exportCsv {
+  color: #071527;
+}

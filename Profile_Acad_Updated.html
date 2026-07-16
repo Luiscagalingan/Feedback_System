@@ -110,9 +110,7 @@
     const newPassword = document.getElementById('newPassword');
     const confirmPassword = document.getElementById('confirmPassword');
 
-    function showAlert(message) {
-      alert(message);
-    }
+    function showAlert(message) { return AppAlert.info('Profile',message); }
 
     function loadProfile() {
       fetch('get_profile.php')
@@ -136,11 +134,7 @@
         });
     }
 
-    logoutBtn.addEventListener('click', () => {
-      if (confirm('Confirm logout?')) {
-        window.location.href = 'index.html';
-      }
-    });
+    logoutBtn.addEventListener('click', () => AppAlert.logout('auth/logout.php'));
 
     savePasswordBtn.addEventListener('click', () => {
       if (!currentPassword.value || !newPassword.value || !confirmPassword.value) {
@@ -160,5 +154,5 @@
 
     document.addEventListener('DOMContentLoaded', loadProfile);
   </script>
-</body>
+<script src="shared-alerts.js"></script></body>
 </html>

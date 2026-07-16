@@ -1,5 +1,7 @@
 <?php
 include 'admin/dbinit.php';
+require_once __DIR__ . '/auth/access.php';
+$session = require_roles(['admin', 'dean']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = $_POST['id'];
@@ -14,13 +16,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die("Error: All fields are required.");
     }
 
-    $stmt = $conn->prepare("UPDATE students SET student_id = ?, student_name = ?, program = ?, section = ?, email = ? WHERE id = ?");
-    $stmt->bind_param("sssssi", $student_id, $student_name, $program, $section, $email, $id);
+    $sql = "UPDATE students SET student_id = ?, student_name = ?, program = ?, section = ?, email = ? WHERE id = ?" . ($session['role'] === 'dean' ? ' AND college = ?' : '');
+    $stmt = $conn->prepare($sql);
+    if ($session['role'] === 'dean') $stmt->bind_param("sssssis", $student_id, $student_name, $program, $section, $email, $id, $session['college']); else $stmt->bind_param("sssssi", $student_id, $student_name, $program, $section, $email, $id);
 
     if ($stmt->execute()) {
-        echo "<script>alert('Student details updated successfully!'); window.location.href='Acad_Dashboard.html';</script>";
+        audit_log($conn, 'student_updated', 'Updated student ' . $student_id . '.');
+        $returnPage = $session['role'] === 'admin' ? 'admin_dashboard.html' : ($session['dashboard_path'] ?? 'index.html');
+        echo "<script src='shared-alerts.js'></script><script>AppAlert.success('Student Updated','Student details updated successfully.').then(()=>window.location.href=" . json_encode($returnPage) . ");</script>";
     } else {
-        echo "<script>alert('Error updating record: " . htmlspecialchars($stmt->error) . "'); window.history.back();</script>";
+        echo "<script src='shared-alerts.js'></script><script>AppAlert.error('Update Failed'," . json_encode('Error updating record: ' . $stmt->error) . ").then(()=>window.history.back());</script>";
     }
 
     $stmt->close();

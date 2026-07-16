@@ -353,7 +353,7 @@
     goBtn.addEventListener("click", () => {
       const type = subcategory.value;
       if (!type) {
-        alert("Please select a feedback type first.");
+        AppAlert.warning('Select a feedback type','Please select a feedback type first.');
         return;
       }
 
@@ -377,12 +377,12 @@
       }, 800);
     });
 
-    document.getElementById("logoutBtn").addEventListener("click", () => {
-      if (confirm("Are you sure you want to log out?")) {
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      if (await AppAlert.confirm({title:'Log out?',text:'Are you sure you want to log out?',confirmText:'Logout'})) {
         loadingOverlay.textContent = "Logging out...";
         loadingOverlay.style.display = "flex";
         setTimeout(() => {
-          window.location.href = "index.html";
+          window.location.href = "auth/logout.php";
         }, 1200);
       }
     });
@@ -404,5 +404,5 @@
       }, 1000);
     });
   </script>
-</body>
+<script src="shared-alerts.js"></script></body>
 </html>

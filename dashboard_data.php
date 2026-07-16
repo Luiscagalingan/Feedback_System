@@ -1,123 +1,49 @@
 <?php
-session_start();
-header('Content-Type: application/json');
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-include 'admin/dbinit.php';
+declare(strict_types=1);
+require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/auth/access.php';
+$session = require_roles(['admin', 'dean', 'nonacademic']);
 
-// Initialize default percentages
-$percentages = [
-    "Positive Feedback" => 0,
-    "Negative Feedback" => 0,
-];
-
-// Get role from query parameter
-$role = $_GET['role'] ?? '';
-
-// Define table mapping
-$nonAcademicTables = [
-    'office_feedback',
-    'Registrar_Feedback',
-    'Non_Academic_Library_Feedback',
-    'Student_Affairs_Feedback',
-    'facility_feedback',
-    'guidance_services_feedback',
-    'health_services_feedback',
-    'guard_feedback'
-];
-
-$academicTables = [
-    'office_feedback',
-    'learning_feedback',
-    'Curriculum_Feedback',
-    'Assessment_Feedback',
-    'academic_library_feedback',
-    'Academic_Facilities_Feedback'
-];
-
-// Choose tables based on role
-$tables = [];
-if ($role === 'academic') {
-    $tables = $academicTables;
-} elseif ($role === 'nonacademic') {
-    $tables = $nonAcademicTables;
-} elseif ($role === 'admin') {
-    $tables = array_values(array_unique(array_merge($academicTables, $nonAcademicTables)));
-}
-
-// Prepare aggregation variables
-$rows = [];
-$positiveTotal = 0;
-$negativeTotal = 0;
-$count = 0;
-$reviewCount = 0;
-
-$positiveReview = 0;
-$negativeReview = 0;
-$neutralReview  = 0;
-
-// Loop through each relevant table and fetch data
-foreach ($tables as $table) {
-    $sql = "SELECT * FROM `$table`";
-    if ($table === 'office_feedback' && $role === 'academic') {
-        $sql .= " WHERE category = 'academic'";
-    } elseif ($table === 'office_feedback' && $role === 'nonacademic') {
-        $sql .= " WHERE category = 'nonacademic'";
-    }
-    $result = $conn->query($sql);
-
-    if ($result && $result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $rows[] = $row;
-            $positiveTotal += $row['positive_feedback_percentage'] ?? 0;
-            $negativeTotal += $row['negative_feedback_percentage'] ?? 0;
-            $count++;
-
-            $reviewResult = strtolower($row['review_result'] ?? '');
-            if (!empty($reviewResult)) {
-                $reviewCount++;
-                switch ($reviewResult) {
-                    case 'positive':
-                        $positiveReview++;
-                        break;
-                    case 'negative':
-                        $negativeReview++;
-                        break;
-                    case 'neutral':
-                        $neutralReview++;
-                        break;
-                }
-            }
-        }
+$where = ["f.status = 'submitted'"];
+$types = '';
+$values = [];
+if ($session['role'] === 'dean') {
+    $where[] = "f.category = 'academic'";
+    $where[] = 's.college = ?';
+    $types .= 's'; $values[] = $session['college'];
+} elseif ($session['role'] === 'nonacademic') {
+    $where[] = 'f.category = ?';
+    $types .= 's'; $values[] = ($session['office_category'] ?? 'nonacademic') === 'academic' ? 'academic' : 'nonacademic';
+    if (($session['office_key'] ?? 'all') !== 'all') {
+        $where[] = 'f.office_key = ?';
+        $types .= 's'; $values[] = $session['office_key'];
     }
 }
 
-// Calculate feedback percentages
-$percentages = [
-    "Positive Feedback" => $count ? round($positiveTotal / $count, 2) : 0,
-    "Negative Feedback" => $count ? round($negativeTotal / $count, 2) : 0
-];
+$sql = "SELECT f.id, f.student_id, s.student_name, s.program, s.section, s.college,
+               f.category, f.office_key, f.office_name, f.section_title AS question_name,
+               f.rating_average, f.positive_feedback_percentage, f.neutral_feedback_percentage,
+               f.negative_feedback_percentage, f.answer_text, f.review_result,
+               f.created_at, f.created_at AS last_updated
+        FROM office_feedback f
+        INNER JOIN students s ON s.student_id = f.student_id
+        WHERE " . implode(' AND ', $where) . ' ORDER BY f.created_at DESC, f.id DESC';
+$stmt = $conn->prepare($sql);
+if ($types !== '') $stmt->bind_param($types, ...$values);
+$stmt->execute();
+$rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
-$totalReview = $reviewCount ?: 1;
-
-$reviewPercentages = [
-    "Positive Review" => round(($positiveReview / $totalReview) * 100, 2),
-    "Negative Review" => round(($negativeReview / $totalReview) * 100, 2),
-    "Neutral Review"  => round(($neutralReview  / $totalReview) * 100, 2)
-];
-
-$conn->close(); // Close the connection
-
-// Return JSON response
-echo json_encode([
-    "success" => true,
-    "role" => $role,
-    "data" => [
-        "percentages" => $percentages,
-        "review" => $reviewPercentages,
-        "rows" => $rows,
-        "row_count" => $count,
-        "review_count" => $reviewCount
-    ]
-]);
-?>
+$count = count($rows); $positiveTotal = 0.0; $negativeTotal = 0.0;
+$reviews = ['positive'=>0, 'negative'=>0, 'neutral'=>0];
+foreach ($rows as $row) {
+    $positiveTotal += (float) $row['positive_feedback_percentage'];
+    $negativeTotal += (float) $row['negative_feedback_percentage'];
+    $sentiment = strtolower((string) $row['review_result']);
+    if (isset($reviews[$sentiment])) $reviews[$sentiment]++;
+}
+$reviewCount = array_sum($reviews);
+json_response(['success'=>true, 'role'=>$session['role'], 'data'=>[
+    'percentages'=>['Positive Feedback'=>$count ? round($positiveTotal/$count,2):0, 'Negative Feedback'=>$count ? round($negativeTotal/$count,2):0],
+    'review'=>['Positive Review'=>$reviewCount ? round($reviews['positive']/$reviewCount*100,2):0, 'Negative Review'=>$reviewCount ? round($reviews['negative']/$reviewCount*100,2):0, 'Neutral Review'=>$reviewCount ? round($reviews['neutral']/$reviewCount*100,2):0],
+    'rows'=>$rows, 'row_count'=>$count, 'review_count'=>$reviewCount
+]]);

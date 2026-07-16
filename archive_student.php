@@ -1,64 +1,11 @@
 <?php
-header('Content-Type: application/json');
-include 'admin/dbinit.php';
-
-$studentId = $_GET['id'] ?? null;
-if (!$studentId) {
-    echo json_encode(['success' => false, 'message' => 'No student ID provided.']);
-    exit;
-}
-
-$conn->begin_transaction();
-
-$stmt = $conn->prepare("SELECT student_id, student_name, program, section, email, password, college, created_at, otp FROM students WHERE id = ?");
-$stmt->bind_param("i", $studentId);
-$stmt->execute();
-$result = $stmt->get_result();
-$student = $result->fetch_assoc();
-$stmt->close();
-
-if (!$student) {
-    $conn->rollback();
-    echo json_encode(['success' => false, 'message' => 'Student not found.']);
-    $conn->close();
-    exit;
-}
-
-$insert = $conn->prepare("INSERT INTO archived_students (student_id, student_name, program, section, email, password, college, created_at, otp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-$insert->bind_param(
-    "sssssssss",
-    $student['student_id'],
-    $student['student_name'],
-    $student['program'],
-    $student['section'],
-    $student['email'],
-    $student['password'],
-    $student['college'],
-    $student['created_at'],
-    $student['otp']
-);
-
-if (!$insert->execute()) {
-    $conn->rollback();
-    echo json_encode(['success' => false, 'message' => 'Failed to archive student: ' . $insert->error]);
-    $insert->close();
-    $conn->close();
-    exit;
-}
-$insert->close();
-
-$delete = $conn->prepare("DELETE FROM students WHERE id = ?");
-$delete->bind_param("i", $studentId);
-if (!$delete->execute()) {
-    $conn->rollback();
-    echo json_encode(['success' => false, 'message' => 'Failed to remove student from active list: ' . $delete->error]);
-    $delete->close();
-    $conn->close();
-    exit;
-}
-$delete->close();
-
-$conn->commit();
-echo json_encode(['success' => true, 'message' => 'Student archived successfully.']);
-$conn->close();
-?>
+declare(strict_types=1);
+require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/auth/access.php';
+$session=require_roles(['admin','dean']);
+$id=(int)($_GET['id']??0);if($id<1)json_response(['success'=>false,'message'=>'Invalid student record.'],422);
+$sql="UPDATE students SET status='archived', archived_at=NOW() WHERE id=? AND status='active'".($session['role']==='dean'?' AND college=?':'');
+$stmt=$conn->prepare($sql);if($session['role']==='dean')$stmt->bind_param('is',$id,$session['college']);else$stmt->bind_param('i',$id);$stmt->execute();
+if($stmt->affected_rows<1)json_response(['success'=>false,'message'=>'Student was not found in your college or is already archived.'],404);
+audit_log($conn,'student_archived','Student record ID '.$id.' archived in '.($session['college']??'system-wide').' scope.');
+json_response(['success'=>true,'message'=>'Student archived successfully.']);

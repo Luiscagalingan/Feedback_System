@@ -26,7 +26,10 @@ CREATE TABLE `academic_teachers` (
   `id` int NOT NULL AUTO_INCREMENT,
   `full_name` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
   `email` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `college` varchar(10) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `program` varchar(150) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `password` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `status` enum('active','inactive','archived') COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'active',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
@@ -144,10 +147,15 @@ CREATE TABLE `non_academic_teachers` (
   `id` int NOT NULL AUTO_INCREMENT,
   `full_name` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
   `email` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `office_key` varchar(80) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `office_category` enum('academic','nonacademic') COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'nonacademic',
+  `service` varchar(150) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `password` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  `status` enum('active','inactive','archived') COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'active',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `email` (`email`)
+  UNIQUE KEY `email` (`email`),
+  UNIQUE KEY `non_academic_office_unique` (`office_key`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -163,11 +171,14 @@ CREATE TABLE `students` (
   `student_id` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
   `student_name` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
   `program` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `college` varchar(20) COLLATE utf8mb4_general_ci NOT NULL,
   `section` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
   `email` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
   `password` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `otp` varchar(10) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `status` enum('active','archived') COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'active',
+  `archived_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `student_id` (`student_id`),
   UNIQUE KEY `email` (`email`)
@@ -197,6 +208,45 @@ CREATE TABLE `archived_students` (
 --
 -- Table structure for table `test_feedback`
 --
+
+-- One normalized table stores submissions for every academic and non-academic office.
+CREATE TABLE IF NOT EXISTS `office_feedback` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `student_id` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `category` enum('academic','nonacademic') COLLATE utf8mb4_general_ci NOT NULL,
+  `office_key` varchar(80) COLLATE utf8mb4_general_ci NOT NULL,
+  `office_name` varchar(150) COLLATE utf8mb4_general_ci NOT NULL,
+  `section_title` varchar(180) COLLATE utf8mb4_general_ci NOT NULL,
+  `responses_json` text COLLATE utf8mb4_general_ci NOT NULL,
+  `rating_average` decimal(4,2) NOT NULL,
+  `positive_feedback_percentage` decimal(5,2) NOT NULL DEFAULT '0.00',
+  `neutral_feedback_percentage` decimal(5,2) NOT NULL DEFAULT '0.00',
+  `negative_feedback_percentage` decimal(5,2) NOT NULL DEFAULT '0.00',
+  `answer_text` text COLLATE utf8mb4_general_ci,
+  `review_result` varchar(45) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `status` enum('submitted','pending') COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'submitted',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `office_feedback_category_idx` (`category`),
+  KEY `office_feedback_student_idx` (`student_id`),
+  KEY `office_feedback_student_created_idx` (`student_id`,`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `audit_logs` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `user_id` int DEFAULT NULL,
+  `role` varchar(30) COLLATE utf8mb4_general_ci NOT NULL,
+  `user_name` varchar(120) COLLATE utf8mb4_general_ci NOT NULL,
+  `action` varchar(80) COLLATE utf8mb4_general_ci NOT NULL,
+  `module` varchar(80) COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'system',
+  `status` enum('success','failed') COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'success',
+  `details` text COLLATE utf8mb4_general_ci,
+  `ip_address` varchar(45) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `audit_created_idx` (`created_at`),
+  KEY `audit_role_user_idx` (`role`,`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 DROP TABLE IF EXISTS `test_feedback`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;

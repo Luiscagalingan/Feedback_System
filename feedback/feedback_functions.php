@@ -4,7 +4,8 @@ declare(strict_types=1);
 function feedback_require_student(mysqli $conn): array
 {
     if (session_status() !== PHP_SESSION_ACTIVE) {
-        session_start();
+        require_once dirname(__DIR__) . '/auth/access.php';
+        start_secure_session('student');
     }
     if (($_SESSION['role'] ?? '') !== 'student' || empty($_SESSION['user_id'])) {
         header('Location: ../../index.html');

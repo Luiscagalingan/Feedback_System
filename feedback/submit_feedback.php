@@ -1,8 +1,10 @@
 <?php
 declare(strict_types=1);
-session_start();
+require_once __DIR__ . '/../auth/access.php';
+start_secure_session('student');
 require_once dirname(__DIR__) . '/config/database.php';
 require __DIR__ . '/feedback_functions.php';
+require_once __DIR__ . '/../auth/access.php';
 
 $category = $_POST['category'] ?? '';
 $redirect = $category === 'academic' ? '../academic/feedback/feedback_form.php' : '../non_academic/feedback/feedback_form.php';
@@ -21,13 +23,20 @@ foreach ($offices[$officeKey]['questions'] as $index => [$question, $options]) {
     if ($value === false || !in_array($value, array_values($options), true)) { header('Location: ' . $redirect . '?office=' . rawurlencode($officeKey) . '&error=invalid-response'); exit; }
     $answers[] = $value;
 }
-unset($_SESSION['feedback_csrf']);
 [$average, $positive, $neutral, $negative] = feedback_rating_sentiment($answers);
 $comment = trim((string) ($_POST['comments'] ?? ''));
 require_once __DIR__ . '/../SentimentAnalysis/SentimentAnalyzer.php';
 $review = getSentimentType($comment);
 $office = $offices[$officeKey]; $responses = json_encode($ratings, JSON_THROW_ON_ERROR);
+$duplicate = $conn->prepare("SELECT id FROM office_feedback WHERE student_id = ? AND category = ? AND office_key = ? AND created_at >= NOW() - INTERVAL 2 MINUTE LIMIT 1");
+$duplicate->bind_param('sss', $student['student_id'], $category, $officeKey);
+$duplicate->execute();
+if ($duplicate->get_result()->fetch_assoc()) {
+    header('Location: ' . $redirect . '?office=' . rawurlencode($officeKey) . '&error=duplicate-submission'); exit;
+}
 $stmt = $conn->prepare('INSERT INTO office_feedback (student_id, category, office_key, office_name, section_title, responses_json, rating_average, positive_feedback_percentage, neutral_feedback_percentage, negative_feedback_percentage, answer_text, review_result) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
 $stmt->bind_param('ssssssddddss', $student['student_id'], $category, $officeKey, $office['name'], $office['section'], $responses, $average, $positive, $neutral, $negative, $comment, $review);
 if (!$stmt->execute()) { header('Location: ' . $redirect . '?office=' . rawurlencode($officeKey) . '&error=save-failed'); exit; }
+unset($_SESSION['feedback_csrf']);
+audit_log($conn, 'feedback_submission', $category . ' feedback submitted for ' . $office['name'] . '.');
 header('Location: ' . $redirect . '?office=' . rawurlencode($officeKey) . '&success=1');

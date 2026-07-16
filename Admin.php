@@ -29,11 +29,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'], $_POST['p
             header("Location: admin.php");
             exit;
         } else {
-            echo "<script>alert('Invalid password'); window.history.back();</script>";
+            echo "<script src='shared-alerts.js'></script><script>AppAlert.error('Login Failed','Invalid password.').then(()=>window.history.back());</script>";
             exit;
         }
     } else {
-        echo "<script>alert('Admin not found'); window.history.back();</script>";
+        echo "<script src='shared-alerts.js'></script><script>AppAlert.error('Login Failed','Admin account not found.').then(()=>window.history.back());</script>";
         exit;
     }
 }

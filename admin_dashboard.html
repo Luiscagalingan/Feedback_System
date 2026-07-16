@@ -156,6 +156,7 @@
     }
 
     .top-actions {
+      position: relative;
       display: flex;
       align-items: center;
       gap: 16px;
@@ -192,12 +193,15 @@
     .avatar-dot {
       width: 28px;
       height: 28px;
+      padding: 0;
+      border: 0;
       border-radius: 50%;
       display: grid;
       place-items: center;
       color: #777;
       background: #ececec;
       font-weight: 800;
+      cursor: pointer;
     }
 
     .content {
@@ -462,6 +466,17 @@
       text-align: center;
     }
 
+    .admin-account-menu { position:absolute; top:38px; right:0; z-index:1000; display:none; width:180px; padding:7px; background:#fff; border:1px solid var(--line); border-radius:10px; box-shadow:0 12px 32px rgba(7,21,39,.18); }
+    .admin-account-menu.open { display:grid; }
+    .admin-account-menu button { width:100%; padding:10px 12px; border:0; border-radius:7px; color:#172033; background:transparent; text-align:left; font-weight:700; cursor:pointer; }
+    .admin-account-menu button:hover { background:#f2f4f7; }
+    .admin-account-menu .logout-action { color:#c93636; }
+
+    .empty[hidden],
+    .table-wrap[hidden] {
+      display: none !important;
+    }
+
     .empty svg {
       width: 38px;
       height: 38px;
@@ -643,6 +658,10 @@
       align-items: flex-start;
       padding-top: 0;
     }
+
+    .admin-profile-grid { width:100%; display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .admin-profile-grid .profile-card { display:block; }
+    .profile-notice { margin-bottom:18px; padding:12px; border-radius:8px; color:#667085; background:#f7f8fa; }
 
     .report-wrap {
       display: grid;
@@ -973,7 +992,8 @@
       }
 
       .stat-grid,
-      .chart-grid {
+      .chart-grid,
+      .admin-profile-grid {
         grid-template-columns: 1fr;
       }
 
@@ -1037,7 +1057,12 @@
         </button>
       </nav>
 
-      <div class="sidebar-footer"></div>
+      <div class="sidebar-footer">
+        <button class="logout" id="adminLogoutBtn" type="button">
+          <svg viewBox="0 0 24 24"><path d="M10 17l5-5-5-5"></path><path d="M15 12H3"></path><path d="M14 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"></path></svg>
+          Logout
+        </button>
+      </div>
     </aside>
 
     <main class="main">
@@ -1045,8 +1070,11 @@
         <h1 id="pageTitle">Dashboard</h1>
         <div class="top-actions">
           <span class="role-pill">Super Admin</span>
-          <span class="notification"><svg class="top-icon" viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg></span>
-          <span class="avatar-dot"><svg class="top-icon" viewBox="0 0 24 24"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg></span>
+          <button class="avatar-dot" id="adminAccountTrigger" type="button" aria-label="Open account menu" aria-expanded="false"><svg class="top-icon" viewBox="0 0 24 24"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg></button>
+          <div class="admin-account-menu" id="adminAccountMenu">
+            <button type="button" id="adminMenuProfile">Profile</button>
+            <button type="button" class="logout-action" id="adminMenuLogout">Logout</button>
+          </div>
         </div>
       </header>
 
@@ -1089,21 +1117,21 @@
 
           <section id="profilePage" class="page">
             <div class="profile-wide">
-              <div class="profile-layout">
+              <div class="admin-profile-grid">
                 <article class="card profile-card">
-                  <div class="big-avatar">S</div>
-                  <div>
-                    <h2>Super Administrator</h2>
-                    <div class="muted" id="adminUsername">Super Administrator</div>
-                  </div>
+                  <h2>Administrator Profile</h2>
+                  <div class="profile-notice">This profile is connected to the authenticated administrator account.</div>
+                  <div class="field"><label for="adminName">Name</label><input id="adminName"></div>
+                  <div class="field"><label for="adminUsername">Username</label><input id="adminUsername" disabled></div>
+                  <div style="margin-top:18px"><button class="btn primary" id="saveAdminProfile" type="button">Save Profile</button></div>
                 </article>
                 <article class="card password-card">
                   <h2>Change Password</h2>
                   <form class="form-grid" id="passwordForm">
-                    <div class="field"><label for="currentPassword">Current Password</label><input id="currentPassword" type="password" value="password"></div>
+                    <div class="field"><label for="currentPassword">Current Password</label><input id="currentPassword" type="password" autocomplete="current-password"></div>
                     <div class="field"><label for="newPassword">New Password</label><input id="newPassword" type="password" placeholder="Min. 8 characters"></div>
-                    <div class="field"><label for="confirmPassword">Confirm Password</label><input id="confirmPassword" type="password" value="password"></div>
-                    <div><button class="btn primary" type="submit">Update Password</button></div>
+                    <div class="field"><label for="confirmPassword">Confirm Password</label><input id="confirmPassword" type="password" autocomplete="new-password"></div>
+                    <div><button class="btn primary" type="submit">Change Password</button></div>
                   </form>
                 </article>
               </div>
@@ -1123,7 +1151,7 @@
               </div>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th>Dean Name</th><th>Email</th><th>College</th><th>Programs</th><th>Status</th><th>Actions</th></tr></thead>
+                  <thead><tr><th>Dean Name</th><th>Email</th><th>College</th><th>Program</th><th>Status</th><th>Actions</th></tr></thead>
                   <tbody id="deansBody"></tbody>
                 </table>
               </div>
@@ -1172,10 +1200,11 @@
                   <label class="select-wrap">
                     <svg class="top-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4"></path><path d="M8 2v4"></path><path d="M3 10h18"></path></svg>
                     <select class="select" id="feedbackTermFilter">
-                      <option>This Semester</option>
-                      <option>1st Semester</option>
-                      <option>2nd Semester</option>
-                      <option>Full Year</option>
+                      <option value="current">This Semester</option>
+                      <option value="first">1st Semester</option>
+                      <option value="second">2nd Semester</option>
+                      <option value="year">Full Year</option>
+                      <option value="all">All Records</option>
                     </select>
                   </label>
                   <button class="btn primary" id="exportExcelBtn"><svg class="top-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"></path><path d="M14 2v6h6"></path><path d="M8 13h8"></path><path d="M8 17h8"></path></svg>Export as Excel</button>
@@ -1205,6 +1234,7 @@
                     <svg class="top-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
                     <input class="input" id="auditSearch" type="search" placeholder="Search logs...">
                   </label>
+                  <select class="select" id="auditRole"><option value="">All Users</option><option value="admin">Admin</option><option value="dean">Dean</option><option value="nonacademic">Non-Academic</option><option value="student">Student</option></select>
                   <label class="select-wrap">
                     <svg class="top-icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4"></path><path d="M8 2v4"></path><path d="M3 10h18"></path></svg>
                     <input class="input" id="auditStart" type="date">
@@ -1217,7 +1247,7 @@
               </div>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th>Date & Time</th><th>User</th><th>Action</th></tr></thead>
+                  <thead><tr><th>Date & Time</th><th>User</th><th>Action</th><th>Status</th></tr></thead>
                   <tbody id="auditBody"></tbody>
                 </table>
               </div>
@@ -1284,9 +1314,11 @@
         <input type="hidden" id="modalId">
         <div class="field"><label for="modalName">Name</label><input id="modalName" required></div>
         <div class="field"><label for="modalEmail">Email</label><input id="modalEmail" type="email" required></div>
+        <div class="field" id="modalOfficeField"><label for="modalOffice">Assigned Office</label><select id="modalOffice"><optgroup label="Academic Offices"><option value="library">Library Office</option><option value="college-enrollment">College Enrollment Offices</option><option value="teacher-consultation">Faculty / Teacher Consultation Services</option></optgroup><optgroup label="Non-Academic Offices"><option value="registrar">Registrar's Office</option><option value="guidance">Guidance Office</option><option value="clinic">Clinic Office</option><option value="accounting">Accounting Office</option><option value="student-organizations">Student Organizations</option><option value="security">Security Office</option><option value="mis">MIS Office</option><option value="admission">Admission Services</option><option value="student-services">Student Services</option><option value="vp-administration-finance">VP Administration and Finance</option></optgroup></select></div>
         <div class="field" id="modalCollegeField"><label for="modalCollege">College</label><select id="modalCollege"></select></div>
-        <div class="field" id="modalProgramField"><label for="modalProgram">Program / Service</label><input id="modalProgram"></div>
+        <div class="field" id="modalProgramField"><label for="modalService">Service</label><input id="modalService" placeholder="Service description"></div>
         <div class="field"><label for="modalStatus">Status</label><select id="modalStatus"><option>Active</option><option>Inactive</option></select></div>
+        <div class="field"><label for="modalPassword">Password <small>(optional when editing)</small></label><input id="modalPassword" type="password" minlength="8" autocomplete="new-password" placeholder="Leave blank to keep current password"></div>
         <div class="modal-actions">
           <button class="btn ghost" type="button" id="cancelModalBtn">Cancel</button>
           <button class="btn primary" type="submit">Save</button>
@@ -1361,23 +1393,8 @@
     let collegeChartInstance = null;
     let trendChartInstance = null;
     let typeChartInstance = null;
-    let deans = JSON.parse(localStorage.getItem('adminDeans') || 'null') || [
-      { id: 1, name: 'Dr. Emmanuel Cruz', email: 'e.cruz@university.edu', college: 'CBA', status: 'Active' },
-      { id: 2, name: 'Dr. Lourdes Villanueva', email: 'l.villanueva@university.edu', college: 'COED', status: 'Active' },
-      { id: 3, name: 'Dr. Ricardo Ocampo', email: 'r.ocampo@university.edu', college: 'COE', status: 'Inactive' },
-      { id: 4, name: 'Dr. Patricia Gonzalez', email: 'p.gonzalez@university.edu', college: 'CAS', status: 'Active' },
-      { id: 5, name: 'Dr. Carmela Santos', email: 'c.santos@university.edu', college: 'CON', status: 'Active' },
-      { id: 6, name: 'Dr. Marisol Fernandez', email: 'm.fernandez@university.edu', college: 'CCS', status: 'Active' },
-      { id: 7, name: 'Dr. Benjamin Ramos', email: 'b.ramos@university.edu', college: 'CIHM', status: 'Active' }
-    ];
-
-    let staff = JSON.parse(localStorage.getItem('adminStaff') || 'null') || [
-      { id: 1, name: 'Maria Dela Cruz', email: 'registrar@university.edu', office: 'Registrar', service: 'Student records', status: 'Active' },
-      { id: 2, name: 'Jose Santos', email: 'library@university.edu', office: 'Library', service: 'Library services', status: 'Active' },
-      { id: 3, name: 'Ana Reyes', email: 'guidance@university.edu', office: 'Guidance', service: 'Guidance services', status: 'Active' },
-      { id: 4, name: 'Mark Lim', email: 'health@university.edu', office: 'Health Services', service: 'Clinic operations', status: 'Inactive' },
-      { id: 5, name: 'Rosa Aquino', email: 'affairs@university.edu', office: 'Student Affairs', service: 'Student activities', status: 'Active' }
-    ];
+    let deans = [];
+    let staff = [];
 
     const pageTitles = {
       dashboard: 'Dashboard',
@@ -1389,18 +1406,9 @@
       settings: 'System Settings'
     };
 
-    const auditLogs = [
-      { date: 'July 01, 2026 - 09:42 AM', user: 'Dean Marisol Fernandez', role: 'College of Computer Studies', action: 'Bulk imported 245 students into CCS directory.' },
-      { date: 'July 01, 2026 - 10:15 AM', user: 'Admin User', role: 'System Administrator', action: 'Modified system settings: Updated School Year to 2026-2027.' },
-      { date: 'July 01, 2026 - 11:03 AM', user: 'Dean Emmanuel Cruz', role: 'College of Business and Accountancy', action: 'Added single student: Ana Reyes (BSA-3A).' },
-      { date: 'June 30, 2026 - 03:28 PM', user: 'Dean Carmela Santos', role: 'College of Nursing', action: 'Viewed Sentiment Analysis report for 1st Semester 2025-2026.' },
-      { date: 'June 30, 2026 - 02:10 PM', user: 'Admin User', role: 'System Administrator', action: 'Reset password for Dean Ricardo Ocampo (COE).' }
-    ];
+    let auditLogs = [];
 
-    function saveAccounts() {
-      localStorage.setItem('adminDeans', JSON.stringify(deans));
-      localStorage.setItem('adminStaff', JSON.stringify(staff));
-    }
+    function saveAccounts() {}
 
     function getCollege(code) {
       return collegeData.find(college => college.code === code);
@@ -1469,7 +1477,6 @@
       return `
         <div class="action-row">
           <button class="icon-btn" title="Edit" data-action="edit" data-type="${type}" data-id="${id}"><svg class="top-icon" viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg></button>
-          <button class="icon-btn" title="Reset password" data-action="reset" data-type="${type}" data-id="${id}"><svg class="top-icon" viewBox="0 0 24 24"><path d="M21 2 11 12"></path><path d="M15 2h6v6"></path><path d="M7.5 14.5 4 18v3h3l3.5-3.5"></path></svg></button>
           <button class="icon-btn" title="Delete" data-action="delete" data-type="${type}" data-id="${id}"><svg class="top-icon" viewBox="0 0 24 24"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="m19 6-1 14H6L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path></svg></button>
         </div>`;
     }
@@ -1483,13 +1490,11 @@
       });
 
       document.getElementById('deansBody').innerHTML = rows.map(dean => {
-        const college = getCollege(dean.college);
-        const count = college ? college.programs.length : 0;
         return `<tr>
           <td>${escapeHtml(dean.name)}</td>
           <td><span class="muted">${escapeHtml(dean.email)}</span></td>
           <td><span class="badge college">${escapeHtml(dean.college)}</span></td>
-          <td><span class="muted">${count} ${count === 1 ? 'program' : 'programs'}</span></td>
+          <td><span class="muted">All Programs</span></td>
           <td><span class="badge ${dean.status === 'Active' ? 'active' : 'inactive'}">${dean.status}</span></td>
           <td>${renderAccountActions('dean', dean.id)}</td>
         </tr>`;
@@ -1516,16 +1521,18 @@
 
     function enrichFeedback(row) {
       const student = studentById(row.student_id);
-      const program = student ? student.program : '';
-      const college = inferCollege(program);
+      const program = row.program || (student ? student.program : '');
+      const college = row.college || inferCollege(program);
       return {
         studentId: row.student_id || 'anonymous',
-        studentName: student ? student.student_name : row.student_id || 'Anonymous',
+        studentName: row.student_name || (student ? student.student_name : row.student_id || 'Anonymous'),
         college,
         program: program || 'Unlisted',
         comment: row.answer_text || row.positive_feedback || row.negative_feedback || '',
         sentiment: normalizedSentiment(row.review_result),
-        date: row.last_updated || ''
+        date: row.created_at || row.last_updated || '',
+        category: row.category || 'academic',
+        office: row.office_name || row.question_name || 'Unspecified office'
       };
     }
 
@@ -1533,11 +1540,20 @@
       const search = document.getElementById(searchId).value.toLowerCase();
       const college = collegeId && document.getElementById(collegeId) ? document.getElementById(collegeId).value : '';
       const sentiment = document.getElementById(sentimentId).value;
+      const termElement = document.getElementById('feedbackTermFilter');
+      const term = termElement ? termElement.value : 'all';
+      const now = new Date();
       return feedbackRows.map(enrichFeedback).filter(row => {
-        const haystack = [row.studentId, row.studentName, row.program, row.comment].join(' ').toLowerCase();
+        const date = new Date(String(row.date).replace(' ', 'T'));
+        const sameYear = !Number.isNaN(date.getTime()) && date.getFullYear() === now.getFullYear();
+        const month = sameYear ? date.getMonth() + 1 : 0;
+        const inTerm = term === 'all' || (term === 'year' && sameYear) ||
+          (term === 'first' && sameYear && month <= 6) || (term === 'second' && sameYear && month >= 7) ||
+          (term === 'current' && sameYear && (now.getMonth() < 6 ? month <= 6 : month >= 7));
+        const haystack = [row.studentId, row.studentName, row.program, row.college, row.category, row.office, row.comment].join(' ').toLowerCase();
         return (!search || haystack.includes(search)) &&
           (!college || row.college === college) &&
-          (!sentiment || row.sentiment === sentiment);
+          (!sentiment || row.sentiment === sentiment) && inTerm;
       });
     }
 
@@ -1547,7 +1563,7 @@
       body.innerHTML = visible.map(row => `<tr>
         <td><strong>${escapeHtml(row.studentId)}</strong><div class="muted">${escapeHtml(row.studentName)}</div></td>
         <td><span class="badge college">${escapeHtml(row.college)}</span></td>
-        <td>${escapeHtml(row.program)}</td>
+        <td>${escapeHtml(row.program)}<div class="muted">${escapeHtml(row.category === 'academic' ? 'Academic · ' + row.office : 'Non-Academic · ' + row.office)}</div></td>
         <td style="white-space:normal; min-width:260px;">${escapeHtml(row.comment || 'No comment')}</td>
         <td><span class="badge ${row.sentiment}">${row.sentiment[0].toUpperCase() + row.sentiment.slice(1)}</span></td>
         <td><span class="muted">${escapeHtml(row.date || 'No date')}</span></td>
@@ -1564,12 +1580,17 @@
 
     function renderAuditLogs() {
       const search = document.getElementById('auditSearch').value.toLowerCase();
+      const role = document.getElementById('auditRole').value;
+      const start = document.getElementById('auditStart').value;
+      const end = document.getElementById('auditEnd').value;
       document.getElementById('auditBody').innerHTML = auditLogs.filter(log => {
-        return [log.date, log.user, log.role, log.action].join(' ').toLowerCase().includes(search);
+        const day=String(log.date||'').slice(0,10);
+        return (!role||log.role===role)&&(!start||day>=start)&&(!end||day<=end)&&[log.date,log.user,log.role,log.action,log.module,log.details].join(' ').toLowerCase().includes(search);
       }).map(log => `<tr>
         <td><span class="muted">${escapeHtml(log.date)}</span></td>
-        <td><strong>${escapeHtml(log.user)}</strong><div class="muted">${escapeHtml(log.role)}</div></td>
-        <td>${escapeHtml(log.action)}</td>
+        <td><strong>${escapeHtml(log.user)}</strong><div class="muted">${escapeHtml(log.role)}${log.user_id?' · ID '+escapeHtml(log.user_id):''}</div></td>
+        <td><strong>${escapeHtml(log.action)}</strong><div class="muted">${escapeHtml(log.module)}${log.details?' · '+escapeHtml(log.details):''}</div></td>
+        <td><span class="badge ${log.status==='success'?'active':'inactive'}">${escapeHtml(log.status)}</span></td>
       </tr>`).join('');
     }
 
@@ -1578,12 +1599,12 @@
       const positive = rows.filter(row => row.sentiment === 'positive').length;
       const neutral = rows.filter(row => row.sentiment === 'neutral').length;
       const negative = rows.filter(row => row.sentiment === 'negative').length;
-      const academicRows = feedbackRows.filter(row => /learning|curriculum|assessment|academic/i.test(row.question_name || '')).length;
+      const academicRows = feedbackRows.filter(row => row.category === 'academic').length;
 
       document.getElementById('totalStudents').textContent = students.length;
       document.getElementById('totalFeedback').textContent = feedbackRows.length;
-      document.getElementById('academicCount').textContent = academicRows || Math.round(feedbackRows.length * 0.45);
-      document.getElementById('nonAcademicCount').textContent = Math.max(0, feedbackRows.length - (academicRows || Math.round(feedbackRows.length * 0.45)));
+      document.getElementById('academicCount').textContent = academicRows;
+      document.getElementById('nonAcademicCount').textContent = feedbackRows.filter(row => row.category === 'nonacademic').length;
       document.getElementById('positiveCount').textContent = positive;
       document.getElementById('neutralCount').textContent = neutral;
       document.getElementById('negativeCount').textContent = negative;
@@ -1596,9 +1617,12 @@
       });
       const rows = feedbackRows.map(enrichFeedback);
       const collegeCounts = collegeData.map(college => rows.filter(row => row.college === college.code).length);
-      const academicRows = feedbackRows.filter(row => /learning|curriculum|assessment|academic/i.test(row.question_name || '')).length;
-      const academicCount = academicRows || Math.round(feedbackRows.length * 0.45);
-      const nonAcademicCount = Math.max(0, feedbackRows.length - academicCount);
+      const academicCount = feedbackRows.filter(row => row.category === 'academic').length;
+      const nonAcademicCount = feedbackRows.filter(row => row.category === 'nonacademic').length;
+      const monthlyCounts = Array.from({length:12}, (_, month) => rows.filter(row => {
+        const date = new Date(String(row.date).replace(' ', 'T'));
+        return !Number.isNaN(date.getTime()) && date.getFullYear() === new Date().getFullYear() && date.getMonth() === month;
+      }).length);
       const chartOptions = {
         responsive: true,
         maintainAspectRatio: false,
@@ -1607,24 +1631,27 @@
       };
 
       collegeChartInstance = new Chart(document.getElementById('collegeChart'), { type: 'bar', data: { labels: collegeData.map(c => c.code), datasets: [{ data: collegeCounts, backgroundColor: '#8b8b8b', borderRadius: 5 }] }, options: chartOptions });
-      trendChartInstance = new Chart(document.getElementById('trendChart'), { type: 'line', data: { labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], datasets: [{ data: [0,0,0,0,0,0,0,0,0,0,feedbackRows.length,0], borderColor: '#777', backgroundColor: 'rgba(119,119,119,.12)', tension: .35, fill: true }] }, options: chartOptions });
+      trendChartInstance = new Chart(document.getElementById('trendChart'), { type: 'line', data: { labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], datasets: [{ data: monthlyCounts, borderColor: '#777', backgroundColor: 'rgba(119,119,119,.12)', tension: .35, fill: true }] }, options: chartOptions });
       typeChartInstance = new Chart(document.getElementById('typeChart'), { type: 'doughnut', data: { labels: ['Academic','Non-Academic'], datasets: [{ data: [academicCount, nonAcademicCount], backgroundColor: ['#858585','#d6dbe3'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#8b95a7' } } } } });
     }
 
     function openAccountModal(type, id) {
       const isDean = type === 'dean';
       const list = isDean ? deans : staff;
-      const item = list.find(entry => entry.id === id) || { id: Date.now(), name: '', email: '', college: 'CBA', office: '', service: '', status: 'Active' };
+      const item = list.find(entry => Number(entry.id) === Number(id)) || { id: 0, name: '', email: '', college: 'CBA', program: '', office: '', service: '', status: 'Active' };
       document.getElementById('modalTitle').textContent = id ? `Edit ${isDean ? 'Dean' : 'Staff'} Account` : `Add ${isDean ? 'Dean' : 'Staff'} Account`;
       document.getElementById('modalType').value = type;
       document.getElementById('modalId').value = id || '';
       document.getElementById('modalName').value = item.name;
       document.getElementById('modalEmail').value = item.email;
       document.getElementById('modalCollegeField').style.display = isDean ? 'block' : 'none';
-      document.getElementById('modalProgramField').querySelector('label').textContent = isDean ? 'Program' : 'Service';
+      document.getElementById('modalOfficeField').style.display = isDean ? 'none' : 'block';
+      document.getElementById('modalProgramField').style.display = isDean ? 'none' : 'block';
       document.getElementById('modalCollege').value = item.college || 'CBA';
-      document.getElementById('modalProgram').value = isDean ? ((getCollege(item.college) || collegeData[0]).programs.join(', ')) : (item.service || '');
+      document.getElementById('modalOffice').value = item.office || 'registrar';
+      document.getElementById('modalService').value = isDean ? '' : (item.service || '');
       document.getElementById('modalStatus').value = item.status || 'Active';
+      document.getElementById('modalPassword').value = '';
       document.getElementById('accountModal').classList.add('open');
     }
 
@@ -1648,7 +1675,7 @@
       const form = new FormData(event.currentTarget);
       const sections = form.getAll('contentSections');
       if (!sections.length) {
-        alert('Please include at least one report section.');
+        AppAlert.warning('Select report content','Please include at least one report section.');
         return;
       }
 
@@ -1659,33 +1686,24 @@
         layout: form.get('layoutPreference')
       };
       localStorage.setItem('lastAdminReportExportConfig', JSON.stringify(exportConfig));
+      fetch('auth/audit_event.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'report_generated',details:'Admin printable report generated for '+getSelectedTermLabel()})});
       closeExportModal();
       window.print();
     }
 
-    function handleAccountAction(event) {
+    async function handleAccountAction(event) {
       const button = event.target.closest('[data-action]');
       if (!button) return;
       const type = button.dataset.type;
       const id = Number(button.dataset.id);
       const list = type === 'dean' ? deans : staff;
-      const item = list.find(entry => entry.id === id);
+      const item = list.find(entry => Number(entry.id) === id);
 
       if (button.dataset.action === 'edit') {
         openAccountModal(type, id);
       }
 
-      if (button.dataset.action === 'reset' && item) {
-        alert(`Password reset link prepared for ${item.email}.`);
-      }
-
-      if (button.dataset.action === 'delete' && item && confirm(`Delete account for ${item.name}?`)) {
-        if (type === 'dean') deans = deans.filter(entry => entry.id !== id);
-        if (type === 'staff') staff = staff.filter(entry => entry.id !== id);
-        saveAccounts();
-        renderDeans();
-        renderStaff();
-      }
+      if (button.dataset.action === 'delete' && item && await AppAlert.confirm({title:`Delete ${item.name}?`,text:'This account will be permanently removed. This action cannot be undone.',confirmText:'Yes, Delete'})) fetch(`admin/accounts.php?type=${type}&id=${id}`, {method:'DELETE'}).then(r=>r.json()).then(async result=>{await AppAlert.result(result,'Account Deleted');if(result.success)loadAccounts();}).catch(error=>AppAlert.error('Delete failed',error.message));
     }
 
     function initSettings() {
@@ -1709,48 +1727,53 @@
       document.getElementById('saveTermBtn').addEventListener('click', () => {
         localStorage.setItem('activeSchoolYear', document.getElementById('activeSchoolYear').value);
         localStorage.setItem('activeSemester', document.getElementById('activeSemester').value);
-        alert('System settings saved.');
+        AppAlert.success('Settings Saved','System settings were updated successfully.');
       });
     }
 
     function initEvents() {
+      document.querySelectorAll('form').forEach(form => form.noValidate = true);
       document.querySelectorAll('.nav button').forEach(button => button.addEventListener('click', () => switchPage(button.dataset.page)));
-      document.querySelector('.avatar-dot').addEventListener('click', () => { if (confirm('Are you sure you want to log out?')) window.location.href = 'index.html'; });
+      document.getElementById('adminLogoutBtn').addEventListener('click', () => AppAlert.logout('auth/logout.php'));
+      const adminAccountTrigger=document.getElementById('adminAccountTrigger'),adminAccountMenu=document.getElementById('adminAccountMenu');
+      adminAccountTrigger.addEventListener('click',event=>{event.stopPropagation();adminAccountMenu.classList.toggle('open');adminAccountTrigger.setAttribute('aria-expanded',adminAccountMenu.classList.contains('open')?'true':'false');});
+      document.getElementById('adminMenuProfile').addEventListener('click',()=>{adminAccountMenu.classList.remove('open');switchPage('profile');});
+      document.getElementById('adminMenuLogout').addEventListener('click',()=>{adminAccountMenu.classList.remove('open');AppAlert.logout('auth/logout.php');});
+      document.addEventListener('click',event=>{if(!adminAccountMenu.contains(event.target)&&event.target!==adminAccountTrigger)adminAccountMenu.classList.remove('open');});
       document.getElementById('semesterFilter').addEventListener('change', loadData);
       ['feedbackSearch','feedbackSentimentFilter','feedbackTermFilter'].forEach(id => document.getElementById(id).addEventListener('input', renderFeedback));
-      ['auditSearch','auditStart','auditEnd'].forEach(id => document.getElementById(id).addEventListener('input', renderAuditLogs));
+      ['auditSearch','auditRole','auditStart','auditEnd'].forEach(id => document.getElementById(id).addEventListener('input', renderAuditLogs));
       ['deanSearch','deanCollegeFilter'].forEach(id => document.getElementById(id).addEventListener('input', renderDeans));
       ['staffSearch','staffStatusFilter'].forEach(id => document.getElementById(id).addEventListener('input', renderStaff));
       document.getElementById('deansBody').addEventListener('click', handleAccountAction);
       document.getElementById('staffBody').addEventListener('click', handleAccountAction);
       document.getElementById('addDeanBtn').addEventListener('click', () => openAccountModal('dean'));
       document.getElementById('addStaffBtn').addEventListener('click', () => openAccountModal('staff'));
-      document.getElementById('bulkDeanBtn').addEventListener('click', () => alert('Bulk import ready. Use a CSV with name, email, college, and status columns.'));
-      document.getElementById('bulkStaffBtn').addEventListener('click', () => alert('Bulk import ready. Use a CSV with name, email, office, service, and status columns.'));
+      document.getElementById('bulkDeanBtn').addEventListener('click', () => AppAlert.info('Dean CSV Format','Use name, email, college, and status columns.'));
+      document.getElementById('bulkStaffBtn').addEventListener('click', () => AppAlert.info('Staff CSV Format','Use name, email, office, service, and status columns.'));
       document.getElementById('cancelModalBtn').addEventListener('click', closeAccountModal);
       document.getElementById('accountModal').addEventListener('click', event => { if (event.target.id === 'accountModal') closeAccountModal(); });
       document.getElementById('exportPdfBtn').addEventListener('click', openExportModal);
       document.getElementById('cancelExportModalBtn').addEventListener('click', closeExportModal);
       document.getElementById('exportReportModal').addEventListener('click', event => { if (event.target.id === 'exportReportModal') closeExportModal(); });
       document.getElementById('exportReportForm').addEventListener('submit', generateConfiguredPdf);
-      document.getElementById('exportExcelBtn').addEventListener('click', () => alert('Excel export is ready for the current feedback records.'));
-      document.getElementById('passwordForm').addEventListener('submit', event => { event.preventDefault(); alert('Password update form submitted.'); });
+      document.getElementById('exportExcelBtn').addEventListener('click', exportAdminFeedbackCsv);
+      document.getElementById('passwordForm').addEventListener('submit', async event => { event.preventDefault(); const currentPassword=document.getElementById('currentPassword').value,newPassword=document.getElementById('newPassword').value,confirmPassword=document.getElementById('confirmPassword').value;if(newPassword.length<8||newPassword!==confirmPassword){AppAlert.error('Invalid password','Use at least 8 characters and make sure the new passwords match.');return;}if(!await AppAlert.confirm({title:'Change your password?',confirmText:'Save Changes',danger:false}))return;fetch('change_password.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({currentPassword,newPassword,confirmPassword})}).then(r=>r.json()).then(async result=>{await AppAlert.result(result,'Password Changed');if(result.success)event.target.reset();}); });
 
-      document.getElementById('accountForm').addEventListener('submit', event => {
+      document.getElementById('saveAdminProfile').addEventListener('click', async () => {
+        const name=document.getElementById('adminName').value.trim();
+        if(!name){AppAlert.error('Name required','Enter the administrator name.');return;}
+        if(!await AppAlert.confirm({title:'Save profile changes?',confirmText:'Save Changes',danger:false}))return;
+        const result=await fetch('update_profile.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})}).then(r=>r.json());
+        await AppAlert.result(result,'Profile Updated');if(result.success)loadProfile();
+      });
+
+      document.getElementById('accountForm').addEventListener('submit', async event => {
         event.preventDefault();
         const type = document.getElementById('modalType').value;
-        const id = Number(document.getElementById('modalId').value) || Date.now();
-        if (type === 'dean') {
-          const entry = { id, name: document.getElementById('modalName').value, email: document.getElementById('modalEmail').value, college: document.getElementById('modalCollege').value, status: document.getElementById('modalStatus').value };
-          deans = deans.some(item => item.id === id) ? deans.map(item => item.id === id ? entry : item) : [...deans, entry];
-          renderDeans();
-        } else {
-          const entry = { id, name: document.getElementById('modalName').value, email: document.getElementById('modalEmail').value, office: 'Non-Academic', service: document.getElementById('modalProgram').value, status: document.getElementById('modalStatus').value };
-          staff = staff.some(item => item.id === id) ? staff.map(item => item.id === id ? entry : item) : [...staff, entry];
-          renderStaff();
-        }
-        saveAccounts();
-        closeAccountModal();
+        const payload = {type, id:Number(document.getElementById('modalId').value)||0, name:document.getElementById('modalName').value, email:document.getElementById('modalEmail').value, college:document.getElementById('modalCollege').value, office:type==='staff'?document.getElementById('modalOffice').value:'', service:type==='staff'?document.getElementById('modalService').value:'', status:document.getElementById('modalStatus').value, password:document.getElementById('modalPassword').value};
+        if(!await AppAlert.confirm({title:payload.id?'Save account changes?':'Create this account?',confirmText:payload.id?'Save Changes':'Confirm',danger:false}))return;
+        fetch('admin/accounts.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(r=>r.json()).then(async result=>{await AppAlert.result(result,payload.id?'Account Updated':'Account Created');if(result.success){closeAccountModal();loadAccounts();}}).catch(error=>AppAlert.error('Save failed',error.message));
       });
     }
 
@@ -1758,8 +1781,9 @@
       fetch('get_profile.php')
         .then(response => response.json())
         .then(data => {
-          if (data.success && data.username) {
-            document.getElementById('adminUsername').textContent = data.username;
+          if (data.success) {
+            document.getElementById('adminName').value = data.name || '';
+            document.getElementById('adminUsername').value = data.username || '';
           }
         })
         .catch(() => {});
@@ -1779,18 +1803,33 @@
       });
     }
 
+    function loadAccounts() {
+      fetch('admin/accounts.php').then(response=>response.json()).then(data=>{
+        if(!data.success) throw new Error(data.message);
+        deans=data.deans||[]; staff=data.staff||[]; auditLogs=data.audit_logs||[];
+        renderDeans(); renderStaff(); renderAuditLogs();
+      }).catch(error=>AppAlert.error('Unable to load accounts',error.message));
+    }
+
+    function exportAdminFeedbackCsv() {
+      const rows=filterFeedback('feedbackSearch',null,'feedbackSentimentFilter');
+      if(!rows.length){AppAlert.info('No data to export','There is no feedback matching the current filters.');return;}
+      const report=[['System Feedback Records'],['Generated',new Date().toLocaleString()],[],['Student ID','Student Name','College','Program','Comment','Sentiment','Date'],...rows.map(r=>[r.studentId,r.studentName,r.college,r.program,r.comment,r.sentiment,r.date])];
+      const csv='\uFEFF'+report.map(row=>row.map(value=>'"'+String(value??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');
+      const link=document.createElement('a');link.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));link.download='system_feedback_records.csv';link.click();URL.revokeObjectURL(link.href);
+      fetch('auth/audit_event.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'records_exported',details:'Exported '+rows.length+' system feedback records to CSV.'})});
+    }
+
     fillCollegeFilters();
     initSettings();
     initEvents();
-    renderDeans();
-    renderStaff();
-    renderAuditLogs();
+    loadAccounts();
     loadProfile();
     loadData();
 
     const hashPage = location.hash.replace('#', '');
     if (pageTitles[hashPage]) switchPage(hashPage);
   </script>
-<script src="role_dashboard_guard.js"></script>
+<script src="shared-alerts.js"></script><script src="role_dashboard_guard.js"></script>
 </body>
 </html>

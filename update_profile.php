@@ -1,7 +1,8 @@
 <?php
-session_start();
 header('Content-Type: application/json');
 include 'admin/dbinit.php';
+require_once __DIR__ . '/auth/access.php';
+start_secure_session();
 
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['role'])) {
     echo json_encode(['success' => false, 'message' => 'Not logged in.']);
@@ -36,6 +37,10 @@ switch ($role) {
         $tableName = 'non_academic_teachers';
         $nameField = 'full_name';
         break;
+    case 'admin':
+        $tableName = 'admins';
+        $nameField = 'name';
+        break;
     default:
         echo json_encode(['success' => false, 'message' => 'Invalid user role.']);
         exit;
@@ -49,6 +54,8 @@ if (!$stmt) {
 $stmt->bind_param('si', $name, $userId);
 
 if ($stmt->execute()) {
+    $_SESSION['user_name'] = $name;
+    audit_log($conn, 'profile_updated', 'User updated their profile name.');
     echo json_encode(['success' => true, 'message' => 'Profile updated successfully.', 'name' => $name]);
 } else {
     echo json_encode(['success' => false, 'message' => 'Unable to update profile.']);

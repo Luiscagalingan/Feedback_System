@@ -1,43 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Verify Code</title>
-<style>
-/* same styles but simplified placeholder for OTP version */
-*{margin:0;padding:0;box-sizing:border-box;}body{font-family:Arial, sans-serif;background:#fff url('Background.jpg') no-repeat center/cover fixed;color:#333;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}body::before{content:"";position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,.7);z-index:-1;}.container{width:100%;max-width:400px;background:rgba(255,255,255,.95);border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.2);overflow:hidden;}.logo-header{background:#fff;padding:40px 30px 20px;text-align:center;border-bottom:1px solid #e9ecef;}.logo-header img{max-width:120px;max-height:120px;border-radius:50%;box-shadow:0 4px 8px rgba(0,0,0,.2);}h2{color:#007bff;margin:0;}p{color:#6c757d;font-size:.95em;margin-top:5px;}.form-section{padding:30px;background:#fff;}label{display:block;margin-bottom:5px;font-weight:bold;color:#0056b3;}input{width:100%;padding:12px 15px;border:2px solid #e9ecef;border-radius:8px;font-size:1em;}.input-group{margin-bottom:20px;}.btn{width:100%;padding:12px;border:none;border-radius:8px;font-size:1.1em;font-weight:bold;cursor:pointer;margin-bottom:15px;background:#007bff;color:#fff;}a{color:#007bff;text-decoration:none;font-weight:bold;}#error{color:red;font-size:14px;display:none;}
-</style>
-</head>
-<body>
-<div class="container">
-<div class="logo-header">
-<img src="plpwalaa.png" alt="School Logo">
-<h2>Enter Verification Code</h2>
-<p>We sent a 6-digit code to your email.</p>
-</div>
-<div class="form-section">
-<form action="verify_code.php" method="POST" id="otpForm">
-<div class="input-group">
-<label for="otp">Verification Code</label>
-<input type="text" id="otp" name="otp" placeholder="Enter 6-digit code" required maxlength="6">
-<div id="error">Invalid code format.</div>
-</div>
-<button class="btn" type="submit">Verify Code</button>
-</form>
-<p style="text-align:center;">Didn't receive the code? <a href="resend_code.php">Resend</a></p>
-</div>
-</div>
-<script>
-const form = document.getElementById("otpForm");
-form.addEventListener("submit", e => {
-  const otp = document.getElementById("otp").value.trim();
-  const err = document.getElementById("error");
-  if(!/^\d{6}$/.test(otp)){
-    e.preventDefault();
-    err.style.display = "block";
-  } else err.style.display = "none";
-});
-</script>
-</body>
-</html>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Verify Code | PLP Feedback System</title><link rel="stylesheet" href="password-reset.css"></head>
+<body><main class="login-shell"><section class="brand-panel"><div class="brand-content"><div class="logo-wrap"><img src="logoooo.jfif" alt="Service Satisfaction logo"></div><p class="kicker">Pamantasan ng Lungsod ng Pasig</p><h1>Student Feedback<br>Management System</h1><p>Secure account recovery for the university feedback portal.</p><small>&copy; 2025 Pamantasan ng Lungsod ng Pasig</small></div></section>
+<section class="form-panel"><div class="login-card"><h2>Enter verification code</h2><p class="subcopy">Check your Gmail inbox for the six-digit code. It expires in 10 minutes.</p><form id="otpForm" novalidate><div class="input-group"><label for="otp">Verification code</label><div class="field-control"><span class="icon">#</span><input class="otp-input" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" id="otp" name="otp" placeholder="000000" autocomplete="one-time-code" required></div><div class="error-message" id="formMessage" role="alert"></div></div><button class="btn" id="submitBtn" type="submit"><span class="spinner"></span><span class="button-text">Verify code</span></button></form><p class="back-link">Didn't receive it? <a href="Forgot_Password.html">Send a new code</a></p></div></section></main>
+<script src="shared-alerts.js"></script><script src="password-reset.js"></script><script>setupAsyncForm({formId:'otpForm',endpoint:'verify_code.php',loadingText:'Verifying...',onSuccess:function(){location.href='Reset_Password.html';}});</script></body></html>

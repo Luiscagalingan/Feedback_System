@@ -1,227 +1,66 @@
 <?php
-header('Content-Type: application/json');
-session_start(); // Start the session
-require_once dirname(__DIR__) . '/admin/dbinit.php';
+declare(strict_types=1);
+require_once dirname(__DIR__) . '/config/database.php';
 require_once __DIR__ . '/auth_helpers.php';
+require_once __DIR__ . '/access.php';
 
-// Database connection
-// $servername = "localhost";
-// $username = "root";
-// $password = "";
-// $dbname = "test";
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') json_response(['success' => false, 'message' => 'Invalid request method.'], 405);
+$input = json_decode(file_get_contents('php://input'), true) ?: $_POST;
+$identifier = trim((string) ($input['username'] ?? ''));
+$password = (string) ($input['password'] ?? '');
+if ($identifier === '' || $password === '') json_response(['success' => false, 'message' => 'Username and password are required.'], 422);
 
-// $conn = new mysqli($servername, $username, $password, $dbname);
-// if ($conn->connect_error) {
-//     echo json_encode(["success" => false, "message" => "Database connection failed."]);
-//     exit;
-// }
+function matches_password(string $input, string $stored): bool {
+    return password_verify($input, $stored) || (password_get_info($stored)['algo'] === null && hash_equals($stored, $input));
+}
 
-// Maps a college code (stored on the student record) to the
-// dashboard file that college's students should land on.
-// Any code that isn't in this list falls back to the CAS dashboard file.
-$collegeDashboards = [
-    'BSA'  => 'dashboard_BSA.html',
-    'CBA'  => 'dashboard_BSA.html',
-    'COED' => 'dashboard_COED.html',
-    'COE'  => 'dashboard_COE.html',
-    'CAS'  => 'dashbaord_CAS.html',
-    'CCS'  => 'dashboard_CCS.html',
-    'CON'  => 'dashboard_CON.html',
-    'CIHM' => 'dashboard_CIHM.html',
-];
-
-$academicCollegeDashboards = [
-    'BSA'  => 'BSA_Dashboard.html',
-    'CAS'  => 'CAS_Dashboard.html',
-    'CCS'  => 'CCS_Dashboard.html',
-    'COE'  => 'COE_Dashboard.html',
-    'CON'  => 'CON_Dashboard.html',
-    'CIHM' => 'CIHM_Dashboard.html',
-    'COED' => 'COED_Dashboard.html',
-];
-
-function detectCollegeFromAccount($value) {
-    $normalized = strtolower(trim((string) $value));
-    // COED must be checked before COE because "coe" is part of "coed".
-    $codes = ['coed', 'bsa', 'cas', 'ccs', 'cihm', 'coe', 'con'];
-
-    foreach ($codes as $code) {
-        if (strpos($normalized, $code) !== false) {
-            return strtoupper($code);
-        }
+function finish_login(mysqli $conn, array $account, string $role, string $path, string $table, string $displayName, string $college = '', string $office = '', string $officeCategory = ''): never {
+    start_secure_session($role);
+    session_regenerate_id(true);
+    $_SESSION['user_id'] = (int) $account['id'];
+    $_SESSION['role'] = $role;
+    $_SESSION['user_name'] = $displayName;
+    $_SESSION['college'] = $college;
+    $_SESSION['office_key'] = $office;
+    $_SESSION['office_category'] = $officeCategory;
+    $_SESSION['dashboard_path'] = $path;
+    $_SESSION['last_activity'] = time();
+    if (password_get_info((string) $account['password'])['algo'] === null) {
+        $hash = password_hash((string) $GLOBALS['password'], PASSWORD_DEFAULT);
+        $accountId = (int) $account['id'];
+        $upgrade = $conn->prepare("UPDATE `$table` SET password = ? WHERE id = ?");
+        $upgrade->bind_param('si', $hash, $accountId);
+        $upgrade->execute();
     }
-
-    return null;
+    audit_log($conn, 'login', 'Successful login.');
+    json_response(['success' => true, 'role' => $role, 'college' => $college, 'message' => 'Login successful.', 'redirect_url' => $path]);
 }
 
-// Read input (supports JSON or regular POST)
-$input = json_decode(file_get_contents('php://input'), true);
-if (!$input) {
-    $input = $_POST;
+$stmt = $conn->prepare('SELECT id, username, name, password FROM admins WHERE username = ? LIMIT 1');
+$stmt->bind_param('s', $identifier); $stmt->execute(); $account = $stmt->get_result()->fetch_assoc();
+if ($account && matches_password($password, $account['password'])) finish_login($conn, $account, 'admin', 'admin_dashboard.html', 'admins', $account['name'] ?: $account['username']);
+
+$stmt = $conn->prepare("SELECT id, student_id, student_name, password, college, status FROM students WHERE student_id = ? AND status = 'active' LIMIT 1");
+$stmt->bind_param('s', $identifier); $stmt->execute(); $account = $stmt->get_result()->fetch_assoc();
+if ($account && matches_password($password, $account['password'])) {
+    $college = normalize_college($account['college']); $path = student_dashboard_path($college);
+    if (!$path) json_response(['success' => false, 'message' => 'Your account has no valid college assignment.'], 403);
+    finish_login($conn, $account, 'student', $path, 'students', $account['student_name'], $college);
 }
 
-// ✅ Read fields from frontend
-$identifier = trim($input["username"] ?? "");
-$password = trim($input["password"] ?? "");
-
-// Validate input
-if (empty($identifier) || empty($password)) {
-    echo json_encode(["success" => false, "message" => "Missing ID or Password"]);
-    exit;
+$stmt = $conn->prepare("SELECT id, full_name, email, password, college, status FROM academic_teachers WHERE (full_name = ? OR email = ?) AND status = 'active' LIMIT 1");
+$stmt->bind_param('ss', $identifier, $identifier); $stmt->execute(); $account = $stmt->get_result()->fetch_assoc();
+if ($account && matches_password($password, $account['password'])) {
+    $college = normalize_college($account['college']);
+    $supported = ['BSA','CAS','CCS','CIHM','COE','COED','CON'];
+    if (!$college || !in_array($college, $supported, true)) json_response(['success' => false, 'message' => 'Dean account has no valid college assignment.'], 403);
+    finish_login($conn, $account, 'dean', 'Acad_Dashboards/dean-dashboard.html', 'academic_teachers', $account['full_name'], $college);
 }
 
-function passwordMatches($inputPassword, $storedPassword) {
-    if (password_verify($inputPassword, $storedPassword)) {
-        return true;
-    }
-    return $inputPassword === $storedPassword;
-}
+$stmt = $conn->prepare("SELECT id, full_name, email, password, office_key, office_category, status FROM non_academic_teachers WHERE (full_name = ? OR email = ?) AND status = 'active' LIMIT 1");
+$stmt->bind_param('ss', $identifier, $identifier); $stmt->execute(); $account = $stmt->get_result()->fetch_assoc();
+if ($account && matches_password($password, $account['password'])) finish_login($conn, $account, 'nonacademic', 'Non_Acad_Dashboard.html', 'non_academic_teachers', $account['full_name'], '', $account['office_key'] ?: 'all', $account['office_category'] ?: 'nonacademic');
 
-/* 🛠️ ADMIN LOGIN */
-$sql_admin = "SELECT * FROM admins WHERE username = ?";
-$stmt = $conn->prepare($sql_admin);
-$stmt->bind_param("s", $identifier);
-$stmt->execute();
-$result_admin = $stmt->get_result();
-
-if ($result_admin->num_rows > 0) {
-    $admin = $result_admin->fetch_assoc();
-
-    if (passwordMatches($password, $admin["password"])) {
-        session_regenerate_id(true);
-        // Set session variables
-        $_SESSION['user_id'] = $admin['id'];
-        $_SESSION['role'] = 'admin';
-        $_SESSION['college'] = '';
-        $_SESSION['dashboard_path'] = 'admin_dashboard.html';
-        echo json_encode(["success" => true, "role" => "admin", "message" => "Admin login successful", "redirect_url" => $_SESSION['dashboard_path']]);
-
-    } else {
-        echo json_encode(["success" => false, "message" => "Invalid admin password"]);
-    }
-    $stmt->close();
-    $conn->close();
-    exit;
-}
-
-/* 👨‍🎓 STUDENT LOGIN (via student_id only) */
-$sql_student = "SELECT * FROM students WHERE student_id = ?";
-$stmt = $conn->prepare($sql_student);
-$stmt->bind_param("s", $identifier);
-$stmt->execute();
-$result_student = $stmt->get_result();
-
-if ($result_student->num_rows > 0) {
-    $student = $result_student->fetch_assoc();
-
-    if (passwordMatches($password, $student["password"])) {
-        session_regenerate_id(true);
-        // Set session variables
-        $_SESSION['user_id'] = $student['id'];
-        $_SESSION['role'] = 'student';
-
-        // Pick the dashboard file for this student's college.
-        // Falls back to CAS if the stored value is blank or unrecognized.
-        $studentCollege = normalize_college($student['college'] ?? '');
-        if ($studentCollege === '') {
-            echo json_encode(["success" => false, "message" => "Your student account has no recognized college assignment."]);
-            exit;
-        }
-        $_SESSION['college'] = $studentCollege;
-        $dashboardFile = student_dashboard_file($studentCollege);
-        $_SESSION['dashboard_path'] = student_dashboard_path($studentCollege);
-
-        echo json_encode([
-            "success" => true,
-            "role" => "student",
-            "message" => "Student login successful",
-            "college" => $studentCollege,
-            "redirect_url" => $_SESSION['dashboard_path']
-        ]);
-
-    } else {
-        echo json_encode(["success" => false, "message" => "Invalid student password"]);
-    }
-    $stmt->close();
-    $conn->close();
-    exit;
-}
-
-/* 👨‍🏫 ACADEMIC TEACHER LOGIN (via full_name only) */
-$sql_academic = "SELECT * FROM academic_teachers WHERE full_name = ?";
-$stmt = $conn->prepare($sql_academic);
-$stmt->bind_param("s", $identifier);
-$stmt->execute();
-$result_academic = $stmt->get_result();
-
-if ($result_academic->num_rows > 0) {
-    $academic = $result_academic->fetch_assoc();
-
-    if (passwordMatches($password, $academic["password"])) {
-        session_regenerate_id(true);
-        $fullName = $academic['full_name'] ?? '';
-        $email = $academic['email'] ?? '';
-        $accountText = $fullName . ' ' . $email;
-        $detectedCollege = detectCollegeFromAccount($accountText);
-        $isDean = $detectedCollege !== null && (strpos(strtolower($fullName), 'dean') !== false || strpos(strtolower($email), 'dean') !== false);
-        $role = $isDean ? 'dean' : 'academic';
-
-        // Set session variables
-        $_SESSION['user_id'] = $academic['id'];
-        $_SESSION['role'] = $role;
-        $_SESSION['college'] = normalize_college($detectedCollege ?? '');
-        $_SESSION['dashboard_path'] = $role === 'dean' && isset($academicCollegeDashboards[$_SESSION['college']])
-            ? 'Acad_Dashboards/' . $academicCollegeDashboards[$_SESSION['college']]
-            : 'Dashboard.html';
-
-        $response = [
-            "success" => true,
-            "role" => $role,
-            "message" => $isDean ? "Dean login successful" : "Academic teacher login successful"
-        ];
-
-        $response["college"] = $_SESSION['college'];
-        $response["redirect_url"] = $_SESSION['dashboard_path'];
-
-        echo json_encode($response);
-
-    } else {
-        echo json_encode(["success" => false, "message" => "Invalid academic teacher password"]);
-    }
-    $stmt->close();
-    $conn->close();
-    exit;
-}
-
-/* 🧑‍🔧 NON-ACADEMIC TEACHER LOGIN (via full_name only) */
-$sql_nonacademic = "SELECT * FROM non_academic_teachers WHERE full_name = ?";
-$stmt = $conn->prepare($sql_nonacademic);
-$stmt->bind_param("s", $identifier);
-$stmt->execute();
-$result_nonacademic = $stmt->get_result();
-
-if ($result_nonacademic->num_rows > 0) {
-    $nonacademic = $result_nonacademic->fetch_assoc();
-
-    if (passwordMatches($password, $nonacademic["password"])) {
-        session_regenerate_id(true);
-        // Set session variables
-        $_SESSION['user_id'] = $nonacademic['id'];
-        $_SESSION['role'] = 'nonacademic';
-        $_SESSION['college'] = '';
-        $_SESSION['dashboard_path'] = 'Non_Acad_Dashboard.html';
-        echo json_encode(["success" => true, "role" => "nonacademic", "message" => "Non-academic teacher login successful", "redirect_url" => $_SESSION['dashboard_path']]);
-
-    } else {
-        echo json_encode(["success" => false, "message" => "Invalid non-academic teacher password"]);
-    }
-    $stmt->close();
-    $conn->close();
-    exit;
-}
-
-/* ❌ No matching account found */
-echo json_encode(["success" => false, "message" => "Account not found"]);
-$stmt->close();
-$conn->close();
-?>
+$failed=$conn->prepare("INSERT INTO audit_logs(user_id,role,user_name,action,module,status,details,ip_address) VALUES(NULL,'guest',?,'login_failed','authentication','failed','Invalid credentials or inactive account.',?)");
+$ip=substr((string)($_SERVER['REMOTE_ADDR']??''),0,45);$failed->bind_param('ss',$identifier,$ip);$failed->execute();
+json_response(['success' => false, 'message' => 'Invalid credentials or inactive account.'], 401);

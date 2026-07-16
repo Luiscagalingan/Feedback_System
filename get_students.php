@@ -1,86 +1,23 @@
 <?php
-session_start();
-header('Content-Type: application/json');
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-include 'admin/dbinit.php';
-// Database connection
-// $servername = "localhost";
-// $username = "root";
-// $password = "";
-// $dbname = "test";
+declare(strict_types=1);
+require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/auth/access.php';
+$session = require_roles(['admin', 'dean']);
 
-// $conn = new mysqli($servername, $username, $password, $dbname);
-// if ($conn->connect_error) {
-//     die(json_encode(["success" => false, "message" => "Database connection failed."]));
-// }
-
-// Get search term and role
-$search = trim($_GET['search'] ?? '');
-$role = $_GET['role'] ?? '';
-
-$requestedStatus = trim($_GET['status'] ?? 'active');
-$statusFilter = in_array($requestedStatus, ['active', 'archived'], true) ? $requestedStatus : 'active';
-
-$tableName = $statusFilter === 'archived' ? 'archived_students' : 'students';
-
-if ($tableName === 'students') {
-    $sql = "SELECT id, student_id, student_name, email, section, program, college
-            FROM students
-            WHERE status = 'active'";
-} else {
-    $sql = "SELECT id, student_id, student_name, email, section, program, college
-            FROM archived_students
-            WHERE 1=1";
+$search = trim((string) ($_GET['search'] ?? ''));
+$status = ($_GET['status'] ?? 'active') === 'archived' ? 'archived' : 'active';
+$table = 'students';
+$conditions = [$status === 'archived' ? "status = 'archived'" : "status = 'active'"];
+$types = ''; $values = [];
+if ($session['role'] === 'dean') {
+    $conditions[] = 'college = ?'; $types .= 's'; $values[] = $session['college'];
 }
-
-$collegeRole = strtoupper(trim($role));
-$collegeCodes = ['BSA', 'CAS', 'CCS', 'CIHM', 'COE', 'CON'];
-if (in_array($collegeRole, $collegeCodes, true)) {
-    $sql .= " AND college = ?";
-} elseif ($role === 'academic' || $role === 'dean') {
-    $sql .= " AND (LOWER(program) LIKE '%bsit%' OR LOWER(program) LIKE '%bscs%')";
-}
-
 if ($search !== '') {
-    $safeSearch = $conn->real_escape_string($search);
-    $searchPattern = strtolower($safeSearch);
-    $sql .= " AND (
-        LOWER(student_name) LIKE '%$searchPattern%' OR
-        LOWER(student_id) LIKE '%$searchPattern%' OR
-        LOWER(section) LIKE '%$searchPattern%' OR
-        LOWER(program) LIKE '%$searchPattern%' OR
-        LOWER(email) LIKE '%$searchPattern%'
-    )";
+    $conditions[] = '(student_name LIKE ? OR student_id LIKE ? OR section LIKE ? OR program LIKE ? OR email LIKE ?)';
+    $pattern = '%' . $search . '%'; $types .= 'sssss';
+    array_push($values, $pattern, $pattern, $pattern, $pattern, $pattern);
 }
-
-$sql .= " ORDER BY student_name ASC";
-$stmt = $conn->prepare($sql);
-if (in_array($collegeRole, $collegeCodes, true)) {
-    $stmt->bind_param('s', $collegeRole);
-}
+$stmt = $conn->prepare("SELECT id, student_id, student_name, email, section, program, college FROM `$table` WHERE " . implode(' AND ', $conditions) . ' ORDER BY student_name');
+if ($types !== '') $stmt->bind_param($types, ...$values);
 $stmt->execute();
-$result = $stmt->get_result();
-
-if (!$result) {
-    echo json_encode([
-        "success" => false,
-        "message" => "Failed to load students.",
-        "error" => $conn->error
-    ]);
-    $conn->close();
-    exit;
-}
-
-$students = $result->fetch_all(MYSQLI_ASSOC);
-
-// Return JSON
-echo json_encode([
-    "success" => true,
-    "search_received" => $search,
-    "role" => $role,
-    "students" => $students
-]);
-
-$conn->close();
-?>
+json_response(['success'=>true, 'students'=>$stmt->get_result()->fetch_all(MYSQLI_ASSOC)]);

@@ -110,12 +110,10 @@ $conn->close();
   </div>
 
   <script>
-    document.getElementById("logoutBtn").addEventListener("click", () => {
-      window.location.href = "index.html";
-    });
+    document.getElementById("logoutBtn").addEventListener("click", () => AppAlert.logout('auth/logout.php'));
     document.getElementById("profileLink").addEventListener("click", () => {
       window.location.href = "Profile_System.html";
     });
-  </script>
+  </script><script src="shared-alerts.js"></script>
 </body>
 </html>

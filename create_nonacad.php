@@ -3,6 +3,7 @@
 include 'db_connection.php'; // your database connection
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    echo "<script src='shared-alerts.js'></script>";
     $full_name = trim($_POST['full_name']);
     $email = trim($_POST['email']);
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
@@ -13,13 +14,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($stmt->execute()) {
         echo "<script>
-          alert('Non-Academic account created successfully!');
-          window.location.href='Admin_Dashboard.html';
+          AppAlert.success('Account Created','Non-Academic account created successfully!').then(()=>window.location.href='admin_dashboard.html');
         </script>";
     } else {
         echo "<script>
-          alert('Error: Unable to create account. Email may already exist.');
-          window.history.back();
+          AppAlert.error('Account Creation Failed','Unable to create account. Email may already exist.').then(()=>window.history.back());
         </script>";
     }
 

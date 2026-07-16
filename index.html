@@ -367,7 +367,7 @@
                             <path d="M20 21a8 8 0 0 0-16 0"></path>
                             <circle cx="12" cy="7" r="4"></circle>
                         </svg>
-                        <input type="text" id="username" name="username" placeholder="e.g. deanccs or studentccs" required autocomplete="username" aria-describedby="username-error">
+                        <input type="text" id="username" name="username" placeholder="23-00000" required autocomplete="username" aria-describedby="username-error">
                     </div>
                     <div id="username-error" class="error-message" role="alert">This field is required.</div>
                 </div>
@@ -398,9 +398,14 @@
     </section>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="shared-alerts.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const query = new URLSearchParams(window.location.search);
+    if (query.get('session_conflict') === '1') {
+        AppAlert.info('Account session changed', 'Another tab signed in with a different account. Please sign in again for this tab.');
+        history.replaceState(null, '', window.location.pathname);
+    }
     document.body.classList.add('fade-in');
 
     const form = document.getElementById('loginForm');
@@ -513,15 +518,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(function(result) {
             if (result.success) {
-                return Swal.fire({
-                    icon: 'success',
-                    title: 'Login successful!',
-                    text: result.message,
-                    confirmButtonText: 'Continue',
-                    confirmButtonColor: '#878786',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false
-                }).then(function() {
+                return AppAlert.success('Login successful!', result.message).then(function() {
                     document.body.classList.remove('fade-in');
                     setTimeout(function() {
                         redirectByRole(result);

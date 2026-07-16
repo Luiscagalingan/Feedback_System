@@ -12,8 +12,10 @@ CREATE TABLE IF NOT EXISTS office_feedback (
   negative_feedback_percentage DECIMAL(5,2) NOT NULL DEFAULT 0,
   answer_text TEXT NULL,
   review_result VARCHAR(45) NULL,
+  status ENUM('submitted','pending') NOT NULL DEFAULT 'submitted',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   KEY office_feedback_category_idx (category),
-  KEY office_feedback_student_idx (student_id)
+  KEY office_feedback_student_idx (student_id),
+  KEY office_feedback_student_created_idx (student_id, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

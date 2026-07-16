@@ -303,7 +303,7 @@ $conn->close();
   <div class="container">
     <div class="logo-header">
       <div class="logos">
-        <img src="plpwalaa.png" alt="Profile Picture" id="profilePic">
+        <img src="logoooo.jfif" alt="PLP logo" id="profilePic">
         <button id="uploadBtn">Upload</button>
         <input type="file" id="uploadInput" accept="image/*">
       </div>
@@ -364,13 +364,13 @@ $conn->close();
       }, 1000);
     });
 
-    document.getElementById("logoutBtn").addEventListener("click", () => {
-      if (confirm("Are you sure you want to log out?")) {
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      if (await AppAlert.confirm({title:'Log out?',text:'Are you sure you want to log out?',confirmText:'Logout'})) {
         loadingOverlay.textContent = "Logging out...";
         loadingOverlay.style.display = "flex";
         document.body.style.opacity = "0.7";
         setTimeout(() => {
-          window.location.href = "index.html";
+          window.location.href = "auth/logout.php";
         }, 1200);
       }
     });
@@ -393,5 +393,5 @@ $conn->close();
       }
     });
   </script>
-</body>
+<script src="shared-alerts.js"></script></body>
 </html>
